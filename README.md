@@ -30,7 +30,9 @@ Windows (Powershell):
 
 ### Deactivate
 From anywhere, run:
-```deactivate```
+```bash
+deactivate
+```
 
 ## Setup
 *NOTE: enter the Virtual Environment before any Setup steps*
