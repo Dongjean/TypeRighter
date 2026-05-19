@@ -1,0 +1,36 @@
+Exception in thread Thread-6 (trigger_window):
+Traceback (most recent call last):
+  File "C:\Users\shind\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 1075, in _bootstrap_inner
+    self.run()
+  File "C:\Users\shind\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 1012, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\shind\Desktop\NUS\Personal Projects\Orbital26\Component Projects\BG Scripting\main.pyw", line 84, in trigger_window
+    messagebox.showinfo("Command Center", "Command Executed Successfully!")
+  File "C:\Users\shind\AppData\Local\Programs\Python\Python312\Lib\tkinter\messagebox.py", line 88, in showinfo
+    return _show(title, message, INFO, OK, **options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\shind\AppData\Local\Programs\Python\Python312\Lib\tkinter\messagebox.py", line 76, in _show
+    res = Message(**options).show()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\shind\AppData\Local\Programs\Python\Python312\Lib\tkinter\commondialog.py", line 45, in show
+    s = master.tk.call(self.command, *master._options(self.options))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: main thread is not in main loop
+Exception in thread Thread-6 (trigger_window):
+Traceback (most recent call last):
+  File "C:\Users\shind\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 1075, in _bootstrap_inner
+    self.run()
+  File "C:\Users\shind\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 1012, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\shind\Desktop\NUS\Personal Projects\Orbital26\Component Projects\BG Scripting\main.pyw", line 84, in trigger_window
+    messagebox.showinfo("Command Center", "Command Executed Successfully!")
+  File "C:\Users\shind\AppData\Local\Programs\Python\Python312\Lib\tkinter\messagebox.py", line 88, in showinfo
+    return _show(title, message, INFO, OK, **options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\shind\AppData\Local\Programs\Python\Python312\Lib\tkinter\messagebox.py", line 76, in _show
+    res = Message(**options).show()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\shind\AppData\Local\Programs\Python\Python312\Lib\tkinter\commondialog.py", line 45, in show
+    s = master.tk.call(self.command, *master._options(self.options))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: main thread is not in main loop
