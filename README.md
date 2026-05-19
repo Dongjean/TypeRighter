@@ -13,6 +13,11 @@ In the root directory, run:
 pip install -r dependencies.txt
 ```
 
+## Directory Structure
+
+* **`main/`**: The core project directory containing the primary application codebase.
+* **`components/`**: Modular sub-directories hosting individual component projects, utilized for isolated feature implementation and sandboxed testing.
+
 ## Testing
 
 ### Test Locally
