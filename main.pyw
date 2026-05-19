@@ -68,6 +68,7 @@ if __name__ == "__main__":
         listener.canonical(keyboard.Key.ctrl_l),
         keyboard.KeyCode.from_char('d'),
     }
+    # .start() starts a non-blocking thread
     listener.start()
 
     # Start Tray Icon
@@ -77,6 +78,7 @@ if __name__ == "__main__":
         pystray.MenuItem("Run Now", trigger_window),
         pystray.MenuItem("Exit", lambda icon, item: clean_exit())
     )
+    # .run_detached() starts a non-blocking thread
     icon.run_detached()
 
     # Listen for CTRL+C to exit when testing in terminal
