@@ -5,8 +5,7 @@ import threading
 import os
 import sys
 import time
-import tkinter as tk
-from tkinter import messagebox
+from utils.alert import alert_window
 
 # For debuggin
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
@@ -20,15 +19,7 @@ if getattr(sys, 'frozen', False):
 
 # The trigger action
 def trigger_window():
-    # We create a temporary hidden window so the messagebox has a parent
-    root = tk.Tk()
-    root.withdraw()  # Hide the main tiny Tkinter window
-    root.attributes("-topmost", True) # Force it to the front
-    
-    # This creates the actual "Window" popup
-    messagebox.showinfo("Command Center", "Command Executed Successfully!")
-    
-    root.destroy() # Clean up memory after you click 'OK'
+    alert_window("Command Center", "Command Executed Successfully!")
 
 # Key listener
 
