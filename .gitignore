@@ -2,3 +2,4 @@ __pycache__
 .pytest_cache
 README.md
 .venv
+debug_log.txt
