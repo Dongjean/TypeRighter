@@ -6,7 +6,37 @@
 * **Testing Framework:** pytest 8.0.0
 * **CI/CD Platform:** GitHub Actions
 
+## Using the Virtual Environment
+### Activate
+In the root directory, run:
+
+Linux:
+```bash
+source .venv/source/activate
+```
+
+Windows (Command Prompt):
+```bash
+.venv/Scripts/activate.bat
+```
+
+Windows (Powershell):
+```bash
+.venv/Scripts/Activate.ps1
+```
+
+### Deactivate
+From anywhere, run:
+```deactivate```
+
 ## Setup
+*NOTE: enter the Virtual Environment before any Setup steps*
+### Setup the Virtual Environment
+In the root directory, run:
+```bash
+python -m venv .venv
+```
+
 ### Installing Dependencies
 In the root directory, run:
 ```bash
