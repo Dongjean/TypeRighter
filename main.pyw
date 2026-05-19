@@ -5,7 +5,7 @@ import threading
 import os
 import sys
 import time
-from utils.alert import alert_window
+from views.main_view import overlay_box
 
 # For debuggin
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
@@ -19,7 +19,7 @@ if getattr(sys, 'frozen', False):
 
 # The trigger action
 def trigger_window():
-    alert_window("Command Center", "Command Executed Successfully!")
+    overlay_box()
 
 # Key listener
 
