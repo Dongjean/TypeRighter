@@ -4,6 +4,7 @@ from pynput import keyboard
 import threading
 import os
 import sys
+import time
 import tkinter as tk
 from tkinter import messagebox
 
@@ -42,6 +43,7 @@ def on_press(key):
             # Run the window in its own thread so it doesn't freeze the listener
             threading.Thread(target=trigger_window, daemon=True).start()
 
+
 def on_release(key):
     try:
         current_keys.remove(key)
@@ -52,15 +54,34 @@ def on_release(key):
 def create_image():
     return Image.new('RGB', (64, 64), (0, 200, 100)) # Green icon
 
+# Clean exit
+def clean_exit():
+    print("\nShutting down gracefully...")
+    icon.stop() # Stop the tray icon
+    listener.stop() # Stop the keyboard listener
+    os._exit(0) # Hard exit to kill all threads instantly
+
 if __name__ == "__main__":
     # Start Listener
-    threading.Thread(target=lambda: keyboard.Listener(on_press=on_press, on_release=on_release).start(), daemon=True).start()
+    listener = threading.Thread(target=lambda: keyboard.Listener(on_press=on_press, on_release=on_release).start(), daemon=True)
+    listener.start()
 
     # Start Tray Icon
     icon = pystray.Icon("WindowApp")
     icon.icon = create_image()
     icon.menu = pystray.Menu(
         pystray.MenuItem("Run Now", trigger_window),
-        pystray.MenuItem("Exit", lambda: os._exit(0))
+        pystray.MenuItem("Exit", lambda i: clean_exit())
     )
-    icon.run()
+
+    # For development, run icon.run() in a background thread so we can exit the terminal script with CTRL+C
+    tray_thread = threading.Thread(target=icon.run, daemon=True)
+    tray_thread.start()
+
+    # Listen for CTRL+C to exit when testing in terminal
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Script terminated via Ctrl+C")
+        clean_exit()
