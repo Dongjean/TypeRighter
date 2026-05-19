@@ -31,22 +31,20 @@ def trigger_window():
 
 # THE LISTENER (Manual Combo for Stability)
 current_keys = set()
-COMBINATION = {
-    keyboard.Key.ctrl_l, 
-    keyboard.Key.space
-}
 
 def on_press(key):
-    if key in COMBINATION:
-        current_keys.add(key)
+    canonical_key = listener.canonical(key)
+    if canonical_key in COMBINATION:
+        current_keys.add(canonical_key)
         if all(k in current_keys for k in COMBINATION):
             # Run the window in its own thread so it doesn't freeze the listener
             threading.Thread(target=trigger_window, daemon=True).start()
 
 
 def on_release(key):
+    canonical_key = listener.canonical(key)
     try:
-        current_keys.remove(key)
+        current_keys.remove(canonical_key)
     except KeyError:
         pass
 
@@ -58,13 +56,18 @@ def create_image():
 def clean_exit():
     print("\nShutting down gracefully...")
     icon.stop() # Stop the tray icon
-    listener.stop() # Stop the keyboard listener
+    listener_thread._stop() # Stop the keyboard listener
     os._exit(0) # Hard exit to kill all threads instantly
 
 if __name__ == "__main__":
     # Start Listener
-    listener = threading.Thread(target=lambda: keyboard.Listener(on_press=on_press, on_release=on_release).start(), daemon=True)
-    listener.start()
+    listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+    COMBINATION = {
+        listener.canonical(keyboard.Key.ctrl_l),
+        keyboard.KeyCode.from_char('d'),
+    }
+    listener_thread = threading.Thread(target=lambda: listener.start(), daemon=True)
+    listener_thread.start()
 
     # Start Tray Icon
     icon = pystray.Icon("WindowApp")
