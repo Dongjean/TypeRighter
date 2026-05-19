@@ -7,8 +7,8 @@ def add(x, y):
     (1, 2, 3),
     (6, 7, 13),
     (1, -1, 0),
-    (5, 5, 9), # wrong example
-    (-5, -9, -14) # this runs too
+    (5, 5, 19),
+    (-5, -9, -14)
 ])
 def test_add(x, y, expected):
     assert add(x, y) == expected
