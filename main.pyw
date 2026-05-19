@@ -72,7 +72,7 @@ if __name__ == "__main__":
     listener.start()
 
     # Start Tray Icon
-    icon = pystray.Icon("WindowApp")
+    icon = pystray.Icon("TypeRighter")
     icon.icon = create_image()
     icon.menu = pystray.Menu(
         pystray.MenuItem("Run Now", trigger_window),
