@@ -6,6 +6,9 @@
 * **Testing Framework:** pytest 8.0.0
 * **CI/CD Platform:** GitHub Actions
 
+## Dependencies
+* All dependencies are to be included in dependencies.txt with format: ```dependency==version```
+
 ## Using the Virtual Environment
 ### Activate
 In the root directory, run:
