@@ -3,3 +3,5 @@ __pycache__
 README.md
 .venv
 components/bg-listener/debug_log.txt
+components/bg-listener/build
+components/bg-listener/dist
