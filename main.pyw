@@ -5,7 +5,7 @@ import threading
 import os
 import sys
 import time
-from views.main_view import overlay_box
+import views.main_view as main_view
 
 # For debuggin
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
@@ -19,13 +19,23 @@ if getattr(sys, 'frozen', False):
 
 # The trigger action
 def trigger_window():
-    overlay_box()
+    main_view.overlay_box()
+
 
 # Key listener
 
 # Use canonical keys to account for certain combinations becoming Control Codes
 current_keys = set()
 def on_press(key):
+    print(main_view.overlay_root)
+    # If the overlay is on, means we are listening for a 2nd key input
+    if main_view.overlay_root:
+
+        # Close the overlay
+        if key == keyboard.KeyCode.from_char('a'):
+            print("hi")
+            main_view.overlay_root.after(0, main_view.overlay_root.destroy)
+            return
     canonical_key = listener.canonical(key)
     if canonical_key in COMBINATION:
         current_keys.add(canonical_key)

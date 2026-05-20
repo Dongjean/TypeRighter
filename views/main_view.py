@@ -4,7 +4,7 @@ def window():
   root = tk.Tk()
   root.title("TypeRighter")
   root.geometry("400x300")
-  
+
   label = tk.Label(root, text="Hello!")
   label.pack()
 
@@ -12,6 +12,7 @@ def window():
   button.pack()
   root.mainloop()
 
+overlay_root = None
 def overlay_box():
   border_thickness = 5
 
@@ -31,4 +32,11 @@ def overlay_box():
   canvas.pack(fill=tk.BOTH, expand=True)
   canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white")
 
-  root.mainloop()
+  # So we can call main_view.overlay_root.destroy() later
+  global overlay_root
+  overlay_root = root
+  
+  root.mainloop() # Blocking function
+
+  # Clear overlay_root after we are done
+  overlay_root = None
