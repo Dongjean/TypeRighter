@@ -43,7 +43,6 @@ def on_press(key):
         
         # FOR DEBUG EASE
         elif key == keyboard.KeyCode.from_char('`'):
-            hide_overlay()
             clean_exit()
     elif canonical_key in COMBINATION:
         current_keys.add(canonical_key)
