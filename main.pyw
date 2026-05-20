@@ -27,6 +27,9 @@ def hide_overlay():
     main_view.root.event_generate("<<hide_overlay>>", when="tail")
     is_overlay_triggered = False
 
+def flash_red_overlay():
+    main_view.root.event_generate("<<flash_red_overlay>>", when="tail")
+
 # Key listener
 
 # Use canonical keys to account for certain combinations becoming Control Codes
@@ -56,6 +59,11 @@ def on_press(key):
         # FOR DEBUG EASE
         elif key == keyboard.KeyCode.from_char('`'):
             clean_exit()
+
+        # No recognised key
+        else:
+            flash_red_overlay()
+
     elif canonical_key in COMBINATION:
         current_keys.add(canonical_key)
         if all(k in current_keys for k in COMBINATION):

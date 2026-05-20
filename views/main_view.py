@@ -28,7 +28,7 @@ def root_init():
   root.geometry(f"{sw}x{sh}+0+0")
   canvas = tk.Canvas(root, bg="white", highlightthickness=0)
   canvas.pack(fill=tk.BOTH, expand=True)
-  canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white")
+  canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
   root.withdraw() # Hides the window and canvas first
 
   # Define then bind signal flags to these functions to be called by other threads safely
@@ -41,10 +41,15 @@ def root_init():
   def destroy_root(event):
     print("des")
     root.destroy()
+  
+  def flash_red_overlay(event):
+    canvas.itemconfig("overlay", outline="red")
+    root.after(1000, lambda: root.withdraw())
 
   root.bind("<<trigger_overlay>>", trigger_overlay)
   root.bind("<<hide_overlay>>", hide_overlay)
   root.bind("<<destroy_root>>", destroy_root)
+  root.bind("<<flash_red_overlay>>", flash_red_overlay)
 
   root.mainloop() # Blocking function
 
