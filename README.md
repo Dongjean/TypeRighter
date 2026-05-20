@@ -62,5 +62,40 @@ pytest -v
 ### Test through Github Actions
 Pushing changes to github automatically triggers the tests
 
+## Git Feature Branch Workflow
+
+1. **Pull latest changes from GitHub**
+    ```bash
+    git checkout main
+    git pull origin main
+    ```
+
+2. **Create new feature branch locally**
+    ```bash
+    git checkout -b feature/name-of-feature
+    ```
+
+3. **Make the first changes and commit**
+    ```bash
+    git add .
+    git commit -m "commit name"
+    ```
+
+4. **Push changes to GitHub and set upstream with -u**
+    ```bash
+    git push -u origin feature/name-of-feature
+    ```
+
+5. **Open a Pull Request on GitHub and resolve any Merge Conflicts**
+
+6. **Delete the feature branch on GitHub (after merging)**
+
+7. **Delete the feature branch on the local repository**
+    ```bash
+    git checkout main
+    git pull origin main
+    git branch -d feature/name-of-feature
+    ```
+
 ## Usage
 Coming soon
