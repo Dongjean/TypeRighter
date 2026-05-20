@@ -5,7 +5,7 @@ import threading
 import os
 import sys
 import time
-import views.main_view as main_view
+import views.root_view as root_view
 
 # For debugging
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
@@ -37,18 +37,18 @@ def on_press(key):
 
         # Close the overlay
         if key == keyboard.KeyCode.from_char('a'):
-            main_view.gui_queue.put("hide_overlay")
+            root_view.gui_queue.put("hide_overlay")
             is_overlay_triggered = False
         
         # Shortcut symbols
         elif SHORTCUT_RES:
             print(SHORTCUT_RES)
-            main_view.gui_queue.put("hide_overlay")
+            root_view.gui_queue.put("hide_overlay")
             is_overlay_triggered = False
         
         # Control panel window
         elif key == keyboard.KeyCode.from_char('\\'):
-            main_view.gui_queue.put("control_panel_window")
+            root_view.gui_queue.put("control_panel_window")
             is_overlay_triggered = False
         
         # FOR DEBUG EASE
@@ -57,13 +57,13 @@ def on_press(key):
 
         # No recognised key
         else:
-            main_view.gui_queue.put("flash_red_overlay")
+            root_view.gui_queue.put("flash_red_overlay")
             is_overlay_triggered = False
 
     elif canonical_key in COMBINATION:
         current_keys.add(canonical_key)
         if all(k in current_keys for k in COMBINATION):
-            main_view.gui_queue.put("trigger_overlay")
+            root_view.gui_queue.put("trigger_overlay")
             is_overlay_triggered = True
 
 def on_release(key):
@@ -83,7 +83,7 @@ def clean_exit():
     print("___")
     icon.stop() # Stop the tray icon
     listener.stop() # Stop the keyboard listener
-    main_view.root.event_generate("<<destroy_root>>", when="tail")
+    root_view.root.event_generate("<<destroy_root>>", when="tail")
     os._exit(0) # Hard exit to kill all threads instantly
 
 border_thickness = 5
@@ -108,4 +108,4 @@ if __name__ == "__main__":
     icon.run_detached()
 
     # Initialise and run main_view.root
-    main_view.root_init() # Blocking function
+    root_view.root_init() # Blocking function
