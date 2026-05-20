@@ -17,21 +17,6 @@ if getattr(sys, 'frozen', False):
     sys.stdout = open(os.devnull, 'w')
     sys.stderr = open(os.devnull, 'w')
 
-def trigger_overlay():
-    global is_overlay_triggered
-    main_view.gui_queue.put("trigger_overlay")
-    is_overlay_triggered = True
-
-def hide_overlay():
-    global is_overlay_triggered
-    main_view.gui_queue.put("hide_overlay")
-    is_overlay_triggered = False
-
-def flash_red_overlay():
-    global is_overlay_triggered
-    main_view.gui_queue.put("flash_red_overlay")
-    is_overlay_triggered = False
-
 # Key listener
 
 # Use canonical keys to account for certain combinations becoming Control Codes
@@ -44,6 +29,7 @@ SHORTCUTS = {
     keyboard.KeyCode.from_char('r'): 'ℕ',
 }
 def on_press(key):
+    global is_overlay_triggered
     canonical_key = listener.canonical(key)
     # If the overlay is on, means we are listening for a 2nd key input
     if is_overlay_triggered:
@@ -51,12 +37,14 @@ def on_press(key):
 
         # Close the overlay
         if key == keyboard.KeyCode.from_char('a'):
-            hide_overlay()
+            main_view.gui_queue.put("hide_overlay")
+            is_overlay_triggered = False
         
         # Shortcut symbols
         elif SHORTCUT_RES:
             print(SHORTCUT_RES)
-            hide_overlay()
+            main_view.gui_queue.put("hide_overlay")
+            is_overlay_triggered = False
         
         # FOR DEBUG EASE
         elif key == keyboard.KeyCode.from_char('`'):
@@ -64,12 +52,14 @@ def on_press(key):
 
         # No recognised key
         else:
-            flash_red_overlay()
+            main_view.gui_queue.put("flash_red_overlay")
+            is_overlay_triggered = False
 
     elif canonical_key in COMBINATION:
         current_keys.add(canonical_key)
         if all(k in current_keys for k in COMBINATION):
-            trigger_overlay()
+            main_view.gui_queue.put("trigger_overlay")
+            is_overlay_triggered = True
 
 def on_release(key):
     canonical_key = listener.canonical(key)
