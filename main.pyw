@@ -40,7 +40,6 @@ def on_press(key):
         # Close the overlay
         if key == keyboard.KeyCode.from_char('a'):
             hide_overlay()
-            return
         
         # FOR DEBUG EASE
         elif key == keyboard.KeyCode.from_char('`'):
