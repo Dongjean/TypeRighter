@@ -6,6 +6,10 @@ import os
 import sys
 import time
 import views.main_view as main_view
+import queue
+
+# Thread-safe queue
+indicator_queue = queue.Queue()
 
 # For debuggin
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
@@ -19,7 +23,11 @@ if getattr(sys, 'frozen', False):
 
 # The trigger action
 def trigger_window():
-    main_view.overlay_box()
+    # Queue the display of the indicator
+    # This is pushed from the keyboard listener thread
+    # This will be picked up by the main thread in the main loop
+    if indicator_queue.qsize() == 0:
+        indicator_queue.put("SHOW_INDICATOR")
 
 
 # Key listener
@@ -33,7 +41,6 @@ def on_press(key):
 
         # Close the overlay
         if key == keyboard.KeyCode.from_char('a'):
-            print("hi")
             main_view.overlay_root.after(0, main_view.overlay_root.destroy)
             return
     canonical_key = listener.canonical(key)
@@ -41,7 +48,9 @@ def on_press(key):
         current_keys.add(canonical_key)
         if all(k in current_keys for k in COMBINATION):
             # Run the window in its own thread so it doesn't freeze the listener
-            threading.Thread(target=trigger_window, daemon=True).start()
+            # Overlay runs on tkinter, which doesnt work well with threads
+            # Queue it to run it on the main thread for stability
+            trigger_window()
 
 def on_release(key):
     canonical_key = listener.canonical(key)
@@ -86,6 +95,18 @@ if __name__ == "__main__":
     try:
         while True:
             time.sleep(1)
+
+            # Poll the queue to see if we are to show the indicator
+            try:
+                indicator_status = indicator_queue.get(block=False)
+                if indicator_status == "SHOW_INDICATOR":
+                    # Add a status check so that the keyboard listener's thread's on_press() doesnt queue another "SHOW_INDICATOR"
+                    indicator_queue.put("SHOWING")
+                    print("the indicator is listening, and now blocking the main thread")
+                    main_view.overlay_box() # Blocking Function running on main thread (stable for tkinter)
+                    indicator_queue.get() # Remove the "SHOWING" status from queue to reset the system
+            except:
+                pass
     except KeyboardInterrupt:
         print("Script terminated via Ctrl+C")
         clean_exit()
