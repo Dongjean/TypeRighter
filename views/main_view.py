@@ -19,6 +19,8 @@ def check_queue():
       hide_overlay()
     elif msg == "flash_red_overlay":
       flash_red_overlay()
+    elif msg == "control_panel_window":
+      print("Opening the Control Panel...")
   except queue.Empty:
     pass
 

@@ -46,6 +46,11 @@ def on_press(key):
             main_view.gui_queue.put("hide_overlay")
             is_overlay_triggered = False
         
+        # Control panel window
+        elif key == keyboard.KeyCode.from_char('\\'):
+            main_view.gui_queue.put("control_panel_window")
+            is_overlay_triggered = False
+        
         # FOR DEBUG EASE
         elif key == keyboard.KeyCode.from_char('`'):
             clean_exit()
