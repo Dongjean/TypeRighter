@@ -94,7 +94,6 @@ if __name__ == "__main__":
     # Listen for CTRL+C to exit when testing in terminal
     try:
         while True:
-            time.sleep(1)
 
             # Poll the queue to see if we are to show the indicator
             try:
@@ -105,7 +104,7 @@ if __name__ == "__main__":
                     print("the indicator is listening, and now blocking the main thread")
                     main_view.overlay_box() # Blocking Function running on main thread (stable for tkinter)
                     indicator_queue.get() # Remove the "SHOWING" status from queue to reset the system
-            except:
+            except queue.Empty:
                 pass
     except KeyboardInterrupt:
         print("Script terminated via Ctrl+C")
