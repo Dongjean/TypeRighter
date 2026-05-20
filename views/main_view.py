@@ -65,7 +65,8 @@ def hide_overlay():
 
 def withdraw_and_revert():
   root.children["overlay"].itemconfig("overlay", outline="green")
-  root.withdraw()
+  root.update_idletasks()
+  hide_overlay()
 
 def flash_red_overlay():
   root.children["overlay"].itemconfig("overlay", outline="red")
