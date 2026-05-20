@@ -9,8 +9,8 @@ import views.main_view as main_view
 
 # For debugging
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
-sys.stdout = open(log_path, "a", buffering=1) 
-sys.stderr = open(log_path, "a", buffering=1)
+sys.stdout = open(log_path, "a", encoding="utf-8", errors="replace", buffering=1) 
+sys.stderr = open(log_path, "a", encoding="utf-8", errors="replace", buffering=1)
 
 # Silence terminal for .exe mode
 if getattr(sys, 'frozen', False):
@@ -32,13 +32,25 @@ def hide_overlay():
 # Use canonical keys to account for certain combinations becoming Control Codes
 is_overlay_triggered = False
 current_keys = set()
+SHORTCUTS = {
+    keyboard.KeyCode.from_char('q'): '∈',
+    keyboard.KeyCode.from_char('w'): 'ℝ',
+    keyboard.KeyCode.from_char('e'): 'ℤ',
+    keyboard.KeyCode.from_char('r'): 'ℕ',
+}
 def on_press(key):
     canonical_key = listener.canonical(key)
     # If the overlay is on, means we are listening for a 2nd key input
     if is_overlay_triggered:
+        SHORTCUT_RES = SHORTCUTS.get(key)
 
         # Close the overlay
         if key == keyboard.KeyCode.from_char('a'):
+            hide_overlay()
+        
+        # Shortcut symbols
+        elif SHORTCUT_RES:
+            print(SHORTCUT_RES)
             hide_overlay()
         
         # FOR DEBUG EASE
