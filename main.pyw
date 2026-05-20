@@ -20,8 +20,6 @@ if getattr(sys, 'frozen', False):
 # Key listener
 
 # Use canonical keys to account for certain combinations becoming Control Codes
-is_overlay_triggered = False
-is_control_panel_open = False
 current_keys = set()
 SHORTCUTS = {
     keyboard.KeyCode.from_char('q'): '∈',
@@ -29,32 +27,37 @@ SHORTCUTS = {
     keyboard.KeyCode.from_char('e'): 'ℤ',
     keyboard.KeyCode.from_char('r'): 'ℕ',
 }
-def on_press(key):
-    global is_overlay_triggered
-    global is_control_panel_open
 
-    if not is_control_panel_open:
+def hide_overlay():
+    root_view.gui_queue.put("hide_overlay")
+
+def trigger_overlay():
+    root_view.gui_queue.put("trigger_overlay")
+
+def flash_red_overlay():
+    root_view.gui_queue.put("flash_red_overlay")
+
+def control_panel_window():
+    root_view.gui_queue.put("control_panel_window")
+
+def on_press(key):
+    if not root_view.is_control_panel_open:
         canonical_key = listener.canonical(key)
         # If the overlay is on, means we are listening for a 2nd key input
-        if is_overlay_triggered:
+        if root_view.is_overlay_triggered:
             SHORTCUT_RES = SHORTCUTS.get(key)
 
             # Close the overlay
             if key == keyboard.KeyCode.from_char('a'):
-                root_view.gui_queue.put("hide_overlay")
-                is_overlay_triggered = False
-            
+                hide_overlay()
             # Shortcut symbols
             elif SHORTCUT_RES:
                 print(SHORTCUT_RES)
-                root_view.gui_queue.put("hide_overlay")
-                is_overlay_triggered = False
+                hide_overlay()
             
             # Control panel window
             elif key == keyboard.KeyCode.from_char('\\'):
-                root_view.gui_queue.put("control_panel_window")
-                is_overlay_triggered = False
-                is_control_panel_open = True
+                control_panel_window()
             
             # FOR DEBUG EASE
             elif key == keyboard.KeyCode.from_char('`'):
@@ -62,14 +65,12 @@ def on_press(key):
 
             # No recognised key
             else:
-                root_view.gui_queue.put("flash_red_overlay")
-                is_overlay_triggered = False
+                flash_red_overlay()
 
         elif canonical_key in COMBINATION:
             current_keys.add(canonical_key)
             if all(k in current_keys for k in COMBINATION):
-                root_view.gui_queue.put("trigger_overlay")
-                is_overlay_triggered = True
+                trigger_overlay()
 
 def on_release(key):
     canonical_key = listener.canonical(key)

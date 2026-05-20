@@ -12,20 +12,30 @@ gui_queue = queue.Queue()
 # Opening up the global root for the tkinter
 root = tk.Tk()
 
+is_overlay_triggered = False
+is_control_panel_open = False
+
 # Poll for changes to root window state from other threads
 def check_queue():
+    global is_overlay_triggered
+    global is_control_panel_open
     try:
         # Check if there's a message in the queue
         msg = gui_queue.get(block=False)
         print(msg)
         if msg == "trigger_overlay":
             trigger_overlay(root)
+            is_overlay_triggered = True
         elif msg == "hide_overlay":
             hide_overlay(root)
+            is_overlay_triggered = False
         elif msg == "flash_red_overlay":
             flash_red_overlay(root)
+            is_overlay_triggered = False
         elif msg == "control_panel_window":
             control_panel_init(root)
+            is_overlay_triggered = False
+            is_control_panel_open = True
         elif msg == "destroy_root":
             root.destroy()
     except queue.Empty:
@@ -47,4 +57,8 @@ def root_init():
 # If we are in the control panel, we are back to normal mode
 # If we are in normal mode and somehow reach this, we are still back to normal mode
 # Defining this callback function for WM_DELETE_WINDOW overrides the default behaviour, so it wont run root.destroy()
-root.protocol("WM_DELETE_WINDOW", lambda: overlay_init(root))
+def delete_window_handler():
+    global is_control_panel_open
+    overlay_init(root)
+    is_control_panel_open = False
+root.protocol("WM_DELETE_WINDOW", lambda: delete_window_handler())
