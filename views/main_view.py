@@ -58,19 +58,31 @@ def root_init():
   root.mainloop() # Blocking function
 
 def trigger_overlay():
+  global jobId
+
+  # There is a timeout for revert_and_withdraw(), run it upfront now by cancelling the job then calling it
+  if jobId:
+    root.after_cancel(jobId)
+    revert_and_withdraw()
   root.deiconify()
 
 def hide_overlay():
   root.withdraw()
 
-def withdraw_and_revert():
+def revert_and_withdraw():
+  global jobId
   root.children["overlay"].itemconfig("overlay", outline="green")
-  root.update_idletasks()
-  hide_overlay()
+  root.update_idletasks() # Allow the canvas to fully paint green first
+  hide_overlay() # The instant it is back to green, withdraw it
+  jobId = None # Job is over
 
+# Global job identifier for revert_and_withdraw()'s timeout function
+jobId = None
 def flash_red_overlay():
   root.children["overlay"].itemconfig("overlay", outline="red")
-  root.after(1000, lambda: withdraw_and_revert())
+
+  global jobId
+  jobId = root.after(1000, lambda: revert_and_withdraw())
 
 def overlay_box():
   border_thickness = 5
