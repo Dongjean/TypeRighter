@@ -38,8 +38,13 @@ def root_init():
   def hide_overlay(event):
     root.withdraw()
 
+  def destroy_root(event):
+    print("des")
+    root.destroy()
+
   root.bind("<<trigger_overlay>>", trigger_overlay)
   root.bind("<<hide_overlay>>", hide_overlay)
+  root.bind("<<destroy_root>>", destroy_root)
 
   root.mainloop() # Blocking function
 
