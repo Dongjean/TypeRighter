@@ -19,16 +19,18 @@ if getattr(sys, 'frozen', False):
 
 def trigger_overlay():
     global is_overlay_triggered
-    main_view.root.event_generate("<<trigger_overlay>>", when="tail")
+    main_view.gui_queue.put("trigger_overlay")
     is_overlay_triggered = True
 
 def hide_overlay():
     global is_overlay_triggered
-    main_view.root.event_generate("<<hide_overlay>>", when="tail")
+    main_view.gui_queue.put("hide_overlay")
     is_overlay_triggered = False
 
 def flash_red_overlay():
-    main_view.root.event_generate("<<flash_red_overlay>>", when="tail")
+    global is_overlay_triggered
+    main_view.gui_queue.put("flash_red_overlay")
+    is_overlay_triggered = False
 
 # Key listener
 

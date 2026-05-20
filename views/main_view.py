@@ -1,7 +1,29 @@
 import tkinter as tk
+import queue
+
+# Thread-safe queue
+gui_queue = queue.Queue()
 
 # Opening up the global root for the tkinter
 root = tk.Tk()
+
+# Poll for changes to root window state from other threads
+def check_queue():
+  try:
+    # Check if there's a message in the queue
+    msg = gui_queue.get(block=False)
+    print(msg)
+    if msg == "trigger_overlay":
+      trigger_overlay()
+    elif msg == "hide_overlay":
+      hide_overlay()
+    elif msg == "flash_red_overlay":
+      flash_red_overlay()
+  except queue.Empty:
+    pass
+
+  # Poll every 100 ms
+  root.after(100, check_queue)
 
 def window():
   root = tk.Tk()
@@ -26,32 +48,28 @@ def root_init():
   sw = root.winfo_screenwidth()
   sh = root.winfo_screenheight()
   root.geometry(f"{sw}x{sh}+0+0")
-  canvas = tk.Canvas(root, bg="white", highlightthickness=0)
+  canvas = tk.Canvas(root, bg="white", highlightthickness=0, name="overlay")
   canvas.pack(fill=tk.BOTH, expand=True)
   canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
   root.withdraw() # Hides the window and canvas first
 
-  # Define then bind signal flags to these functions to be called by other threads safely
-  def trigger_overlay(event):
-    root.deiconify()
-
-  def hide_overlay(event):
-    root.withdraw()
-
-  def destroy_root(event):
-    print("des")
-    root.destroy()
-  
-  def flash_red_overlay(event):
-    canvas.itemconfig("overlay", outline="red")
-    root.after(1000, lambda: root.withdraw())
-
-  root.bind("<<trigger_overlay>>", trigger_overlay)
-  root.bind("<<hide_overlay>>", hide_overlay)
-  root.bind("<<destroy_root>>", destroy_root)
-  root.bind("<<flash_red_overlay>>", flash_red_overlay)
-
+  # Run check_queue() the moment the root window opens
+  root.after(0, lambda: check_queue())
   root.mainloop() # Blocking function
+
+def trigger_overlay():
+  root.deiconify()
+
+def hide_overlay():
+  root.withdraw()
+
+def withdraw_and_revert():
+  root.children["overlay"].itemconfig("overlay", outline="green")
+  root.withdraw()
+
+def flash_red_overlay():
+  root.children["overlay"].itemconfig("overlay", outline="red")
+  root.after(1000, lambda: withdraw_and_revert())
 
 def overlay_box():
   border_thickness = 5
