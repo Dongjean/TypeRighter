@@ -20,7 +20,7 @@ def check_queue():
     elif msg == "flash_red_overlay":
       flash_red_overlay()
     elif msg == "control_panel_window":
-      print("Opening the Control Panel...")
+      control_panel_init()
   except queue.Empty:
     pass
 
@@ -58,6 +58,32 @@ def root_init():
   # Run check_queue() the moment the root window opens
   root.after(0, lambda: check_queue())
   root.mainloop() # Blocking function
+
+def control_panel_init():
+  root.title("TypeRighter - Control Panel")
+
+  # Manually reset all of the settings from root_init()
+  root.overrideredirect(False)
+  root.attributes("-topmost", False)
+  root.attributes("-alpha", 1.0)
+  root.attributes("-transparentcolor", "") # Clear the transparent color mask
+  
+  root.geometry("800x600+200+200")
+  
+  # Get the canvas and delete it
+  canvas = root.children["overlay"]
+  canvas.destroy()
+  
+  # Force refresh the tkinter window by processing all the idle tasks
+  # Note: the .geometry() line being before this MAY cause problems later
+  root.update_idletasks()
+  root.focus_force()
+
+# On closure of window, initialise the base listener overlay again
+# If we are in the control panel, we are back to normal mode
+# If we are in normal mode and somehow reach this, we are still back to normal mode
+# Defining this callback function for WM_DELETE_WINDOW overrides the default behaviour, so it wont run root.destroy()
+root.protocol("WM_DELETE_WINDOW", lambda: root_init())
 
 def trigger_overlay():
   global jobId
