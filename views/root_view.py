@@ -26,6 +26,8 @@ def check_queue():
             flash_red_overlay(root)
         elif msg == "control_panel_window":
             control_panel_init(root)
+        elif msg == "destroy_root":
+            root.destroy()
     except queue.Empty:
         pass
 

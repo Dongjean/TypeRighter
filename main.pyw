@@ -88,7 +88,7 @@ def clean_exit():
     print("___")
     icon.stop() # Stop the tray icon
     listener.stop() # Stop the keyboard listener
-    root_view.root.event_generate("<<destroy_root>>", when="tail")
+    root_view.gui_queue.put("destroy_root") # Stop the root window
     os._exit(0) # Hard exit to kill all threads instantly
 
 border_thickness = 5
