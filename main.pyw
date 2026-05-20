@@ -11,7 +11,7 @@ import queue
 # Thread-safe queue
 indicator_queue = queue.Queue()
 
-# For debuggin
+# For debugging
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
 sys.stdout = open(log_path, "a", buffering=1) 
 sys.stderr = open(log_path, "a", buffering=1)
