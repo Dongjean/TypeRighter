@@ -4,6 +4,8 @@ from tkinter import font as tkfont
 import utils.latex as latex
 
 latex_code = ""
+ax = None
+canvas = None
 
 # Text input reader for LaTeX code input
 def on_key_release_latex_editor(event, text_editor, preview_label):
@@ -14,7 +16,7 @@ def on_key_release_latex_editor(event, text_editor, preview_label):
     print(f"Current text: {latex_code}")
 
     # Display the LaTeX output
-    latex.display_latex_window(preview_label, latex_code, "white")
+    latex.display_latex_window(latex_code, "white", canvas, ax)
 
 def build_latex_workspace(root, COLORS, FONTS):
 
@@ -49,3 +51,7 @@ def build_latex_workspace(root, COLORS, FONTS):
     # LaTeX Image Output (incomplete)
     preview_label = tk.Frame(latex_output_container, bg=COLORS["bg_input"])
     preview_label.pack(fill="both", expand=True)
+
+    # Initialise the latex window the moment the output frame is mounted
+    global ax, canvas
+    ax, canvas = latex.init_latex_window(preview_label, "white")
