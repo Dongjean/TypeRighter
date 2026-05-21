@@ -57,3 +57,13 @@ def build_latex_workspace(latex_frame, COLORS, FONTS):
 
     text_editor = tk.Text(editor_container, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=0, font=FONTS["font_subtitle"], padx=15, pady=15, wrap="none")
     text_editor.pack(fill="both", expand=True)
+
+    # LaTeX Output Container
+    latex_output_container = tk.Frame(latex_frame, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, height=150)
+    latex_output_container.pack(fill=tk.X, pady=(5, 20))
+    # Fix the height of the LaTeX Output Container
+    latex_output_container.pack_propagate(False)
+
+    # LaTeX Image Output (incomplete)
+    preview_label = tk.Label(latex_output_container, text="OUR fake... latex output (incomplete)", fg=COLORS["text_main"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"])
+    preview_label.pack(expand=True)
