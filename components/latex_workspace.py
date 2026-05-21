@@ -6,14 +6,15 @@ import utils.latex as latex
 latex_code = ""
 
 # Text input reader for LaTeX code input
-def on_key_release_latex_editor(event, text_editor, preview_label, background_color):
+def on_key_release_latex_editor(event, text_editor, preview_label):
     global latex_code
 
     # Get all text minus the auto-added trailing newline
     latex_code = text_editor.get("1.0", "end-1c")
     print(f"Current text: {latex_code}")
+
     # Display the LaTeX output
-    latex.GET_latex_window(preview_label, latex_code, background_color)
+    latex.display_latex_window(preview_label, latex_code, "white")
 
 def build_latex_workspace(root, COLORS, FONTS):
 
@@ -37,7 +38,7 @@ def build_latex_workspace(root, COLORS, FONTS):
     text_editor.pack(fill="both", expand=True)
     # Bind the key release event inside text_editor to our reader function
     # tk.Text() has no native function to read text in real time, this is the best option
-    text_editor.bind("<KeyRelease>", lambda event: on_key_release_latex_editor(event, text_editor, preview_label, COLORS["bg_input"]))
+    text_editor.bind("<KeyRelease>", lambda event: on_key_release_latex_editor(event, text_editor, preview_label))
 
     # LaTeX Output Container
     latex_output_container = tk.Frame(latex_frame, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, height=150)
@@ -47,4 +48,4 @@ def build_latex_workspace(root, COLORS, FONTS):
 
     # LaTeX Image Output (incomplete)
     preview_label = tk.Frame(latex_output_container, bg=COLORS["bg_input"])
-    preview_label.pack(expand=True)
+    preview_label.pack(fill="both", expand=True)
