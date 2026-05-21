@@ -8,7 +8,7 @@ ax = None
 canvas = None
 
 # Text input reader for LaTeX code input
-def on_key_release_latex_editor(event, text_editor, preview_label):
+def on_key_release_latex_editor(event, text_editor):
     global latex_code
 
     # Get all text minus the auto-added trailing newline
@@ -16,7 +16,7 @@ def on_key_release_latex_editor(event, text_editor, preview_label):
     print(f"Current text: {latex_code}")
 
     # Display the LaTeX output
-    latex.display_latex_window(latex_code, "white", canvas, ax)
+    latex.display_latex_window_codecogs(canvas, latex_code)
 
 def build_latex_workspace(root, COLORS, FONTS):
 
@@ -40,7 +40,7 @@ def build_latex_workspace(root, COLORS, FONTS):
     text_editor.pack(fill="both", expand=True)
     # Bind the key release event inside text_editor to our reader function
     # tk.Text() has no native function to read text in real time, this is the best option
-    text_editor.bind("<KeyRelease>", lambda event: on_key_release_latex_editor(event, text_editor, preview_label))
+    text_editor.bind("<KeyRelease>", lambda event: on_key_release_latex_editor(event, text_editor))
 
     # LaTeX Output Container
     latex_output_container = tk.Frame(latex_frame, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, height=150)
@@ -53,5 +53,5 @@ def build_latex_workspace(root, COLORS, FONTS):
     preview_label.pack(fill="both", expand=True)
 
     # Initialise the latex window the moment the output frame is mounted
-    global ax, canvas
-    ax, canvas = latex.init_latex_window(preview_label, "white")
+    global canvas
+    canvas = latex.init_latex_window_codecogs(preview_label, "white")
