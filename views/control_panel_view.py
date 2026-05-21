@@ -34,6 +34,7 @@ def control_panel_init(root):
         "font_subtitle": tkfont.Font(family="Segoe UI", size=10, weight="normal"),
     }
 
+    # Build the LaTeX workspace
     latex_workspace.build_latex_workspace(root=root, COLORS=COLORS, FONTS=FONTS)
 
     root.update_idletasks()
