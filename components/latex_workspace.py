@@ -1,11 +1,19 @@
 import tkinter as tk
 from tkinter import font as tkfont
 
+import utils.latex as latex
+
+latex_code = ""
+
 # Text input reader for LaTeX code input
-def on_key_release_latex_editor(event, text_editor):
+def on_key_release_latex_editor(event, text_editor, preview_label, background_color):
+    global latex_code
+
     # Get all text minus the auto-added trailing newline
-    content = text_editor.get("1.0", "end-1c")
-    print(f"Current text: {content}")
+    latex_code = text_editor.get("1.0", "end-1c")
+    print(f"Current text: {latex_code}")
+    # Display the LaTeX output
+    latex.GET_latex_window(preview_label, latex_code, background_color)
 
 def build_latex_workspace(root, COLORS, FONTS):
 
@@ -29,7 +37,7 @@ def build_latex_workspace(root, COLORS, FONTS):
     text_editor.pack(fill="both", expand=True)
     # Bind the key release event inside text_editor to our reader function
     # tk.Text() has no native function to read text in real time, this is the best option
-    text_editor.bind("<KeyRelease>", lambda event: on_key_release_latex_editor(event, text_editor))
+    text_editor.bind("<KeyRelease>", lambda event: on_key_release_latex_editor(event, text_editor, preview_label, COLORS["bg_input"]))
 
     # LaTeX Output Container
     latex_output_container = tk.Frame(latex_frame, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, height=150)
@@ -38,5 +46,5 @@ def build_latex_workspace(root, COLORS, FONTS):
     latex_output_container.pack_propagate(False)
 
     # LaTeX Image Output (incomplete)
-    preview_label = tk.Label(latex_output_container, text="OUR fake... latex output (incomplete)", fg=COLORS["text_main"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"])
+    preview_label = tk.Frame(latex_output_container, bg=COLORS["bg_input"])
     preview_label.pack(expand=True)
