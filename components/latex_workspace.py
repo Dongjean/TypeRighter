@@ -1,6 +1,12 @@
 import tkinter as tk
 from tkinter import font as tkfont
 
+# Text input reader for LaTeX code input
+def on_key_release_latex_editor(event, text_editor):
+    # Get all text minus the auto-added trailing newline
+    content = text_editor.get("1.0", "end-1c")
+    print(f"Current text: {content}")
+
 def build_latex_workspace(root, COLORS, FONTS):
 
     # Frame for LaTeX workspace
@@ -21,6 +27,9 @@ def build_latex_workspace(root, COLORS, FONTS):
 
     text_editor = tk.Text(editor_container, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=0, font=FONTS["font_subtitle"], padx=15, pady=15, wrap="none")
     text_editor.pack(fill="both", expand=True)
+    # Bind the key release event inside text_editor to our reader function
+    # tk.Text() has no native function to read text in real time, this is the best option
+    text_editor.bind("<KeyRelease>", lambda event: on_key_release_latex_editor(event, text_editor))
 
     # LaTeX Output Container
     latex_output_container = tk.Frame(latex_frame, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, height=150)
