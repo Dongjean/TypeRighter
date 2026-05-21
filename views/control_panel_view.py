@@ -51,6 +51,9 @@ def build_latex_workspace(latex_frame, COLORS, FONTS):
     subtitle_label = tk.Label(latex_frame, text="Edit and preview complex mathematical formulas", fg=COLORS["text_muted"], bg=COLORS["bg_main"], font=FONTS["font_subtitle"])
     subtitle_label.pack(fill="x", pady=(0, 15))
 
-    # Editor Container (LaTeX text + Compile)
+    # Editor Container (LaTeX input text)
     editor_container = tk.Frame(latex_frame, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1)
     editor_container.pack(fill="both", expand=True)
+
+    text_editor = tk.Text(editor_container, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=0, font=FONTS["font_subtitle"], padx=15, pady=15, wrap="none")
+    text_editor.pack(fill="both", expand=True)
