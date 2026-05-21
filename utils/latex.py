@@ -17,7 +17,7 @@ def display_latex_window(output_frame, equation, background_color):
     fig, ax = plt.subplots(figsize=(5, 2), facecolor=background_color)
     ax.axis('off')  # Hide the default plot axes, grid, and borders
 
-    # The LaTeX output on the axis label
+    # The LaTeX output on the figure
     # equation = r'$\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$'
     ax.text(0.5, 0.5, equation, size=24, ha='center', va='center')
 
