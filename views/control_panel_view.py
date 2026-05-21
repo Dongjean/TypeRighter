@@ -32,17 +32,18 @@ def control_panel_init(root):
         "font_subtitle": tkfont.Font(family="Segoe UI", size=10, weight="normal"),
     }
 
-    # Frame for LaTeX workspace
-    latex_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20)
-    latex_frame.pack(side="top", fill="both", expand=True)
-
-    build_latex_workspace(latex_frame=latex_frame, COLORS=COLORS, FONTS=FONTS)
+    build_latex_workspace(root=root, COLORS=COLORS, FONTS=FONTS)
 
     root.update_idletasks()
     root.focus_force()
 
 
-def build_latex_workspace(latex_frame, COLORS, FONTS):
+def build_latex_workspace(root, COLORS, FONTS):
+
+    # Frame for LaTeX workspace
+    latex_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20)
+    latex_frame.pack(side="top", fill="both", expand=True)
+
     # Header Titles
     # Set to be at the top, centred (expand=False by default)
     title_label = tk.Label(latex_frame, text="LaTeX Equation Editor", fg=COLORS["text_main"], bg=COLORS["bg_main"], font=FONTS["font_title"])
