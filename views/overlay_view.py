@@ -2,6 +2,12 @@ import tkinter as tk
 
 def overlay_init(root):
     border_thickness = 5
+
+    # Reset root for a clean overlay init
+    # Remove all child widgets
+    for widget in root.winfo_children():
+        widget.destroy()
+    
     # Initialises root to handle the outline overlay
     root.overrideredirect(True) # No title bar, no borders
     root.attributes("-topmost", True) # Always on top
