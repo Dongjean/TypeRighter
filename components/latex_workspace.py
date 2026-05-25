@@ -11,6 +11,8 @@ canvas = None
 def compile_latex_codecogs(canvas):
     latex.display_latex_window_codecogs(canvas, latex_code)
 
+    return "break"
+
 # Text input reader for LaTeX code input
 def on_key_release_latex_editor(event, text_editor):
     global latex_code
@@ -58,4 +60,10 @@ def build_latex_workspace(root, COLORS, FONTS):
     # LaTeX compiler button and key listener
     compile_button = tk.Button(editor_container, text="Compile", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: compile_latex_codecogs(canvas)))
     compile_button.pack(side="right")
+
+    # Listen to Enter key anywhere
+    latex_frame.bind("<Return>", lambda event: compile_latex_codecogs(canvas))
     text_editor.bind("<Return>", lambda event: compile_latex_codecogs(canvas))
+
+    # Listen for Shift + Enter for breaklines just in the editor
+    text_editor.bind("<Shift-Return>", lambda event: None)
