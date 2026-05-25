@@ -56,6 +56,6 @@ def build_latex_workspace(root, COLORS, FONTS):
     canvas = latex.init_latex_window_codecogs(preview_label, "white")
 
     # LaTeX compiler button and key listener
-    compile_button = tk.Button(editor_container, text="Compile", command=(lambda: compile_latex_codecogs(canvas)))
-    compile_button.pack()
+    compile_button = tk.Button(editor_container, text="Compile", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: compile_latex_codecogs(canvas)))
+    compile_button.pack(side="right")
     text_editor.bind("<Return>", lambda event: compile_latex_codecogs(canvas))
