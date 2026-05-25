@@ -22,7 +22,7 @@ def on_key_release_latex_editor(event, text_editor):
 def build_latex_workspace(root, COLORS, FONTS):
 
     # Frame for LaTeX workspace
-    latex_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20)
+    latex_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True)
     latex_frame.pack(side="top", fill="both", expand=True)
 
     # Header Titles
@@ -67,3 +67,6 @@ def build_latex_workspace(root, COLORS, FONTS):
 
     # Listen for Shift + Enter for breaklines just in the editor
     text_editor.bind("<Shift-Return>", lambda event: None)
+
+    # Clicking anywhere outside the text editor frame makes us lose active focus
+    root.bind("<Button-1>", lambda event: event.widget.focus_set())
