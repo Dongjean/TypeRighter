@@ -2,7 +2,5 @@ pytest==8.0.0
 pystray==0.19.5
 pillow==12.1.1
 pynput==1.8.1
-IPython==9.13.0
-matplotlib==3.10.9
-sympy==1.14.0
+matplotlib==3.10.9 # Not currently used, leaving the functions that do in the project for now
 requests==2.34.2
