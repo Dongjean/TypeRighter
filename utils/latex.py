@@ -94,7 +94,8 @@ def display_latex_window_codecogs(canvas, latex_str):
 
             # Render this on a tkinter canvas on the given output frame
             tk_img = ImageTk.PhotoImage(img)
-            canvas.configure(width=img.width, height=img.height)
+            
+            canvas.config(width=img.width, height=img.height)
             canvas.create_image(img.width // 2, img.height // 2, image=tk_img)
 
             canvas.image = tk_img

@@ -7,16 +7,15 @@ latex_code = ""
 ax = None
 canvas = None
 
+# Compile the LaTeX code
+def compile_latex_codecogs(canvas):
+    latex.display_latex_window_codecogs(canvas, latex_code)
+
 # Text input reader for LaTeX code input
 def on_key_release_latex_editor(event, text_editor):
     global latex_code
-
     # Get all text minus the auto-added trailing newline
     latex_code = text_editor.get("1.0", "end-1c")
-    print(f"Current text: {latex_code}")
-
-    # Display the LaTeX output
-    latex.display_latex_window_codecogs(canvas, latex_code)
 
 def build_latex_workspace(root, COLORS, FONTS):
 
@@ -55,3 +54,7 @@ def build_latex_workspace(root, COLORS, FONTS):
     # Initialise the latex window the moment the output frame is mounted
     global canvas
     canvas = latex.init_latex_window_codecogs(preview_label, "white")
+
+    # LaTeX compiler button and key listener
+    compile_button = tk.Button(editor_container)
+    text_editor.bind("<Return>", lambda event: compile_latex_codecogs(canvas))
