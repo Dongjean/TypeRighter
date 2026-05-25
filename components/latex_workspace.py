@@ -53,7 +53,7 @@ def build_latex_workspace(root, COLORS, FONTS):
     latex_output_container.pack_propagate(False)
 
     # LaTeX Image Output (incomplete)
-    preview_label = tk.Frame(latex_output_container, bg=COLORS["bg_input"])
+    preview_label = tk.Frame(latex_output_container, bg="white")
     preview_label.pack(fill="both", expand=True)
 
     # Initialise the latex window the moment the output frame is mounted

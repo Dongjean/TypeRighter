@@ -72,7 +72,7 @@ def init_latex_window_codecogs(output_frame, background_color):
         bg=background_color,
         highlightthickness=0,
     )
-    canvas.pack(fill="both", expand=True)
+    canvas.pack(expand=True)
 
     return canvas
 
