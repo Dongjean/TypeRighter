@@ -13,6 +13,9 @@ def compile_latex_codecogs(canvas):
 
     return "break"
 
+def break_default():
+    return "break"
+
 # Text input reader for LaTeX code input
 def on_key_release_latex_editor(event, text_editor):
     global latex_code
@@ -62,10 +65,11 @@ def build_latex_workspace(root, COLORS, FONTS):
     compile_button.pack(side="right")
 
     # Listen to Enter key anywhere
-    latex_frame.bind("<Return>", lambda event: compile_latex_codecogs(canvas))
+    root.bind("<Return>", lambda event: compile_latex_codecogs(canvas))
     text_editor.bind("<Return>", lambda event: compile_latex_codecogs(canvas))
 
-    # Listen for Shift + Enter for breaklines just in the editor
+    # Listen for Shift + Enter for breaklines
+    root.bind("<Shift-Return>", lambda event: None)
     text_editor.bind("<Shift-Return>", lambda event: None)
 
     # Clicking anywhere outside the text editor frame makes us lose active focus
