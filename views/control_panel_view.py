@@ -38,7 +38,7 @@ def control_panel_init(root):
 
     # Windows
     WINDOWS = {
-        "latex_workspace": {
+        "latex-workspace": {
             "name": "LaTeX",
             "icon": "",
         },
@@ -47,9 +47,9 @@ def control_panel_init(root):
             "icon": "",
         }
     }
-    # Build the LaTeX workspace
-    navbar.build_navbar(root=root, COLORS=COLORS, FONTS=FONTS, WINDOWS=WINDOWS, start_window="latex_workspace")
-    latex_workspace.build_latex_workspace(root=root, COLORS=COLORS, FONTS=FONTS)
+    
+    # Build the navbar and initialise the first window
+    navbar.build_navbar(root=root, COLORS=COLORS, FONTS=FONTS, WINDOWS=WINDOWS, start_window="latex-workspace")
 
     root.update_idletasks()
     root.focus_force()
