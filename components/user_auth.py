@@ -34,6 +34,25 @@ def build_user_auth(root, COLORS, FONTS):
     title_label = tk.Label(auth_frame, text="Login", fg=COLORS["text_main"], bg=COLORS["bg_main"], font=FONTS["font_title"])
     title_label.pack(fill="x", pady=0)
 
+    build_login_frame(root, auth_frame, COLORS, FONTS)
+    build_signup_frame(root, auth_frame, COLORS, FONTS)
+
+    # Clicking anywhere outside the text editor frame makes us lose active focus
+    root.bind("<Button-1>", lambda event: event.widget.focus_set())
+
+# Destroy function to tear down user auth page
+def destroy_user_auth(root):
+
+    # Remove all child widgets except for the navbar
+    for widget in root.winfo_children():
+        if widget.winfo_name() != "navbar_frame":
+          widget.destroy()
+
+    # Unbind the enter keybind
+    root.unbind("<Return>")
+
+def build_login_frame(root, auth_frame, COLORS, FONTS):
+    
     # Login Hub Container
     login_hub_container = tk.Frame(auth_frame, bg=COLORS["bg_main"], bd=0)
     login_hub_container.pack(expand=True)
@@ -58,15 +77,38 @@ def build_user_auth(root, COLORS, FONTS):
     login_button = tk.Button(login_hub_container, text="Login", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: login(username_editor, password_editor)))
     login_button.pack(side="bottom")
 
-    # Clicking anywhere outside the text editor frame makes us lose active focus
-    root.bind("<Button-1>", lambda event: event.widget.focus_set())
+    # Enter keybind to login
+    root.bind("<Return>", lambda event: login(username_editor, password_editor))
 
-# Destroy function to tear down user auth page
-def destroy_user_auth(root):
+    return login_hub_container
 
-    # Remove all child widgets except for the navbar
-    for widget in root.winfo_children():
-        if widget.winfo_name() != "navbar_frame":
-          widget.destroy()
+def build_signup_frame(root, auth_frame, COLORS, FONTS):
 
-    # Nothing else for user auth
+    # Signup Hub Container
+    signup_hub_container = tk.Frame(auth_frame, bg=COLORS["bg_main"], bd=0)
+    signup_hub_container.pack(expand=True)
+
+    # Username Frame
+    username_frame = tk.Frame(signup_hub_container, bg=COLORS["bg_main"], bd=0)
+    username_frame.pack(fill="x", expand=True, pady=5)
+    username_label = tk.Label(username_frame, text="Username: ", bg=COLORS["bg_main"], fg=COLORS["text_main"], bd=0, font=FONTS["font_subtitle"])
+    username_label.pack(side="left")
+    username_editor = tk.Entry(username_frame, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=1, highlightbackground=COLORS["border"], highlightthickness=1, font=FONTS["font_subtitle"])
+    username_editor.pack(side="right")
+  
+    # Password Frame
+    password_frame = tk.Frame(signup_hub_container, bg=COLORS["bg_main"], bd=0)
+    password_frame.pack(fill="x", expand=True, pady=5)
+    password_label = tk.Label(password_frame, text="Password: ", bg=COLORS["bg_main"], fg=COLORS["text_main"], bd=0, font=FONTS["font_subtitle"])
+    password_label.pack(side="left")
+    password_editor = tk.Entry(password_frame, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=1, highlightbackground=COLORS["border"], highlightthickness=1, font=FONTS["font_subtitle"])
+    password_editor.pack(side="right")
+
+    # Signup Button
+    signup_button = tk.Button(signup_hub_container, text="Signup", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: signup(username_editor, password_editor)))
+    signup_button.pack(side="bottom")
+  
+    # Enter keybind to signup
+    root.bind("<Return>", lambda event: signup(username_editor, password_editor))
+
+    return signup_hub_container
