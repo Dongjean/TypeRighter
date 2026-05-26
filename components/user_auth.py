@@ -28,7 +28,7 @@ def build_user_auth(root, COLORS, FONTS):
           widget.destroy()  
     
     # Frame for user login page
-    auth_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True)
+    auth_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="auth_frame")
     auth_frame.pack(side="top", fill="both", expand=True)
 
     # Header Titles

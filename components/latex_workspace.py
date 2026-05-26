@@ -22,7 +22,7 @@ def on_key_release_latex_editor(event, text_editor):
 def build_latex_workspace(root, COLORS, FONTS):
 
     # Frame for LaTeX workspace
-    latex_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True)
+    latex_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="latex_frame")
     latex_frame.pack(side="top", fill="both", expand=True)
 
     # Header Titles
