@@ -48,6 +48,18 @@ In the root directory, run:
 pip install -r dependencies.txt
 ```
 
+### Setting Environment Variables
+In the root directory, make a file names ```.env```, and add the following key-values:
+```ini
+FB_API_KEY="your_value"
+FB_AUTH_DOMAIN="your_value"
+FB_PROJECT_ID="your_value"
+FB_STORAGE_BUCKET="your_value"
+FB_MESSAGING_SENDER_ID="your_value"
+FB_APP_ID="your_value"
+FB_MEASUREMENT_ID="your_value"
+```
+
 ## Testing
 
 ### Test Locally
