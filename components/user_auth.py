@@ -48,6 +48,7 @@ def destroy_user_auth(root):
     # Unbind the enter keybind
     root.unbind("<Return>")
 
+# Callback from <Button-1> to change the window's state from login mode to signup mode
 def change_login_signup(root, auth_frame, COLORS, FONTS, to_destroy, FROM, TO):
     if FROM == "login" and TO == "signup":
         
@@ -66,17 +67,7 @@ def change_login_signup(root, auth_frame, COLORS, FONTS, to_destroy, FROM, TO):
 
     return "break"
 
-def destroy_login_frame(root, login_hub_container):
-
-    # Destroy the login hub container
-    login_hub_container.destroy()
-
-    # Unbind the login keybind
-    root.unbind("<Return>")
-
-    # Unbind the change to signup button bind
-    root.unbind("<Button-1>")
-
+# Login frame init and destroyer
 def build_login_frame(root, auth_frame, COLORS, FONTS):
     
     # Login Hub Container
@@ -113,10 +104,10 @@ def build_login_frame(root, auth_frame, COLORS, FONTS):
     # Click bind to change login --> signup
     change_button.bind("<Button-1>", lambda event: change_login_signup(root, auth_frame, COLORS, FONTS, login_hub_container, "login", "signup"))
 
-def destroy_signup_frame(root, signup_hub_container):
+def destroy_login_frame(root, login_hub_container):
 
-    # Destroy the signup hub container
-    signup_hub_container.destroy()
+    # Destroy the login hub container
+    login_hub_container.destroy()
 
     # Unbind the login keybind
     root.unbind("<Return>")
@@ -124,6 +115,7 @@ def destroy_signup_frame(root, signup_hub_container):
     # Unbind the change to signup button bind
     root.unbind("<Button-1>")
 
+# Signup frame init and destroyer
 def build_signup_frame(root, auth_frame, COLORS, FONTS):
 
     # Signup Hub Container
@@ -159,3 +151,14 @@ def build_signup_frame(root, auth_frame, COLORS, FONTS):
     change_button.pack(side="bottom")
     # Click bind to change signup --> login
     change_button.bind("<Button-1>", lambda event: change_login_signup(root, auth_frame, COLORS, FONTS, signup_hub_container, "signup", "login"))
+
+def destroy_signup_frame(root, signup_hub_container):
+
+    # Destroy the signup hub container
+    signup_hub_container.destroy()
+
+    # Unbind the login keybind
+    root.unbind("<Return>")
+
+    # Unbind the change to signup button bind
+    root.unbind("<Button-1>")
