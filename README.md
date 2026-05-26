@@ -48,6 +48,18 @@ In the root directory, run:
 pip install -r dependencies.txt
 ```
 
+### Setting Environment Variables
+In the root directory, make a file names ```.env```, and add the following key-values:
+```ini
+FB_API_KEY="your_value"
+FB_AUTH_DOMAIN="your_value"
+FB_PROJECT_ID="your_value"
+FB_STORAGE_BUCKET="your_value"
+FB_MESSAGING_SENDER_ID="your_value"
+FB_APP_ID="your_value"
+FB_MEASUREMENT_ID="your_value"
+```
+
 ## Testing
 
 ### Test Locally
@@ -123,6 +135,13 @@ In **overlay-mode**, script listens to one more key command:
 * ``` ` ``` - Exit the app entirely
 * ```\``` - Enter **cp-mode**
 
-In **cp-mode**, we have the LaTeX editor:
-* Enter LaTeX code in the text editor
-* Press enter or click the compile button to have the LaTeX output displayed
+In **cp-mode**, we have:
+1. LaTeX editor:
+    * Enter LaTeX code in the text editor
+    * Press enter or click the compile button to have the LaTeX output displayed
+
+2. Login page:
+    * User Authentication with Firebase
+    * Can Login or Signup through this page
+
+_All of the above in **cp-mode** are accessible via the right Navigation Bar_

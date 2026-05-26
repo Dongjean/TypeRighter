@@ -1,7 +1,6 @@
-import tkinter as tk
 from tkinter import font as tkfont
 
-import components.latex_workspace as latex_workspace
+import components.navbar as navbar
 
 def control_panel_init(root):
     root.title("TypeRighter - Control Panel")
@@ -26,16 +25,34 @@ def control_panel_init(root):
         "text_main": "#e3e3e3",
         "text_muted": "#888888",
         "border": "#2d2d2d",
+        "accent_blue": "#2a5a9c",
+        "hyperlink_blue": "#0099FF",
     }
 
     # Custom Fonts
     FONTS = {
         "font_title": tkfont.Font(family="Segoe UI", size=16, weight="bold"),
         "font_subtitle": tkfont.Font(family="Segoe UI", size=10, weight="normal"),
+        "font_hyperlink": tkfont.Font(family="Segoe UI", size=10, weight="normal", underline=True),
     }
 
-    # Build the LaTeX workspace
-    latex_workspace.build_latex_workspace(root=root, COLORS=COLORS, FONTS=FONTS)
+    # Windows
+    WINDOWS = {
+        "latex-workspace": {
+            "name": "LaTeX",
+            "icon": "",
+        },
+        "user-auth": {
+            "name": "Login",
+            "icon": "",
+        }
+    }
+
+    # Build the navbar and initialise the first window
+    navbar.build_navbar(root=root, COLORS=COLORS, FONTS=FONTS, WINDOWS=WINDOWS, start_window="latex-workspace")
+    
+    # Clicking anywhere in the control panel brings active focus to there
+    root.bind("<Button-1>", lambda event: event.widget.focus_set())
 
     root.update_idletasks()
     root.focus_force()
