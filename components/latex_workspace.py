@@ -13,9 +13,6 @@ def compile_latex_codecogs(canvas):
 
     return "break"
 
-def break_default():
-    return "break"
-
 # Text input reader for LaTeX code input
 def on_key_release_latex_editor(event, text_editor):
     global latex_code
