@@ -25,7 +25,7 @@ def build_latex_workspace(root, COLORS, FONTS):
     # Remove all child widgets except for the navbar
     for widget in root.winfo_children():
         if widget.winfo_name() != "navbar_frame":
-          widget.destroy()  
+          widget.destroy()
 
     # Frame for LaTeX workspace
     latex_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="latex_frame")
