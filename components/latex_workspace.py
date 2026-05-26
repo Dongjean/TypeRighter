@@ -21,6 +21,12 @@ def on_key_release_latex_editor(event, text_editor):
 
 def build_latex_workspace(root, COLORS, FONTS):
 
+    # Reset root for a clean overlay init
+    # Remove all child widgets except for the navbar
+    for widget in root.winfo_children():
+        if widget.winfo_name() != "navbar_frame":
+          widget.destroy()  
+
     # Frame for LaTeX workspace
     latex_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="latex_frame")
     latex_frame.pack(side="top", fill="both", expand=True)
