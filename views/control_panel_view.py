@@ -26,12 +26,14 @@ def control_panel_init(root):
         "text_muted": "#888888",
         "border": "#2d2d2d",
         "accent_blue": "#2a5a9c",
+        "hyperlink_blue": "#0099FF",
     }
 
     # Custom Fonts
     FONTS = {
         "font_title": tkfont.Font(family="Segoe UI", size=16, weight="bold"),
         "font_subtitle": tkfont.Font(family="Segoe UI", size=10, weight="normal"),
+        "font_hyperlink": tkfont.Font(family="Segoe UI", size=10, weight="normal", underline=True),
     }
 
     # Windows
