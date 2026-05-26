@@ -36,6 +36,7 @@ def build_user_auth(root, COLORS, FONTS):
     # Start with the login frame
     build_login_frame(root, auth_frame, COLORS, FONTS)
 
+
 # Destroy function to tear down user auth page
 def destroy_user_auth(root):
 
@@ -65,6 +66,7 @@ def change_login_signup(root, auth_frame, COLORS, FONTS, to_destroy, FROM, TO):
         build_login_frame(root, auth_frame, COLORS, FONTS)
 
     return "break"
+
 
 # Login frame init and destroyer
 def build_login_frame(root, auth_frame, COLORS, FONTS):
@@ -115,6 +117,7 @@ def destroy_login_frame(root, login_hub_container):
 
     # Unbind the change to signup button bind
     root.unbind("<Button-1>")
+
 
 # Signup frame init and destroyer
 def build_signup_frame(root, auth_frame, COLORS, FONTS):
