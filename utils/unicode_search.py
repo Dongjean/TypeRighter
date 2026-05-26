@@ -37,7 +37,7 @@ def search_by_codepoint(text):
     except (ValueError, OverflowError):
         return None 
     
-#search by codepoint followed by name if cp fails 
+#search by codepoint followed by name if codepoint fails 
 def search(query, limit=50):
     by_codepoint = search_by_codepoint(query)
     if by_codepoint: 
