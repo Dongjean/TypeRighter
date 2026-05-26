@@ -1,23 +1,10 @@
 import tkinter as tk
 from tkinter import font as tkfont
 
-username = ""
-password = ""
-
-def login(username, password):
+def login(username_editor, password_editor):
+    username = username_editor.get()
+    password = password_editor.get()
     print(f"loggin in for {username}, {password}")
-
-# Text input reader for username input
-def on_key_release_username_editor(event, text_editor):
-    global username
-    # Get all text minus the auto-added trailing newline
-    username = text_editor.get()
-
-# Text input reader for password input
-def on_key_release_password_editor(event, text_editor):
-    global password
-    # Get all text minus the auto-added trailing newline
-    password = text_editor.get()
 
 def build_user_auth(root, COLORS, FONTS):
 
@@ -49,7 +36,6 @@ def build_user_auth(root, COLORS, FONTS):
     username_editor.pack(side="right")
     # Bind the key release event inside text editor to our reader function
     # tk.Text() has no native function to read text in real time, this is the best option
-    username_editor.bind("<KeyRelease>", lambda event: on_key_release_username_editor(event, username_editor))
   
     # Password Frame
     password_frame = tk.Frame(login_hub_container, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1)
@@ -60,10 +46,9 @@ def build_user_auth(root, COLORS, FONTS):
     password_editor.pack(side="right")
     # Bind the key release event inside text editor to our reader function
     # tk.Text() has no native function to read text in real time, this is the best option
-    password_editor.bind("<KeyRelease>", lambda event: on_key_release_password_editor(event, password_editor))
 
     # Login Button
-    login_button = tk.Button(login_hub_container, text="Login", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: login(username, password)))
+    login_button = tk.Button(login_hub_container, text="Login", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: login(username_editor, password_editor)))
     login_button.pack(side="bottom")
 
     # Clicking anywhere outside the text editor frame makes us lose active focus
