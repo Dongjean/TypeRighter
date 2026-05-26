@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import font as tkfont
 
 import components.latex_workspace as latex_workspace
+import components.navbar as navbar
 
 def control_panel_init(root):
     root.title("TypeRighter - Control Panel")
@@ -26,6 +27,7 @@ def control_panel_init(root):
         "text_main": "#e3e3e3",
         "text_muted": "#888888",
         "border": "#2d2d2d",
+        "accent_blue": "#2a5a9c",
     }
 
     # Custom Fonts
@@ -34,7 +36,19 @@ def control_panel_init(root):
         "font_subtitle": tkfont.Font(family="Segoe UI", size=10, weight="normal"),
     }
 
+    # Windows
+    WINDOWS = {
+        "latex_workspace": {
+            "name": "LaTeX",
+            "icon": "",
+        },
+        "user-auth": {
+            "name": "Login",
+            "icon": "",
+        }
+    }
     # Build the LaTeX workspace
+    navbar.build_navbar(root=root, COLORS=COLORS, FONTS=FONTS, WINDOWS=WINDOWS, start_window="latex_workspace")
     latex_workspace.build_latex_workspace(root=root, COLORS=COLORS, FONTS=FONTS)
 
     root.update_idletasks()
