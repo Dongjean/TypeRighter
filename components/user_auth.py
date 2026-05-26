@@ -11,13 +11,13 @@ def login(username, password):
 def on_key_release_username_editor(event, text_editor):
     global username
     # Get all text minus the auto-added trailing newline
-    username = text_editor.get("1.0", "end-1c")
+    username = text_editor.get()
 
 # Text input reader for password input
 def on_key_release_password_editor(event, text_editor):
     global password
     # Get all text minus the auto-added trailing newline
-    password = text_editor.get("1.0", "end-1c")
+    password = text_editor.get()
 
 def build_user_auth(root, COLORS, FONTS):
 
