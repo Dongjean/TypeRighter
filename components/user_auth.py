@@ -1,10 +1,17 @@
 import tkinter as tk
 from tkinter import font as tkfont
 
+import utils.firebase_app as fb
+
 def login(username_editor, password_editor):
     username = username_editor.get()
     password = password_editor.get()
-    print(f"loggin in for {username}, {password}")
+
+    # Login on firebase
+    try:
+        fb.auth.sign_in_with_email_and_password(username, password)
+    except Exception as e:
+        print(e)
 
 def build_user_auth(root, COLORS, FONTS):
     
