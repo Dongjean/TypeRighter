@@ -4,3 +4,4 @@ pillow==12.1.1
 pynput==1.8.1
 matplotlib==3.10.9 # Not currently used, leaving the functions that do in the project for now
 requests==2.34.2
+pyrebase4==4.9.0
