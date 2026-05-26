@@ -3,11 +3,6 @@ from tkinter import font as tkfont
 
 import utils.firebase_app as fb
 
-login_hub_container = None
-signup_hub_container = None
-COLORS = None
-FONTS = None
-
 def login(username_editor, password_editor):
     username = username_editor.get()
     password = password_editor.get()
