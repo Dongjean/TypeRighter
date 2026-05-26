@@ -17,12 +17,6 @@ def compile_latex_codecogs(canvas, text_editor):
 
 def build_latex_workspace(root, COLORS, FONTS):
 
-    # Reset root for a clean overlay init
-    # Remove all child widgets except for the navbar
-    for widget in root.winfo_children():
-        if widget.winfo_name() != "navbar_frame":
-          widget.destroy()
-
     # Frame for LaTeX workspace
     latex_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="latex_frame")
     latex_frame.pack(side="top", fill="both", expand=True)
@@ -68,5 +62,14 @@ def build_latex_workspace(root, COLORS, FONTS):
     root.bind("<Shift-Return>", lambda event: None)
     text_editor.bind("<Shift-Return>", lambda event: None)
 
-    # Clicking anywhere outside the text editor frame makes us lose active focus
-    root.bind("<Button-1>", lambda event: event.widget.focus_set())
+# Destroy function to tear down latex workspace
+def destroy_latex_workspace(root):
+
+    # Remove all child widgets except for the navbar
+    for widget in root.winfo_children():
+        if widget.winfo_name() != "navbar_frame":
+          widget.destroy()
+
+    # Remove the latex-specific keybinds on root
+    root.unbind("<Return>")
+    root.unbind("<Shift-Return")

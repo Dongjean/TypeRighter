@@ -47,9 +47,12 @@ def control_panel_init(root):
             "icon": "",
         }
     }
-    
+
     # Build the navbar and initialise the first window
     navbar.build_navbar(root=root, COLORS=COLORS, FONTS=FONTS, WINDOWS=WINDOWS, start_window="latex-workspace")
-
+    
+    # Clicking anywhere in the control panel brings active focus to there
+    root.bind("<Button-1>", lambda event: event.widget.focus_set())
+    
     root.update_idletasks()
     root.focus_force()

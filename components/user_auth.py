@@ -7,12 +7,6 @@ def login(username_editor, password_editor):
     print(f"loggin in for {username}, {password}")
 
 def build_user_auth(root, COLORS, FONTS):
-
-    # Reset root for a clean overlay init
-    # Remove all child widgets except for the navbar
-    for widget in root.winfo_children():
-        if widget.winfo_name() != "navbar_frame":
-          widget.destroy()
     
     # Frame for user login page
     auth_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="auth_frame")
@@ -49,3 +43,13 @@ def build_user_auth(root, COLORS, FONTS):
 
     # Clicking anywhere outside the text editor frame makes us lose active focus
     root.bind("<Button-1>", lambda event: event.widget.focus_set())
+
+# Destroy function to tear down user auth page
+def destroy_user_auth(root):
+
+    # Remove all child widgets except for the navbar
+    for widget in root.winfo_children():
+        if widget.winfo_name() != "navbar_frame":
+          widget.destroy()
+
+    # Nothing else for user auth
