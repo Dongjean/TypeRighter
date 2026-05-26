@@ -13,6 +13,16 @@ def login(username_editor, password_editor):
     except Exception as e:
         print(e)
 
+def signup(username_editor, password_editor):
+    username = username_editor.get()
+    password = password_editor.get()
+
+    # Signup on firebase
+    try:
+        fb.auth.create_user_with_email_and_password(username, password)
+    except Exception as e:
+        print(e)
+
 def build_user_auth(root, COLORS, FONTS):
     
     # Frame for user login page
