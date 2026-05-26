@@ -97,6 +97,12 @@ Pushing changes to github automatically triggers the tests
     git branch -d feature/name-of-feature
     ```
 
+8. **Delete the remote branch on the local repository**
+    ```bash
+    git fetch --prune
+    ```
+    * This removes local remote branches that no longer exist on github
+
 ## Usage
 
 There are 3 'Modes' to the app:
