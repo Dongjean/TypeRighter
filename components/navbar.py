@@ -1,7 +1,4 @@
 import tkinter as tk
-from tkinter import font as tkfont
-
-import views.root_view as root_view
 
 import components.latex_workspace as latex_workspace
 import components.user_auth as user_auth

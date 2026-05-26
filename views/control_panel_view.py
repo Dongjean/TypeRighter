@@ -1,7 +1,5 @@
-import tkinter as tk
 from tkinter import font as tkfont
 
-import components.latex_workspace as latex_workspace
 import components.navbar as navbar
 
 def control_panel_init(root):
@@ -53,6 +51,6 @@ def control_panel_init(root):
     
     # Clicking anywhere in the control panel brings active focus to there
     root.bind("<Button-1>", lambda event: event.widget.focus_set())
-    
+
     root.update_idletasks()
     root.focus_force()
