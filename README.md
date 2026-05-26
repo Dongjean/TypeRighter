@@ -135,6 +135,13 @@ In **overlay-mode**, script listens to one more key command:
 * ``` ` ``` - Exit the app entirely
 * ```\``` - Enter **cp-mode**
 
-In **cp-mode**, we have the LaTeX editor:
-* Enter LaTeX code in the text editor
-* Press enter or click the compile button to have the LaTeX output displayed
+In **cp-mode**, we have:
+1. LaTeX editor:
+    * Enter LaTeX code in the text editor
+    * Press enter or click the compile button to have the LaTeX output displayed
+
+2. Login page:
+    * User Authentication with Firebase
+    * Can Login or Signup through this page
+
+_All of the above in **cp-mode** are accessible via the right Navigation Bar_
