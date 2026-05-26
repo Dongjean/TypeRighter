@@ -3,6 +3,11 @@ from tkinter import font as tkfont
 
 import utils.firebase_app as fb
 
+login_hub_container = None
+signup_hub_container = None
+COLORS = None
+FONTS = None
+
 def login(username_editor, password_editor):
     username = username_editor.get()
     password = password_editor.get()
@@ -34,11 +39,8 @@ def build_user_auth(root, COLORS, FONTS):
     title_label = tk.Label(auth_frame, text="Login", fg=COLORS["text_main"], bg=COLORS["bg_main"], font=FONTS["font_title"])
     title_label.pack(fill="x", pady=0)
 
+    # Start with the login frame
     build_login_frame(root, auth_frame, COLORS, FONTS)
-    build_signup_frame(root, auth_frame, COLORS, FONTS)
-
-    # Clicking anywhere outside the text editor frame makes us lose active focus
-    root.bind("<Button-1>", lambda event: event.widget.focus_set())
 
 # Destroy function to tear down user auth page
 def destroy_user_auth(root):
@@ -50,6 +52,35 @@ def destroy_user_auth(root):
 
     # Unbind the enter keybind
     root.unbind("<Return>")
+
+def change_login_signup(root, auth_frame, COLORS, FONTS, to_destroy, FROM, TO):
+    if FROM == "login" and TO == "signup":
+        
+        # Destroy the login frame
+        destroy_login_frame(root, to_destroy)
+
+        # Build the signup frame
+        build_signup_frame(root, auth_frame, COLORS, FONTS)
+    elif FROM == "signup" and TO == "login":
+
+        # Destroy the signup frame
+        destroy_signup_frame(root, to_destroy)
+
+        # Build the login frame
+        build_login_frame(root, auth_frame, COLORS, FONTS)
+
+    return "break"
+
+def destroy_login_frame(root, login_hub_container):
+
+    # Destroy the login hub container
+    login_hub_container.destroy()
+
+    # Unbind the login keybind
+    root.unbind("<Return>")
+
+    # Unbind the change to signup button bind
+    root.unbind("<Button-1>")
 
 def build_login_frame(root, auth_frame, COLORS, FONTS):
     
@@ -76,11 +107,27 @@ def build_login_frame(root, auth_frame, COLORS, FONTS):
     # Login Button
     login_button = tk.Button(login_hub_container, text="Login", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: login(username_editor, password_editor)))
     login_button.pack(side="bottom")
-
     # Enter keybind to login
     root.bind("<Return>", lambda event: login(username_editor, password_editor))
 
-    return login_hub_container
+    # Change to Signup Button
+    change_text = tk.Label(login_hub_container, text="Don't have an account? ", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, font=FONTS["font_subtitle"])
+    change_text.pack(side="bottom")
+    change_button = tk.Label(login_hub_container, text="Signup Now", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, font=FONTS["font_subtitle"])
+    change_button.pack(side="bottom")
+    # Click bind to change login --> signup
+    change_button.bind("<Button-1>", lambda event: change_login_signup(root, auth_frame, COLORS, FONTS, login_hub_container, "login", "signup"))
+
+def destroy_signup_frame(root, signup_hub_container):
+
+    # Destroy the signup hub container
+    signup_hub_container.destroy()
+
+    # Unbind the login keybind
+    root.unbind("<Return>")
+
+    # Unbind the change to signup button bind
+    root.unbind("<Button-1>")
 
 def build_signup_frame(root, auth_frame, COLORS, FONTS):
 
@@ -107,8 +154,13 @@ def build_signup_frame(root, auth_frame, COLORS, FONTS):
     # Signup Button
     signup_button = tk.Button(signup_hub_container, text="Signup", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: signup(username_editor, password_editor)))
     signup_button.pack(side="bottom")
-  
     # Enter keybind to signup
     root.bind("<Return>", lambda event: signup(username_editor, password_editor))
 
-    return signup_hub_container
+    # Change to Login Button
+    change_text = tk.Label(signup_hub_container, text="Already have an account? ", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, font=FONTS["font_subtitle"])
+    change_text.pack(side="bottom")
+    change_button = tk.Label(signup_hub_container, text="Login Now", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, font=FONTS["font_subtitle"])
+    change_button.pack(side="bottom")
+    # Click bind to change signup --> login
+    change_button.bind("<Button-1>", lambda event: change_login_signup(root, auth_frame, COLORS, FONTS, signup_hub_container, "signup", "login"))
