@@ -4,10 +4,12 @@ from tkinter import font as tkfont
 import views.root_view as root_view
 
 import components.latex_workspace as latex_workspace
+import components.user_auth as user_auth
 
 curr_window = ""
 init_functions = {
-    "latex-workspace": latex_workspace.build_latex_workspace
+    "latex-workspace": latex_workspace.build_latex_workspace,
+    "user-auth": user_auth.build_user_auth,
 }
 
 def change_window(selected_window, root, COLORS, FONTS):
@@ -23,7 +25,7 @@ def change_window(selected_window, root, COLORS, FONTS):
 def build_navbar(root, COLORS, FONTS, WINDOWS, start_window):
 
     # Frame for navbar
-    navbar_frame = tk.Frame(root, bg=COLORS["bg_main"], takefocus=True)
+    navbar_frame = tk.Frame(root, bg=COLORS["bg_main"], takefocus=True, name="navbar_frame")
     navbar_frame.pack(side="right", fill="both")
 
     # Display each window as a custom button
