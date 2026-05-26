@@ -98,4 +98,25 @@ Pushing changes to github automatically triggers the tests
     ```
 
 ## Usage
-Coming soon
+
+There are 3 'Modes' to the app:
+1. background-mode (**bg-mode**)
+2. overlay-mode (**overlay-mode**)
+3. control panel-mode (**cp-mode**)
+
+In the root directory, run the script with:
+```bash
+python main.pyw
+```
+
+In **bg-mode**, pressing ```CTRL + D``` enters **overlay-mode**
+
+In **overlay-mode**, script listens to one more key command:
+* ```a``` - Exit **overlay-mode**, into **bg-mode**
+* ```q/w/e/r``` - print some special characters to debug log, then enter **bg-mode**
+* ``` ` ``` - Exit the app entirely
+* ```\``` - Enter **cp-mode**
+
+In **cp-mode**, we have the LaTeX editor:
+* Enter LaTeX code in the text editor
+* Press enter or click the compile button to have the LaTeX output displayed
