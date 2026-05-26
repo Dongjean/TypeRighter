@@ -1,7 +1,9 @@
 import tkinter as tk
+
 from tkinter import font as tkfont
 
 import views.root_view as root_view
+
 
 import components.latex_workspace as latex_workspace
 import components.user_auth as user_auth
@@ -21,6 +23,30 @@ def change_window(selected_window, root, COLORS, FONTS):
             init_functions[selected_window](root=root, COLORS=COLORS, FONTS=FONTS)
         else:
             print(f"No function found to initialise {selected_window}")
+destroy_functions = {
+    "latex-workspace": latex_workspace.destroy_latex_workspace,
+    "user-auth": user_auth.destroy_user_auth,
+}
+
+def change_window(selected_window, root, COLORS, FONTS):
+    global curr_window
+
+    # Do things iff the window was CHANGED
+    if selected_window != curr_window:
+        prev_window = curr_window
+        curr_window = selected_window
+        
+        # First, destroy the previous window
+        if prev_window in destroy_functions:
+            destroy_functions[prev_window](root=root)
+        else:
+            print(f"No function found to destroy {prev_window}")
+        
+        # Then, initialise the new window
+        if curr_window in init_functions:
+            init_functions[curr_window](root=root, COLORS=COLORS, FONTS=FONTS)
+        else:
+            print(f"No function found to initialise {curr_window}")
 
 def build_navbar(root, COLORS, FONTS, WINDOWS, start_window):
 
@@ -35,4 +61,7 @@ def build_navbar(root, COLORS, FONTS, WINDOWS, start_window):
         btn.pack(side="top")
 
     # Manually initialise the first window
+    # Clear curr_window first jic we exited control panel view and re-entere
+    global curr_window
+    curr_window = ""
     change_window(start_window, root, COLORS, FONTS)
