@@ -47,7 +47,7 @@ def control_panel_init(root):
             "icon": "",
         }, 
         "unicode-search": { 
-            "name": "Unicode Search",
+            "name": "Unicode\nSearch",
             "icon": "",
         }
     }

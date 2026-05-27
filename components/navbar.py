@@ -7,11 +7,13 @@ import views.root_view as root_view
 
 import components.latex_workspace as latex_workspace
 import components.user_auth as user_auth
+import components.unicode_searchpanel as unicode_search
 
 curr_window = ""
 init_functions = {
     "latex-workspace": latex_workspace.build_latex_workspace,
     "user-auth": user_auth.build_user_auth,
+    "unicode-search": unicode_search.build_unicode_search_panel,
 }
 
 def change_window(selected_window, root, COLORS, FONTS):
@@ -26,6 +28,7 @@ def change_window(selected_window, root, COLORS, FONTS):
 destroy_functions = {
     "latex-workspace": latex_workspace.destroy_latex_workspace,
     "user-auth": user_auth.destroy_user_auth,
+    "unicode-search": unicode_search.destroy_unicode_search_panel,
 }
 
 def change_window(selected_window, root, COLORS, FONTS):
