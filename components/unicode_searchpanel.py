@@ -1,4 +1,5 @@
-import tkiner as tk 
+import tkinter as tk 
+
 import utils.unicode_search as unicode_search 
 
 def _do_search(query, results_frame, COLORS, FONTS): 
@@ -12,7 +13,7 @@ def _do_search(query, results_frame, COLORS, FONTS):
 
     # if there are no results, then inform users to check the unicode codepoint
     if not results: 
-        empty = tk.Label(results_frame, text="No relevant symbols found. Check unicode codepoint", fg = COLORS["text_muted"], bg=COLORS["bg_main"],font=FONTS["font_subtitles"])
+        empty = tk.Label(results_frame, text="No relevant symbols found. Check unicode codepoint", fg = COLORS["text_muted"], bg=COLORS["bg_main"],font=FONTS["font_subtitle"])
         empty.pack(fill="x", pady=10) 
         return 
     
@@ -23,7 +24,7 @@ def _do_search(query, results_frame, COLORS, FONTS):
         row.pack(fill="x",pady=2) 
 
         symbol_icon = tk.Label(row, text=ch, fg=COLORS["text_main"], bg=COLORS["bg_input"],font=FONTS["font_title"])
-        symbol_icon.pack(side="left",padx=(8,4))
+        symbol_icon.pack(side="left", padx=(8,4))
 
         symbol_info = tk.Label(row, text=f"{name} (U+{cp:04X})", fg=COLORS["text_muted"], bg=COLORS["bg_input"],font=FONTS["font_subtitle"], anchor="w")
         symbol_info.pack(side="left", fill='x', expand = True) 
@@ -56,8 +57,11 @@ def build_unicode_search_panel(root, COLORS, FONTS):
     search_box.focus_set()
 
     #listen to changes in the search box and do search whenever there is a change
-    query.trace("w", lambda name, index, mode: _do_search(query, results_frame, COLORS, FONTS))
-
+    def on_type(*_): 
+        _do_search(query, results_frame, COLORS, FONTS)
+        
+    query.trace_add("write", on_type)
+        
 # Destroy function to tear down unicode search panel
 def destroy_unicode_search_panel(root):
 
