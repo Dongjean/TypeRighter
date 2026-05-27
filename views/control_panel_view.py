@@ -45,6 +45,10 @@ def control_panel_init(root):
         "user-auth": {
             "name": "Login",
             "icon": "",
+        }, 
+        "unicode-search": { 
+            "name": "Unicode Search",
+            "icon": "",
         }
     }
 
