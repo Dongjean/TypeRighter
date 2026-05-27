@@ -2,23 +2,20 @@ import tkinter as tk
 
 import utils.unicode_search as unicode_search 
 
-def _do_search(query, results_frame, COLORS, FONTS): 
-
-    #remove all rows currently shown in the results frame
+def _do_search(query, results_frame, COLORS, FONTS):
+    #clear previous results
     for child in results_frame.winfo_children(): 
         child.destroy()
 
-    # using the search function to get the results for the query
     results = unicode_search.search(query.get())
 
-    # if there are no results, then inform users to check the unicode codepoint
+    # invalid results
     if not results: 
         empty = tk.Label(results_frame, text="No relevant symbols found. Check unicode codepoint", fg = COLORS["text_muted"], bg=COLORS["bg_main"],font=FONTS["font_subtitle"])
         empty.pack(fill="x", pady=10) 
         return 
     
-    #for each valid input, display results in results frames as rows 
-
+    # display valid inputs as rows 
     for ch, name, cp in results: 
         row = tk.Frame(results_frame, bg=COLORS["bg_input"])
         row.pack(fill="x",pady=2) 
@@ -30,9 +27,7 @@ def _do_search(query, results_frame, COLORS, FONTS):
         symbol_info.pack(side="left", fill='x', expand = True) 
 
 def build_unicode_search_panel(root, COLORS, FONTS):
-
-    #frame for the panel that contains results frame 
-
+    #frame that contains results frame 
     panel_frame =tk.Frame(root, bg= COLORS["bg_main"], padx=20, pady=20, takefocus=True, name ="unicode_search_panel")
     panel_frame.pack(side="top", fill="both", expand=True)
 
@@ -43,20 +38,18 @@ def build_unicode_search_panel(root, COLORS, FONTS):
     subtitle_label = tk.Label(panel_frame, text="Search for unicode symbols by name or codepoint", fg=COLORS["text_muted"], bg=COLORS["bg_main"], font=FONTS["font_subtitle"])
     subtitle_label.pack(fill="x", pady=(0, 15))
 
-    #search box, query is a variable that holds the string that user inputs in search bar
-
+    #Search box
     query = tk.StringVar()
     search_box = tk.Entry(panel_frame, textvariable=query, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=1, highlightbackground=COLORS["border"], highlightthickness=1, font=FONTS["font_subtitle"])
     search_box.pack(fill="x", ipady = 6)
 
-    #results frame that holds the search results
+    #Results frame
     results_frame = tk.Frame(panel_frame, bg=COLORS["bg_main"])
     results_frame.pack(fill="both", expand=True, pady=(15,0))  
 
-    #put the cursor in the search box the moment the panel is built
     search_box.focus_set()
 
-    #listen to changes in the search box and do search whenever there is a change
+    #Listen and update for any changes
     def on_type(*_): 
         _do_search(query, results_frame, COLORS, FONTS)
         
