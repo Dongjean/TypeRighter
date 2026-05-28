@@ -1,6 +1,7 @@
 import tkinter as tk 
 
-import utils.unicode_search as unicode_search 
+import utils.unicode_search as unicode_search
+import utils.shortcuts_unicode as shortcuts_unicode
 
 #keybind popup
 def _bind_key(parent, symbol, name, COLORS, FONTS, on_select): 
@@ -22,7 +23,7 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
         if not event.char or not event.char.strip(): 
             return
         #call shortcut function
-        ok, message = shortcut.set_binding(event.char, symbol)
+        ok, message = shortcuts_unicode.set_binding(event.char, symbol)
         if ok: 
             popup.destroy()
             on_select(message)
@@ -46,6 +47,8 @@ def _do_search(query, results_frame, COLORS, FONTS):
         empty.pack(fill="x", pady=10) 
         return 
     
+    root = results_frame.winfo_toplevel()
+
     # display valid inputs as rows 
     for ch, name, cp in results: 
         row = tk.Frame(results_frame, bg=COLORS["bg_input"])
@@ -57,8 +60,8 @@ def _do_search(query, results_frame, COLORS, FONTS):
         symbol_info = tk.Label(row, text=f"{name} (U+{cp:04X})", fg=COLORS["text_muted"], bg=COLORS["bg_input"],font=FONTS["font_subtitle"], anchor="w")
         symbol_info.pack(side="left", fill='x', expand = True) 
 
-        bind_button =tk.Button(row, text="bind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"],
-                               command=lambda ch=ch, name=name: _bind_key(row, ch, name, COLORS, FONTS, lambda msg: bind_button.config(text=msg, fg=COLORS["accent_blue"])))
+        bind_button =tk.Button(row, text="bind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0)           
+        bind_button.config(command = lambda c=ch, n=name, b =bind_button: _bind_key(root, c, n, COLORS, FONTS, lambda msg: b.config(text=msg, fg=COLORS["accent_blue"])))
         bind_button.pack(side="right", padx=8)
 
 def build_unicode_search_panel(root, COLORS, FONTS):
