@@ -15,7 +15,6 @@ def overlay_init(root):
     root.attributes("-alpha", 0.5) # Translucent, non-intrusive
     if sys.platform.startswith("win"):
         root.attributes("-transparentcolor", "white") # Make anything white in root transparent
-    root.attributes("-transparentcolor", "white")
     sw = root.winfo_screenwidth()
     sh = root.winfo_screenheight()
     root.geometry(f"{sw}x{sh}+0+0")
