@@ -15,13 +15,20 @@ def overlay_init(root):
     root.attributes("-alpha", 0.5) # Translucent, non-intrusive
     if sys.platform.startswith("win"):
         root.attributes("-transparentcolor", "white") # Make anything white in root transparent
+    elif sys.platform.startswith("linux"):
+        try:
+            root.visual("rgba")
+        except tk.TclError:
+            print("linux system handles alpha channel natively")
+        # "#000001" is a funny color which unintentionally renders as near transparent
+        root.configure(bg="#000001")
     sw = root.winfo_screenwidth()
     sh = root.winfo_screenheight()
     root.geometry(f"{sw}x{sh}+0+0")
     if sys.platform.startswith("win"):
         canvas = tk.Canvas(root, bg="white", highlightthickness=0, name="overlay")
     elif sys.platform.startswith("linux"):
-        canvas = tk.Canvas(root, bg="", highlightthickness=0, name="overlay")
+        canvas = tk.Canvas(root, bg="#000001", highlightthickness=0, name="overlay")
     else:
         canvas = tk.Canvas(root, bg="white", highlightthickness=0, name="overlay")
 
