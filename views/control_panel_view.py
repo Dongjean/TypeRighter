@@ -16,8 +16,10 @@ def control_panel_init(root):
     # Get the canvas and delete it
     canvas = root.children["overlay"]
     canvas.destroy()
-
-    root.geometry("1050x720")
+    
+    sw = root.winfo_screenwidth()
+    sh = root.winfo_screenheight()
+    root.geometry(f"{sw // 2}x{sh // 2}+0+0")
     root.configure(bg="#ffffff")
 
     # Color Palette

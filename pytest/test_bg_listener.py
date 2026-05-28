@@ -97,8 +97,7 @@ def get_cp_init_tests():
         is_transparentcolor = True
     else:
         is_transparentcolor = str(root.attributes("-transparentcolor")) == ""
-    is_geometry = root.geometry() == "1050x720+0+0"
-    print(is_geometry)
+    is_geometry = root.geometry() == f"{sw // 2}x{sh // 2}+0+0"
     is_bg_white = root.cget("bg") == "#ffffff"
 
     # Check that there is no overlay canvas anymore
