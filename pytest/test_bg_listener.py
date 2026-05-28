@@ -1,15 +1,5 @@
 import pytest
 
-import os
-import sys
-
-# Get the path of the directory one level up
-# This is the root directory which contains main.pyw
-root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Add this root directory to the list of directories python checks for imports
-sys.path.append(root_dir)
-
 import main as main
 
 import time
