@@ -1,4 +1,5 @@
 import tkinter as tk
+import sys
 
 def overlay_init(root):
     border_thickness = 5
@@ -12,13 +13,26 @@ def overlay_init(root):
     root.overrideredirect(True) # No title bar, no borders
     root.attributes("-topmost", True) # Always on top
     root.attributes("-alpha", 0.5) # Translucent, non-intrusive
-    root.attributes("-transparentcolor", "white") # Make anything white in root transparent
+    if sys.platform.startswith("win"):
+        root.attributes("-transparentcolor", "white") # Make anything white in root transparent
+    root.attributes("-transparentcolor", "white")
     sw = root.winfo_screenwidth()
     sh = root.winfo_screenheight()
     root.geometry(f"{sw}x{sh}+0+0")
-    canvas = tk.Canvas(root, bg="white", highlightthickness=0, name="overlay")
+    if sys.platform.startswith("win"):
+        canvas = tk.Canvas(root, bg="white", highlightthickness=0, name="overlay")
+    elif sys.platform.startswith("linux"):
+        canvas = tk.Canvas(root, bg="", highlightthickness=0, name="overlay")
+    else:
+        canvas = tk.Canvas(root, bg="white", highlightthickness=0, name="overlay")
+
     canvas.pack(fill=tk.BOTH, expand=True)
-    canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
+    if sys.platform.startswith("win"):
+        canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
+    elif sys.platform.startswith("linux"):
+        canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="", tags="overlay")
+    else:
+        canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
     root.withdraw() # Hides the window and canvas first
 
 def trigger_overlay(root):

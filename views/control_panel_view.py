@@ -1,4 +1,5 @@
 from tkinter import font as tkfont
+import sys
 
 import components.navbar as navbar
 
@@ -9,7 +10,8 @@ def control_panel_init(root):
     root.overrideredirect(False)
     root.attributes("-topmost", False)
     root.attributes("-alpha", 1.0)
-    root.attributes("-transparentcolor", "") # Clear the transparent color mask
+    if sys.platform.startswith("win"):
+        root.attributes("-transparentcolor", "") # Clear the transparent color mask
 
     # Get the canvas and delete it
     canvas = root.children["overlay"]
