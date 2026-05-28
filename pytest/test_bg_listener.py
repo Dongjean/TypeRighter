@@ -207,7 +207,6 @@ def test_wrong_key():
 
     # Overlay should be withdrawn now
     is_withdrawn = root.state() == "withdrawn"
-    print(root.state())
 
     assert all([
         *init_settings_test,
