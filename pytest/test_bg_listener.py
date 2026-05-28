@@ -114,6 +114,7 @@ def test_overlay_key():
     key_simulator.release("d")
 
     # Manually update the root window
+    time.sleep(0.15)
     root.update()
 
     # The overlay should be on right now
@@ -147,20 +148,72 @@ def test_exit_key():
     key_simulator.release("a")
 
     # The gui_queue logic polls the queue once every 100ms
-    # Thus wait for 100ms minimally to allow the gui_queue to catch the keypress
-    time.sleep(0.1) # 0.1s = 100ms
+    # Thus wait for 150ms minimally to allow the gui_queue to catch the keypress
+    time.sleep(0.15) # 0.15s = 150ms
     root.update()
 
     # Check that the overlay is withdrawn now
     is_withdrawn = root.state() == "withdrawn"
-
+    print(root.state())
     assert all([
         *init_settings_test,
         is_deiconify_before,
         is_withdrawn
     ])
 
+def test_wrong_key():
 
-# def test_wrong_key():
+    # Check that the screen properly goes red, then turns off when a wrong key is pressed after Ctrl + D
+
+    # Check that the overlay is properly initialised
+    init_settings_test = get_overlay_init_tests()
+    print(root.state())
+    # Press Ctrl + D now
+    # Simulate Ctrl
+    key_simulator.press(keyboard.Key.ctrl_l)
+
+    # Simulate D while holding Ctrl down
+    key_simulator.press("d")
+
+    # Release both
+    key_simulator.release(keyboard.Key.ctrl_l)
+    key_simulator.release("d")
+    
+    time.sleep(0.15)
+    root.update()
+
+    # Check that the overlay was on before
+    is_deiconify_before = root.state() == "normal"
+    # print(root.state())
+
+    # Let the wrong keypress be F
+    # Simulate F
+    key_simulator.press("f")
+    # Release F
+    key_simulator.release("f")
+
+    # Wait 150ms to allow the gui_queue polling loop to catch it
+    time.sleep(0.15) # 0.15s = 150ms
+    root.update()
+
+    # Overlay should be red now
+    is_red = True
+
+    # Red overlay is flashed for 1s
+    # Thus wait 1.05s to allow the red overlay to go away
+    time.sleep(1.05)
+    root.update()
+
+    # Overlay should be withdrawn now
+    is_withdrawn = root.state() == "withdrawn"
+    print(root.state())
+
+    assert all([
+        *init_settings_test,
+        is_deiconify_before,
+        is_red,
+        is_withdrawn
+    ])
+
 
 # def test_control_panel_key():
