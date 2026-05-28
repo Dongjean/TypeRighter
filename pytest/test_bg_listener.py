@@ -364,5 +364,3 @@ def test_control_panel_key(subtests):
     for key, assertion in all_assertions.items():
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion
-    with subtests.test(msg="test"):
-        assert root.geometry() == "test line"
