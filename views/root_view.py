@@ -1,5 +1,6 @@
 import tkinter as tk
 import queue
+import sys
 
 from views.control_panel_view import control_panel_init
 from views.overlay_view import trigger_overlay, hide_overlay, flash_red_overlay, overlay_init
@@ -10,7 +11,13 @@ from views.overlay_view import trigger_overlay, hide_overlay, flash_red_overlay,
 gui_queue = queue.Queue()
 
 # Opening up the global root for the tkinter
-root = tk.Tk()
+root = None
+if sys.platform.startswith("win"):
+    root = tk.Tk()
+elif sys.platform.startswith("linux"):
+    root = tk.Tk(visual="truecolor")
+else:
+    root = tk.Tk()
 
 is_overlay_triggered = False
 is_control_panel_open = False

@@ -16,10 +16,6 @@ def overlay_init(root):
     if sys.platform.startswith("win"):
         root.attributes("-transparentcolor", "white") # Make anything white in root transparent
     elif sys.platform.startswith("linux"):
-        try:
-            root.visual("rgba")
-        except tk.TclError:
-            print("linux system handles alpha channel natively")
         # "#000001" is a funny color which unintentionally renders as near transparent
         root.configure(bg="#000001")
     sw = root.winfo_screenwidth()
