@@ -104,7 +104,7 @@ def get_cp_init_tests():
     is_overlay_gone = False
     try:
         # Try to access the overlay_canvas
-        overlay_canvas = root.nametowidget(".overlay")
+        root.nametowidget(".overlay")
     except KeyError:
         # If we cannot find it because any child widget with the name "overlay" cannot be found, then overlay is truly gone
         is_overlay_gone = True
