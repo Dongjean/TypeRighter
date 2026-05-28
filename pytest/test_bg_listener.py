@@ -1,23 +1,17 @@
 import pytest
 
-# Import main.pyw
-# .pyw extension complicates things
-import importlib.util
+import os
 import sys
-from pathlib import Path
 
-main_file_path = Path(__file__).parent / "./main.pyw"
-main_dir = str(main_file_path.parent)
+# Get the path of the directory one level up
+# This is the root directory which contains main.pyw
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Inject this directory to the front of Python's search path
-if main_dir not in sys.path:
-    sys.path.insert(0, main_dir)
+# Add this root directory to the list of directories python checks for imports
+sys.path.append(root_dir)
 
-spec = importlib.util.spec_from_file_location("main", main_file_path)
-main = importlib.util.module_from_spec(spec)
-sys.modules["main"] = main
-spec.loader.exec_module(main)
-# Now main is can be used like a regular import
+import main as main
+
 import time
 from pynput import keyboard
 
