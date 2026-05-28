@@ -145,16 +145,6 @@ def get_latex_build_tests():
 
     # All of these should be True
 
-    is_latex_frame = False
-    is_title_label = False
-    is_subtitle_label = False
-    is_editor_container = False
-    is_text_editor = False
-    is_latex_output_container = False
-    is_preview_label = False
-    is_latex_output_canvas = False
-    is_compile_button = False
-
     latex_frame, is_latex_frame = check_tk_exists(root, "latex_frame")
     title_label, is_title_label = check_tk_exists(latex_frame, "title_label")
     subtitle_label, is_subtitle_label = check_tk_exists(latex_frame, "subtitle_label")
