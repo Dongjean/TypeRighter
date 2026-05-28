@@ -167,7 +167,7 @@ def test_wrong_key():
 
     # Check that the overlay is properly initialised
     init_settings_test = get_overlay_init_tests()
-    print(root.state())
+    
     # Press Ctrl + D now
     # Simulate Ctrl
     key_simulator.press(keyboard.Key.ctrl_l)
@@ -197,7 +197,8 @@ def test_wrong_key():
     root.update()
 
     # Overlay should be red now
-    is_red = True
+    canvas = root.nametowidget(".overlay")
+    is_red = canvas.itemcget("overlay", "outline") == "red"
 
     # Red overlay is flashed for 1s
     # Thus wait 1.05s to allow the red overlay to go away
