@@ -83,6 +83,50 @@ def get_overlay_init_tests():
         is_fill
     ])
 
+def get_cp_init_tests():
+
+    # All of these should be True
+
+    is_root = root != None
+    is_title = root.title() == "TypeRighter - Control Panel"
+
+    # There is a known bug with tkinter, where root.overrideredirect() == None when we set it to False
+    # This is because setting it to False gives control of the title bar and borders to the native OS
+    # The windows OS returns 0, but for some reason tkinter's internal boolean converters converts that to None
+    is_overrideredirect = root.overrideredirect() == None
+    is_topmost = root.attributes("-topmost") == False
+    is_alpha = root.attributes("-alpha") == 1
+    is_transparentcolor = str(root.attributes("-transparentcolor")) == ""
+    is_geometry = root.geometry() == "1050x720+0+0"
+    is_bg_white = root.cget("bg") == "#ffffff"
+
+    # Check that there is no overlay canvas anymore
+    is_overlay_gone = False
+    try:
+        # Try to access the overlay_canvas
+        overlay_canvas = root.nametowidget(".overlay")
+    except KeyError:
+        # If we cannot find it because any child widget with the name "overlay" cannot be found, then overlay is truly gone
+        is_overlay_gone = True
+
+    # Check that it is not withdrawn
+    is_deiconify = root.state() == "normal"
+
+    return ([
+        is_root,
+        is_title,
+        is_overrideredirect,
+        is_topmost,
+        is_alpha,
+        is_transparentcolor,
+        is_geometry,
+        is_bg_white,
+
+        is_overlay_gone,
+
+        is_deiconify
+    ])
+
 def test_overlay_init():
     
     # Check for every property of root in the overlay that we set
@@ -216,4 +260,44 @@ def test_wrong_key():
     ])
 
 
-# def test_control_panel_key():
+def test_control_panel_key():
+
+    # Check that the control panel properly opens, with the LaTeX editor as the default first window
+
+    # Check that the overlay is properly initialised
+    init_settings_test = get_overlay_init_tests()
+    
+    # Press Ctrl + D now
+    # Simulate Ctrl
+    key_simulator.press(keyboard.Key.ctrl_l)
+
+    # Simulate D while holding Ctrl down
+    key_simulator.press("d")
+
+    # Release both
+    key_simulator.release(keyboard.Key.ctrl_l)
+    key_simulator.release("d")
+    
+    time.sleep(0.15)
+    root.update()
+
+    # Check that the overlay was on before
+    is_deiconify_before = root.state() == "normal"
+
+    # Press \ to open the control panel
+    # Simulate \
+    key_simulator.press("\\")
+    # Release \
+    key_simulator.release("\\")
+
+    # Wait 150ms to allow the gui_queue polling loop to catch it
+    time.sleep(0.15) # 0.15s = 150ms
+    root.update()
+
+    # Now, check the control panel init options
+    cp_init_settings_test = get_cp_init_tests()
+
+    assert all([
+        *cp_init_settings_test,
+        is_deiconify_before
+    ])
