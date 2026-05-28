@@ -31,12 +31,11 @@ root.update()
 # Start the pynput thread
 main.listener.start()
 
-def test_overlay_init():
-    
-    # Check for every property of root in the overlay that we set
-    sw = root.winfo_screenwidth()
-    sh = root.winfo_screenheight()
-    border_thickness = 5
+sw = root.winfo_screenwidth()
+sh = root.winfo_screenheight()
+border_thickness = 5
+
+def get_overlay_init_tests():
 
     # All of these should be True
     is_root = root != None
@@ -62,7 +61,7 @@ def test_overlay_init():
     is_width = float(canvas.itemcget("overlay", "width")) == border_thickness
     is_fill = canvas.itemcget("overlay", "fill") == "white"
 
-    assert all([
+    return ([
         is_root,
         is_overrideredirect,
         is_topmost,
@@ -80,30 +79,55 @@ def test_overlay_init():
         is_coords,
         is_outline,
         is_width,
-        is_fill,
+        is_fill
     ])
 
-# def test_overlay_key():
-
-#     # Test that Ctrl + D works
+def test_overlay_init():
     
-#     # Simulate a keystroke event
-#     key_simulator = keyboard.Controller()
+    # Check for every property of root in the overlay that we set
 
-#     # Simulate Ctrl
-#     key_simulator.press(keyboard.Key.ctrl_l)
+    init_settings_test = get_overlay_init_tests()
 
-#     # Simulate D while holding Ctrl down
-#     key_simulator.press("d")
+    # We initialise the overlay window as withdrawn first
+    is_withdrawn = root.state() == "withdrawn"
 
-#     # Release both
-#     key_simulator.release(keyboard.Key.ctrl_l)
-#     key_simulator.release("d")
+    assert all([
+        *init_settings_test,
+        is_withdrawn
+    ])
 
-#     # Manually update the root window
-#     root.update()
+def test_overlay_key():
 
-#     # The overlay should be on right now
+    # Test that Ctrl + D works
+    
+    # Simulate a keystroke event
+    key_simulator = keyboard.Controller()
+
+    # Simulate Ctrl
+    key_simulator.press(keyboard.Key.ctrl_l)
+
+    # Simulate D while holding Ctrl down
+    key_simulator.press("d")
+
+    # Release both
+    key_simulator.release(keyboard.Key.ctrl_l)
+    key_simulator.release("d")
+
+    # Manually update the root window
+    root.update()
+
+    # The overlay should be on right now
+    # Check all of the overlay init settings, and then check that the window is not withdrawn
+    init_settings_test = get_overlay_init_tests()
+    
+    # root.deiconify() makes the state of root be "normal"
+    is_deiconify = root.state() == "normal"
+
+    assert all([
+        *init_settings_test,
+        is_deiconify
+    ])
+
 #     # Check for every property of root in the overlay that we set
 #     sw = root.winfo_screenwidth()
 #     sh = root.winfo_screenheight()
