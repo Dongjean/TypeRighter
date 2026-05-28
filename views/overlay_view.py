@@ -17,6 +17,7 @@ def overlay_init(root):
         root.attributes("-transparentcolor", "white") # Make anything white in root transparent
     elif sys.platform.startswith("linux"):
         # "#000001" is a funny color which unintentionally renders as near transparent
+        # This may not work right now
         root.configure(bg="#000001")
     sw = root.winfo_screenwidth()
     sh = root.winfo_screenheight()
