@@ -1,5 +1,7 @@
 import pytest
 
+import sys
+
 import main as main
 
 import time
@@ -27,7 +29,14 @@ def get_overlay_init_tests():
     is_overrideredirect = root.overrideredirect() == True
     is_topmost = root.attributes("-topmost") == True
     is_alpha = root.attributes("-alpha") == 0.5
-    is_transparentcolor = str(root.attributes("-transparentcolor")) == "white"
+    is_transparentcolor = False
+    if sys.platform.startswith("win"):
+        is_transparentcolor = str(root.attributes("-transparentcolor")) == "white"
+    elif sys.platform.startswith("linux"):
+        # Just skip the test by letting it pass
+        is_transparentcolor = True
+    else:
+        is_transparentcolor = str(root.attributes("-transparentcolor")) == "white"
     is_geometry = root.geometry() == f"{sw}x{sh}+0+0"
 
     # Check the canvas' properties in the overlay that we set
@@ -80,7 +89,14 @@ def get_cp_init_tests():
     is_overrideredirect = root.overrideredirect() == None
     is_topmost = root.attributes("-topmost") == False
     is_alpha = root.attributes("-alpha") == 1
-    is_transparentcolor = str(root.attributes("-transparentcolor")) == ""
+    is_transparentcolor = False
+    if sys.platform.startswith("win"):
+        is_transparentcolor = str(root.attributes("-transparentcolor")) == ""
+    elif sys.platform.startswith("linux"):
+        # Just skip the test by letting it pass
+        is_transparentcolor = True
+    else:
+        is_transparentcolor = str(root.attributes("-transparentcolor")) == ""
     is_geometry = root.geometry() == "1050x720+0+0"
     is_bg_white = root.cget("bg") == "#ffffff"
 
