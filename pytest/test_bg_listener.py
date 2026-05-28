@@ -128,21 +128,6 @@ def test_overlay_key():
         is_deiconify
     ])
 
-#     # Check for every property of root in the overlay that we set
-#     sw = root.winfo_screenwidth()
-#     sh = root.winfo_screenheight()
-#     root.geometry(f"{sw}x{sh}+0+0")
-#     canvas = tk.Canvas(root, bg="white", highlightthickness=0, name="overlay")
-#     canvas.pack(fill=tk.BOTH, expand=True)
-#     canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
-#     is_overrideredirect = root.overrideredirect() == True
-#     is_topmost = root.attributes("-topmost") == True
-#     is_alpha = root.attributes("-alpha") == 0.5
-#     is_transparentcolor = root.attributes("-transparentcolor") == "white"
-#     is_geometry = root.geometry() == f"{sw}x{sh}+0+0"
-    
-
-
 # def test_exit_key():
 
 #     # Test that Ctrl
