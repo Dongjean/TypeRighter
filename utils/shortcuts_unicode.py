@@ -2,28 +2,28 @@ import json
 import os 
 import sys 
 import threading 
-from pynput import keyboard
 import pyperclip
 
 #creates local file (windows)
 def _data_dir(): 
     app = "TypeRighter"
-    if sys.platform == "win32": 
-        base = os.environ.get("APPDATA", os.path.expanduser("~"))
-
-        folder = os.path.join(base, app)
-        os.makedirs(folder, exist_ok=True)
-        return folder
+    if sys.platform !="win32":
+        raise NotImplementedError("This function is currently only implemented for Windows.")
+    
+    base = os.environ.get("APPDATA", os.path.expanduser("~"))
+    folder = os.path.join(base, app)
+    os.makedirs(folder, exist_ok=True)
+    return folder
     
 _PATH = os.path.join(_data_dir(), "shortcuts_unicode.json")
 _lock = threading.Lock()
 
 bindings = {}
 
-RESERVED_KEYS ={"a", "\\", "`", keyboard.Key.esc}
+RESERVED_KEYS ={"a", "\\", "`"}
 
 #load from file 
-def _load(): 
+def load(): 
     global bindings
     with _lock: 
         if os.path.exists(_PATH):
@@ -51,8 +51,6 @@ def _save():
 def set_binding(key, symbol):
     if key is None: 
         key =""
-    else: 
-        key = key 
     key = key.lower()
 
     if len(key) != 1:
@@ -75,15 +73,11 @@ def set_binding(key, symbol):
 def remove_binding(key): 
     if key == None:
         key =""
-    else: 
-        key = key
     key = key.lower()
 
     with _lock: 
         if key in bindings: 
             binded = True
-
-            symbol = bindings[key]
             del bindings[key]
 
         else: 
@@ -91,13 +85,12 @@ def remove_binding(key):
 
     if binded:
         _save()
+    return binded
 
 #read symbol binded to key
 def lookup(key): 
     if key == None:
         key =""
-    else: 
-        key = key
     key = key.lower()
 
     with _lock: 
