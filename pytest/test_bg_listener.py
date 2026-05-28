@@ -55,26 +55,26 @@ def get_overlay_init_tests():
     is_width = float(canvas.itemcget("overlay", "width")) == border_thickness
     is_fill = canvas.itemcget("overlay", "fill") == "white"
 
-    return ([
-        is_root,
-        is_overrideredirect,
-        is_topmost,
-        is_alpha,
-        is_transparentcolor,
-        is_geometry,
+    return {
+        "is_root": is_root,
+        "is_overrideredirect": is_overrideredirect,
+        "is_topmost": is_topmost,
+        "is_alpha": is_alpha,
+        "is_transparentcolor": is_transparentcolor,
+        "is_geometry": is_geometry,
 
-        is_canvas,
-        is_bg,
-        is_highlightthickness,
-        is_fill,
-        is_expand,
+        "is_canvas": is_canvas,
+        "is_bg": is_bg,
+        "is_highlightthickness": is_highlightthickness,
+        "is_fill": is_fill,
+        "is_expand": is_expand,
 
-        is_rectangle,
-        is_coords,
-        is_outline,
-        is_width,
-        is_fill
-    ])
+        "is_rectangle": is_rectangle,
+        "is_coords": is_coords,
+        "is_outline": is_outline,
+        "is_width": is_width,
+        "is_fill": is_fill
+    }
 
 def get_cp_init_tests():
 
@@ -112,20 +112,20 @@ def get_cp_init_tests():
     # Check that it is not withdrawn
     is_deiconify = root.state() == "normal"
 
-    return ([
-        is_root,
-        is_title,
-        is_overrideredirect,
-        is_topmost,
-        is_alpha,
-        is_transparentcolor,
-        is_geometry,
-        is_bg_white,
+    return {
+        "is_root": is_root,
+        "is_title": is_title,
+        "is_overrideredirect": is_overrideredirect,
+        "is_topmost": is_topmost,
+        "is_alpha": is_alpha,
+        "is_transparentcolor": is_transparentcolor,
+        "is_geometry": is_geometry,
+        "is_bg_white": is_bg_white,
 
-        is_overlay_gone,
+        "is_overlay_gone": is_overlay_gone,
 
-        is_deiconify
-    ])
+        "is_deiconify": is_deiconify
+    }
 
 def check_tk_exists(parent, child_name):
     try:
@@ -155,19 +155,19 @@ def get_latex_build_tests():
     latex_output_canvas, is_latex_output_canvas = check_tk_exists(preview_label, "latex_output_canvas")
     compile_button, is_compile_button = check_tk_exists(editor_container, "compile_button")
 
-    return ([
-    is_latex_frame,
-    is_title_label,
-    is_subtitle_label,
-    is_editor_container,
-    is_text_editor,
-    is_latex_output_container,
-    is_preview_label,
-    is_latex_output_canvas,
-    is_compile_button
-    ])
+    return {
+        "is_latex_frame": is_latex_frame,
+        "is_title_label": is_title_label,
+        "is_subtitle_label": is_subtitle_label,
+        "is_editor_container": is_editor_container,
+        "is_text_editor": is_text_editor,
+        "is_latex_output_container": is_latex_output_container,
+        "is_preview_label": is_preview_label,
+        "is_latex_output_canvas": is_latex_output_canvas,
+        "is_compile_button": is_compile_button
+    }
 
-def test_overlay_init():
+def test_overlay_init(subtests):
     
     # Check for every property of root in the overlay that we set
 
@@ -176,12 +176,16 @@ def test_overlay_init():
     # We initialise the overlay window as withdrawn first
     is_withdrawn = root.state() == "withdrawn"
 
-    assert all([
-        *init_settings_test,
-        is_withdrawn
-    ])
+    all_assertions = {
+        **init_settings_test,
+        "is_withdrawn": is_withdrawn
+    }
 
-def test_overlay_key():
+    for key, assertion in all_assertions.items():
+        with subtests.test(msg=f"Asserting {key}"):
+            assert assertion
+
+def test_overlay_key(subtests):
 
     # Test that Ctrl + D works
     
@@ -208,15 +212,19 @@ def test_overlay_key():
     # root.deiconify() makes the state of root be "normal"
     is_deiconify = root.state() == "normal"
 
-    assert all([
-        *init_settings_test,
-        is_deiconify
-    ])
+    all_assertions = {
+        **init_settings_test,
+        "is_deiconify": is_deiconify
+    }
+
+    for key, assertion in all_assertions.items():
+        with subtests.test(msg=f"Asserting {key}"):
+            assert assertion
 
 # Tests are run by pytest in the order they are defined
 # Thus, this will be run right after test_overlay_key()
 # Thus, Ctrl + D has already been pressed and overlay is on
-def test_exit_key():
+def test_exit_key(subtests):
 
     # Test that Ctrl + D, then "a" properly turns off the overlay
 
@@ -239,13 +247,17 @@ def test_exit_key():
     # Check that the overlay is withdrawn now
     is_withdrawn = root.state() == "withdrawn"
     print(root.state())
-    assert all([
-        *init_settings_test,
-        is_deiconify_before,
-        is_withdrawn
-    ])
+    all_assertions = {
+        **init_settings_test,
+        "is_deiconify_before": is_deiconify_before,
+        "is_withdrawn": is_withdrawn
+    }
 
-def test_wrong_key():
+    for key, assertion in all_assertions.items():
+        with subtests.test(msg=f"Asserting {key}"):
+            assert assertion
+
+def test_wrong_key(subtests):
 
     # Check that the screen properly goes red, then turns off when a wrong key is pressed after Ctrl + D
 
@@ -292,15 +304,18 @@ def test_wrong_key():
     # Overlay should be withdrawn now
     is_withdrawn = root.state() == "withdrawn"
 
-    assert all([
-        *init_settings_test,
-        is_deiconify_before,
-        is_red,
-        is_withdrawn
-    ])
+    all_assertions = {
+        **init_settings_test,
+        "is_deiconify_before": is_deiconify_before,
+        "is_red": is_red,
+        "is_withdrawn": is_withdrawn
+    }
 
+    for key, assertion in all_assertions.items():
+        with subtests.test(msg=f"Asserting {key}"):
+            assert assertion
 
-def test_control_panel_key():
+def test_control_panel_key(subtests):
 
     # Check that the control panel properly opens, with the LaTeX editor as the default first window
 
@@ -340,8 +355,12 @@ def test_control_panel_key():
     # Now, check the LaTeX editor build options
     latex_build_settings_test = get_latex_build_tests()
 
-    assert all([
-        *latex_build_settings_test,
-        *cp_init_settings_test,
-        is_deiconify_before
-    ])
+    all_assertions = {
+        **latex_build_settings_test,
+        **cp_init_settings_test,
+        "is_deiconify_before": is_deiconify_before
+    }
+
+    for key, assertion in all_assertions.items():
+        with subtests.test(msg=f"Asserting {key}"):
+            assert assertion
