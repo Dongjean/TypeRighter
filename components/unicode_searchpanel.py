@@ -2,6 +2,37 @@ import tkinter as tk
 
 import utils.unicode_search as unicode_search 
 
+#keybind popup
+def _bind_key(parent, symbol, name, COLORS, FONTS, on_select): 
+    popup = tk.Toplevel(parent, bg = COLORS["bg_main"]) 
+    popup.title("Bind symbol to key")
+    popup.configure(padx=20, pady=20)
+    popup.grab_set()
+    popup.transient(parent)
+    popup.resizable(False, False)
+
+    popuptitle =tk.Label(popup, text=f"Bind a key to {symbol} {name}", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_title"])
+    popuptitle.pack(pady=(0, 10))
+
+    prompt = tk.Label(popup, text="Press any key ...", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_subtitle"])
+    prompt.pack(pady=15)
+
+    #capture keystroke to bind
+    def on_key_press(event):
+        if not event.char or not event.char.strip(): 
+            return
+        #call shortcut function
+        ok, message = shortcut.set_binding(event.char, symbol)
+        if ok: 
+            popup.destroy()
+            on_select(message)
+        else:
+            prompt.config(text=message, font=FONTS["font_subtitle"], fg="#FF0000")
+
+    popup.bind("<Key>", on_key_press)
+    popup.bind("<Escape>", lambda e: popup.destroy())
+    popup.focus_set()
+
 def _do_search(query, results_frame, COLORS, FONTS):
     #clear previous results
     for child in results_frame.winfo_children(): 
@@ -25,6 +56,10 @@ def _do_search(query, results_frame, COLORS, FONTS):
 
         symbol_info = tk.Label(row, text=f"{name} (U+{cp:04X})", fg=COLORS["text_muted"], bg=COLORS["bg_input"],font=FONTS["font_subtitle"], anchor="w")
         symbol_info.pack(side="left", fill='x', expand = True) 
+
+        bind_button =tk.Button(row, text="bind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"],
+                               command=lambda ch=ch, name=name: _bind_key(row, ch, name, COLORS, FONTS, lambda msg: bind_button.config(text=msg, fg=COLORS["accent_blue"])))
+        bind_button.pack(side="right", padx=8)
 
 def build_unicode_search_panel(root, COLORS, FONTS):
     #frame that contains results frame 
