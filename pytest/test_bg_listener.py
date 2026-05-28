@@ -18,3 +18,111 @@ main = importlib.util.module_from_spec(spec)
 sys.modules["main"] = main
 spec.loader.exec_module(main)
 # Now main is can be used like a regular import
+
+from pynput import keyboard
+
+# Manually initialize the tkinter window without .mainloop()
+# Run root_view.root_init() without the last root.mainloop() line
+root = main.root_view.root
+main.root_view.overlay_init(root)
+root.after(0, lambda: main.root_view.check_queue())
+root.update()
+
+# Start the pynput thread
+main.listener.start()
+
+def test_overlay_init():
+    
+    # Check for every property of root in the overlay that we set
+    sw = root.winfo_screenwidth()
+    sh = root.winfo_screenheight()
+    border_thickness = 5
+
+    # All of these should be True
+    is_root = root != None
+    is_overrideredirect = root.overrideredirect() == True
+    is_topmost = root.attributes("-topmost") == True
+    is_alpha = root.attributes("-alpha") == 0.5
+    is_transparentcolor = str(root.attributes("-transparentcolor")) == "white"
+    is_geometry = root.geometry() == f"{sw}x{sh}+0+0"
+
+    # Check the canvas' properties in the overlay that we set
+    # We tagged the canvas that we made with "overlay"
+    canvas = root.nametowidget(".overlay")
+    is_canvas = canvas != None
+    is_bg = canvas.cget("bg") == "white"
+    is_highlightthickness = canvas.cget("highlightthickness") == "0"
+    is_fill = canvas.pack_info().get("fill") == "both"
+    is_expand = canvas.pack_info().get("expand") == True
+
+    canvas_rectangle_id = canvas.find_withtag("overlay")[0]
+    is_rectangle = canvas.type(canvas_rectangle_id) == "rectangle"
+    is_coords = canvas.coords("overlay") == [border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2]
+    is_outline = canvas.itemcget("overlay", "outline") == "green"
+    is_width = float(canvas.itemcget("overlay", "width")) == border_thickness
+    is_fill = canvas.itemcget("overlay", "fill") == "white"
+
+    assert all([
+        is_root,
+        is_overrideredirect,
+        is_topmost,
+        is_alpha,
+        is_transparentcolor,
+        is_geometry,
+
+        is_canvas,
+        is_bg,
+        is_highlightthickness,
+        is_fill,
+        is_expand,
+
+        is_rectangle,
+        is_coords,
+        is_outline,
+        is_width,
+        is_fill,
+    ])
+
+# def test_overlay_key():
+
+#     # Test that Ctrl + D works
+    
+#     # Simulate a keystroke event
+#     key_simulator = keyboard.Controller()
+
+#     # Simulate Ctrl
+#     key_simulator.press(keyboard.Key.ctrl_l)
+
+#     # Simulate D while holding Ctrl down
+#     key_simulator.press("d")
+
+#     # Release both
+#     key_simulator.release(keyboard.Key.ctrl_l)
+#     key_simulator.release("d")
+
+#     # Manually update the root window
+#     root.update()
+
+#     # The overlay should be on right now
+#     # Check for every property of root in the overlay that we set
+#     sw = root.winfo_screenwidth()
+#     sh = root.winfo_screenheight()
+#     root.geometry(f"{sw}x{sh}+0+0")
+#     canvas = tk.Canvas(root, bg="white", highlightthickness=0, name="overlay")
+#     canvas.pack(fill=tk.BOTH, expand=True)
+#     canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
+#     is_overrideredirect = root.overrideredirect() == True
+#     is_topmost = root.attributes("-topmost") == True
+#     is_alpha = root.attributes("-alpha") == 0.5
+#     is_transparentcolor = root.attributes("-transparentcolor") == "white"
+#     is_geometry = root.geometry() == f"{sw}x{sh}+0+0"
+    
+
+
+# def test_exit_key():
+
+#     # Test that Ctrl
+
+# def test_wrong_key():
+
+# def test_control_panel_key():
