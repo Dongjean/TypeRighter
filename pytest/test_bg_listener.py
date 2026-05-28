@@ -127,6 +127,56 @@ def get_cp_init_tests():
         is_deiconify
     ])
 
+def check_tk_exists(parent, child_name):
+    try:
+
+        # Widget with name child_name exists under the widget parent
+        child_widget = parent.nametowidget(child_name)
+        return (child_widget, True)
+    except KeyError:
+
+        # Widget with name child_name does not exist under the widget parent
+        return (None, False)
+    except AttributeError:
+
+        # The widget parent doesnt exist
+        return (None, False)
+def get_latex_build_tests():
+
+    # All of these should be True
+
+    is_latex_frame = False
+    is_title_label = False
+    is_subtitle_label = False
+    is_editor_container = False
+    is_text_editor = False
+    is_latex_output_container = False
+    is_preview_label = False
+    is_latex_output_canvas = False
+    is_compile_button = False
+
+    latex_frame, is_latex_frame = check_tk_exists(root, "latex_frame")
+    title_label, is_title_label = check_tk_exists(latex_frame, "title_label")
+    subtitle_label, is_subtitle_label = check_tk_exists(latex_frame, "subtitle_label")
+    editor_container, is_editor_container = check_tk_exists(latex_frame, "editor_container")
+    text_editor, is_text_editor = check_tk_exists(editor_container, "text_editor")
+    latex_output_container, is_latex_output_container = check_tk_exists(latex_frame, "latex_output_container")
+    preview_label, is_preview_label = check_tk_exists(latex_output_container, "preview_label")
+    latex_output_canvas, is_latex_output_canvas = check_tk_exists(preview_label, "latex_output_canvas")
+    compile_button, is_compile_button = check_tk_exists(editor_container, "compile_button")
+
+    return ([
+    is_latex_frame,
+    is_title_label,
+    is_subtitle_label,
+    is_editor_container,
+    is_text_editor,
+    is_latex_output_container,
+    is_preview_label,
+    is_latex_output_canvas,
+    is_compile_button
+    ])
+
 def test_overlay_init():
     
     # Check for every property of root in the overlay that we set
@@ -297,7 +347,11 @@ def test_control_panel_key():
     # Now, check the control panel init options
     cp_init_settings_test = get_cp_init_tests()
 
+    # Now, check the LaTeX editor build options
+    latex_build_settings_test = get_latex_build_tests()
+
     assert all([
+        *latex_build_settings_test,
         *cp_init_settings_test,
         is_deiconify_before
     ])
