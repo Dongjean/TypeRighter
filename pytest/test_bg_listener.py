@@ -18,7 +18,7 @@ main = importlib.util.module_from_spec(spec)
 sys.modules["main"] = main
 spec.loader.exec_module(main)
 # Now main is can be used like a regular import
-
+import time
 from pynput import keyboard
 
 # Manually initialize the tkinter window without .mainloop()
@@ -34,6 +34,7 @@ main.listener.start()
 sw = root.winfo_screenwidth()
 sh = root.winfo_screenheight()
 border_thickness = 5
+key_simulator = keyboard.Controller()
 
 def get_overlay_init_tests():
 
@@ -101,7 +102,6 @@ def test_overlay_key():
     # Test that Ctrl + D works
     
     # Simulate a keystroke event
-    key_simulator = keyboard.Controller()
 
     # Simulate Ctrl
     key_simulator.press(keyboard.Key.ctrl_l)
@@ -128,9 +128,38 @@ def test_overlay_key():
         is_deiconify
     ])
 
-# def test_exit_key():
+# Tests are run by pytest in the order they are defined
+# Thus, this will be run right after test_overlay_key()
+# Thus, Ctrl + D has already been pressed and overlay is on
+def test_exit_key():
 
-#     # Test that Ctrl
+    # Test that Ctrl + D, then "a" properly turns off the overlay
+
+    # Check that the overlay is properly initialised
+    init_settings_test = get_overlay_init_tests()
+
+    # Check that the overlay was on before
+    is_deiconify_before = root.state() == "normal"
+
+    # Simulate A
+    key_simulator.press("a")
+    # Release A
+    key_simulator.release("a")
+
+    # The gui_queue logic polls the queue once every 100ms
+    # Thus wait for 100ms minimally to allow the gui_queue to catch the keypress
+    time.sleep(0.1) # 0.1s = 100ms
+    root.update()
+
+    # Check that the overlay is withdrawn now
+    is_withdrawn = root.state() == "withdrawn"
+
+    assert all([
+        *init_settings_test,
+        is_deiconify_before,
+        is_withdrawn
+    ])
+
 
 # def test_wrong_key():
 
