@@ -42,7 +42,6 @@ import tkinter as tk
 import requests
 from io import BytesIO
 from PIL import Image, ImageTk
-import pyperclipimg as pci
 import win32clipboard as clip
 import win32con
 from io import BytesIO

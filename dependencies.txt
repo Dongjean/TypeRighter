@@ -8,5 +8,4 @@ pyrebase4==4.9.0
 python-dotenv==1.2.2
 pytest-subtests==0.15.0
 pyperclip==1.11.0
-pyperclipimg==0.2.0
 pywin32==311
