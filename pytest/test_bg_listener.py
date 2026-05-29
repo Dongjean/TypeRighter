@@ -1,4 +1,5 @@
 import pytest
+from tkinter import font as tkfont
 
 import sys
 
@@ -21,6 +22,24 @@ sw = root.winfo_screenwidth()
 sh = root.winfo_screenheight()
 border_thickness = 5
 key_simulator = keyboard.Controller()
+
+# Color Palette
+COLORS = {
+    "bg_main": "#202020",
+    "bg_input": "#1a1a1a",
+    "text_main": "#e3e3e3",
+    "text_muted": "#888888",
+    "border": "#2d2d2d",
+    "accent_blue": "#2a5a9c",
+    "hyperlink_blue": "#0099FF",
+}
+
+# Custom Fonts
+FONTS = {
+    "font_title": tkfont.Font(family="Segoe UI", size=16, weight="bold"),
+    "font_subtitle": tkfont.Font(family="Segoe UI", size=10, weight="normal"),
+    "font_hyperlink": tkfont.Font(family="Segoe UI", size=10, weight="normal", underline=True),
+}
 
 def get_overlay_init_tests():
 
@@ -155,6 +174,148 @@ def get_latex_build_tests():
     latex_output_canvas, is_latex_output_canvas = check_tk_exists(preview_label, "latex_output_canvas")
     compile_button, is_compile_button = check_tk_exists(editor_container, "compile_button")
 
+    # Check the properties of each widget
+
+    # latex_frame
+    # Get our desired latex_frame_props
+    latex_frame_props = {
+        "bg": COLORS["bg_main"],
+        "padx": 20,
+        "pady": 20,
+        "takefocus": "1"
+    }
+
+    # Get the real latex_frame_props with .cget(prop)
+    curr_latex_frame_props = {
+        key: latex_frame.cget(key) for key, value in latex_frame_props.items()
+    }
+    is_latex_frame_properties = all([
+        *[curr_latex_frame_props[key] == latex_frame_props[key] for key, value in latex_frame_props.items()],
+        latex_frame.winfo_name() == "latex_frame"
+    ])
+
+    # title_label
+    title_label_props = {
+        "text": "LaTeX Equation Editor",
+        "bg": COLORS["bg_main"],
+        "fg": COLORS["text_main"]
+    }
+    curr_title_label_props = {
+        key: title_label.cget(key) for key, value in title_label_props.items()
+    }
+    is_title_label_properties = all([
+        *[curr_title_label_props[key] == title_label_props[key] for key, value in title_label_props.items()],
+        tkfont.nametofont(title_label.cget("font")).actual() == FONTS["font_title"].actual(),
+        title_label.winfo_name() == "title_label"
+    ])
+
+    # subtitle_label
+    subtitle_label_props = {
+        "text": "Edit and preview complex mathematical formulas",
+        "bg": COLORS["bg_main"],
+        "fg": COLORS["text_muted"]
+    }
+    curr_subtitle_label_props = {
+        key: subtitle_label.cget(key) for key, value in subtitle_label_props.items()
+    }
+    is_subtitle_label_properties = all([
+        *[curr_subtitle_label_props[key] == subtitle_label_props[key] for key, value in subtitle_label_props.items()],
+        tkfont.nametofont(subtitle_label.cget("font")).actual() == FONTS["font_subtitle"].actual(),
+        subtitle_label.winfo_name() == "subtitle_label"
+    ])
+
+    # editor_container
+    editor_container_props = {
+        "bg": COLORS["bg_input"],
+        "bd": 1,
+        "highlightbackground": COLORS["border"],
+        "highlightthickness": 1
+    }
+    curr_editor_container_props = {
+        key: editor_container.cget(key) for key, value in editor_container_props.items()
+    }
+    is_editor_container_properties = all([
+        *[curr_editor_container_props[key] == editor_container_props[key] for key, value in editor_container_props.items()],
+        editor_container.winfo_name() == "editor_container"
+    ])
+
+    # text_editor
+    text_editor_props = {
+        "bg": COLORS["bg_input"],
+        "fg": COLORS["text_main"],
+        "insertbackground": "white",
+        "bd": 0,
+        "padx": 15,
+        "pady": 15,
+        "wrap": "none"
+    }
+    curr_text_editor_props = {
+        key: text_editor.cget(key) for key, value in text_editor_props.items()
+    }
+    is_text_editor_properties = all([
+        *[curr_text_editor_props[key] == text_editor_props[key] for key, value in text_editor_props.items()],
+        tkfont.nametofont(text_editor.cget("font")).actual() == FONTS["font_subtitle"].actual(),
+        text_editor.winfo_name() == "text_editor"
+    ])
+
+    # latex_output_container
+    latex_output_container_props = {
+        "bg": COLORS["bg_input"],
+        "bd": 1,
+        "highlightbackground": COLORS["border"],
+        "highlightthickness": 1,
+        "height": 150
+    }
+    curr_latex_output_container_props = {
+        key: latex_output_container.cget(key) for key, value in latex_output_container_props.items()
+    }
+    is_latex_output_container_properties = all([
+        *[curr_latex_output_container_props[key] == latex_output_container_props[key] for key, value in latex_output_container_props.items()],
+        latex_output_container.winfo_name() == "latex_output_container"
+    ])
+
+    # preview_label
+    preview_label_props = {
+        "bg": "white"
+    }
+    curr_preview_label_props = {
+        key: preview_label.cget(key) for key, value in preview_label_props.items()
+    }
+    is_preview_label_properties = all([
+        *[curr_preview_label_props[key] == preview_label_props[key] for key, value in preview_label_props.items()],
+        preview_label.winfo_name() == "preview_label"
+    ])
+
+    # latex_output_canvas
+    latex_output_canvas_props = {
+        "bg": "white",
+        "highlightthickness": "0"
+    }
+    curr_latex_output_canvas_props = {
+        key: latex_output_canvas.cget(key) for key, value in latex_output_canvas_props.items()
+    }
+    is_latex_output_canvas_properties = all([
+        *[curr_latex_output_canvas_props[key] == latex_output_canvas_props[key] for key, value in latex_output_canvas_props.items()],
+        latex_output_canvas.winfo_name() == "latex_output_canvas"
+    ])
+
+    # compile_button
+    compile_button_props = {
+        "text": "Compile",
+        "bg": COLORS["border"],
+        "fg": COLORS["text_main"],
+        "bd": 0,
+        "relief": "flat"
+    }
+    curr_compile_button_props = {
+        key: compile_button.cget(key) for key, value in compile_button_props.items()
+    }
+    is_compile_button_properties = all([
+        *[curr_compile_button_props[key] == compile_button_props[key] for key, value in compile_button_props.items()],
+        tkfont.nametofont(compile_button.cget("font")).actual() == FONTS["font_subtitle"].actual(),
+        compile_button.winfo_name() == "compile_button"
+    ])
+
     return {
         "is_latex_frame": is_latex_frame,
         "is_title_label": is_title_label,
@@ -164,7 +325,16 @@ def get_latex_build_tests():
         "is_latex_output_container": is_latex_output_container,
         "is_preview_label": is_preview_label,
         "is_latex_output_canvas": is_latex_output_canvas,
-        "is_compile_button": is_compile_button
+        "is_compile_button": is_compile_button,
+        "is_latex_frame_properties": is_latex_frame_properties,
+        "is_title_label_properties": is_title_label_properties,
+        "is_subtitle_label_properties": is_subtitle_label_properties,
+        "is_editor_container_properties": is_editor_container_properties,
+        "is_text_editor_properties": is_text_editor_properties,
+        "is_latex_output_container_properties": is_latex_output_container_properties,
+        "is_preview_label_properties": is_preview_label_properties,
+        "is_latex_output_canvas_properties": is_latex_output_canvas_properties,
+        "is_compile_button_properties": is_compile_button_properties
     }
 
 def test_overlay_init(subtests):
