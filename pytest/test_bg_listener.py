@@ -8,18 +8,7 @@ import main as main
 import time
 from pynput import keyboard
 
-# Manually initialize the tkinter window without .mainloop()
-# Run root_view.root_init() without the last root.mainloop() line
-root = main.root_view.root
-main.root_view.overlay_init(root)
-root.after(0, lambda: main.root_view.check_queue())
-root.update()
 
-# Start the pynput thread
-main.listener.start()
-
-sw = root.winfo_screenwidth()
-sh = root.winfo_screenheight()
 border_thickness = 5
 key_simulator = keyboard.Controller()
 
@@ -53,7 +42,41 @@ WINDOWS = {
     }
 }
 
-def get_overlay_init_tests():
+@pytest.fixture(scope="module")
+def test_env():
+
+    # This part runs before the test_ functions
+    # Initialise the tkinter root window and the pynput listener
+
+    # Manually initialize the tkinter window without .mainloop()
+    # Run root_view.root_init() without the last root.mainloop() line
+    root = main.root_view.root
+    main.root_view.overlay_init(root)
+    root.after(0, lambda: main.root_view.check_queue())
+    root.update()
+
+    # Start the pynput thread
+    main.listener.start()
+
+    sw = root.winfo_screenwidth()
+    sh = root.winfo_screenheight()
+
+    yield (root, sw, sh) # This is where the code runs
+
+    # This is after all the tests
+    # Close everything
+    
+    # Destroy the root window
+    main.root_view.gui_queue.put("destroy_root")
+
+    # Stop the pynput listener
+    main.listener.stop()
+
+    # Sleep for 150ms to let the tkinter root window properly close
+    time.sleep(0.15)
+
+
+def get_overlay_init_tests(root, sw, sh):
 
     # All of these should be True
     is_root = root != None
@@ -107,7 +130,7 @@ def get_overlay_init_tests():
         "is_fill": is_fill
     }
 
-def get_cp_init_tests():
+def get_cp_init_tests(root, sw, sh):
 
     # All of these should be True
 
@@ -226,7 +249,7 @@ def check_widget_props(widget, props):
     
     return is_widget_props
 
-def get_latex_build_tests():
+def get_latex_build_tests(root):
 
     # Check if all the widgets exist
     latex_frame, is_latex_frame = check_tk_exists(root, "latex_frame")
@@ -408,7 +431,7 @@ def get_latex_build_tests():
         "is_root_props": is_root_props
     }
 
-def get_navbar_build_tests():
+def get_navbar_build_tests(root):
 
     # Check if all the widgets exist
     navbar_frame, is_navbar_frame = check_tk_exists(root, "navbar_frame")
@@ -476,11 +499,13 @@ def get_navbar_build_tests():
         "is_default_window_selected": is_default_window_selected
     }
 
-def test_overlay_init(subtests):
+def test_overlay_init(test_env, subtests):
     
+    root, sw, sh = test_env
+
     # Check for every property of root in the overlay that we set
 
-    init_settings_test = get_overlay_init_tests()
+    init_settings_test = get_overlay_init_tests(root, sw, sh)
 
     # We initialise the overlay window as withdrawn first
     is_withdrawn = root.state() == "withdrawn"
@@ -494,7 +519,9 @@ def test_overlay_init(subtests):
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion
 
-def test_overlay_key(subtests):
+def test_overlay_key(test_env, subtests):
+
+    root, sw, sh = test_env
 
     # Test that Ctrl + D works
     
@@ -516,7 +543,7 @@ def test_overlay_key(subtests):
 
     # The overlay should be on right now
     # Check all of the overlay init settings, and then check that the window is not withdrawn
-    init_settings_test = get_overlay_init_tests()
+    init_settings_test = get_overlay_init_tests(root, sw, sh)
     
     # root.deiconify() makes the state of root be "normal"
     is_deiconify = root.state() == "normal"
@@ -533,12 +560,14 @@ def test_overlay_key(subtests):
 # Tests are run by pytest in the order they are defined
 # Thus, this will be run right after test_overlay_key()
 # Thus, Ctrl + D has already been pressed and overlay is on
-def test_exit_key(subtests):
+def test_exit_key(test_env, subtests):
+
+    root, sw, sh = test_env
 
     # Test that Ctrl + D, then "a" properly turns off the overlay
 
     # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests()
+    init_settings_test = get_overlay_init_tests(root, sw, sh)
 
     # Check that the overlay was on before
     is_deiconify_before = root.state() == "normal"
@@ -566,12 +595,14 @@ def test_exit_key(subtests):
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion
 
-def test_wrong_key(subtests):
+def test_wrong_key(test_env, subtests):
+
+    root, sw, sh = test_env
 
     # Check that the screen properly goes red, then turns off when a wrong key is pressed after Ctrl + D
 
     # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests()
+    init_settings_test = get_overlay_init_tests(root, sw, sh)
     
     # Press Ctrl + D now
     # Simulate Ctrl
@@ -624,12 +655,14 @@ def test_wrong_key(subtests):
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion
 
-def test_control_panel_key(subtests):
+def test_control_panel_key(test_env, subtests):
+
+    root, sw, sh = test_env
 
     # Check that the control panel properly opens, with the LaTeX editor as the default first window
 
     # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests()
+    init_settings_test = get_overlay_init_tests(root, sw, sh)
     
     # Press Ctrl + D now
     # Simulate Ctrl
@@ -659,13 +692,13 @@ def test_control_panel_key(subtests):
     root.update()
 
     # Now, check the control panel init options
-    cp_init_settings_test = get_cp_init_tests()
+    cp_init_settings_test = get_cp_init_tests(root, sw, sh)
 
     # Now, check the LaTeX editor build options
-    latex_build_settings_test = get_latex_build_tests()
+    latex_build_settings_test = get_latex_build_tests(root)
 
     # Now, check that the NavBar is properly built
-    navbar_build_settings_test = get_navbar_build_tests()
+    navbar_build_settings_test = get_navbar_build_tests(root)
 
     all_assertions = {
         "is_deiconify_before": is_deiconify_before,
@@ -679,7 +712,9 @@ def test_control_panel_key(subtests):
             assert assertion
 
 # As of here, the control panel view is open
-def test_close_control_panel():
+def test_close_control_panel(test_env):
+
+    root, sw, sh = test_env
 
     # Check that when we close the control panel view, the overlay view is properly re-initialised and works fine
 
@@ -702,11 +737,13 @@ def test_close_control_panel():
     # No need for asserts
 
 # Redo all of the overlay tests
-def test_redo_overlay_init(subtests):
+def test_redo_overlay_init(test_env, subtests):
     
+    root, sw, sh = test_env
+
     # Check for every property of root in the overlay that we set
     
-    init_settings_test = get_overlay_init_tests()
+    init_settings_test = get_overlay_init_tests(root, sw, sh)
 
     # We initialise the overlay window as withdrawn first
     is_withdrawn = root.state() == "withdrawn"
@@ -720,7 +757,9 @@ def test_redo_overlay_init(subtests):
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion
 
-def test_redo_overlay_key(subtests):
+def test_redo_overlay_key(test_env, subtests):
+
+    root, sw, sh = test_env
 
     # Test that Ctrl + D works
     
@@ -742,7 +781,7 @@ def test_redo_overlay_key(subtests):
 
     # The overlay should be on right now
     # Check all of the overlay init settings, and then check that the window is not withdrawn
-    init_settings_test = get_overlay_init_tests()
+    init_settings_test = get_overlay_init_tests(root, sw, sh)
     
     # root.deiconify() makes the state of root be "normal"
     is_deiconify = root.state() == "normal"
@@ -759,12 +798,14 @@ def test_redo_overlay_key(subtests):
 # Tests are run by pytest in the order they are defined
 # Thus, this will be run right after test_overlay_key()
 # Thus, Ctrl + D has already been pressed and overlay is on
-def test_redo_exit_key(subtests):
+def test_redo_exit_key(test_env, subtests):
+
+    root, sw, sh = test_env
 
     # Test that Ctrl + D, then "a" properly turns off the overlay
 
     # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests()
+    init_settings_test = get_overlay_init_tests(root, sw, sh)
 
     # Check that the overlay was on before
     is_deiconify_before = root.state() == "normal"
@@ -792,12 +833,14 @@ def test_redo_exit_key(subtests):
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion
 
-def test_redo_wrong_key(subtests):
+def test_redo_wrong_key(test_env, subtests):
+
+    root, sw, sh = test_env
 
     # Check that the screen properly goes red, then turns off when a wrong key is pressed after Ctrl + D
 
     # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests()
+    init_settings_test = get_overlay_init_tests(root, sw, sh)
     
     # Press Ctrl + D now
     # Simulate Ctrl
