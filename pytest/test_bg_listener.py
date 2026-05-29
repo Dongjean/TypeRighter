@@ -668,10 +668,10 @@ def test_control_panel_key(subtests):
     navbar_build_settings_test = get_navbar_build_tests()
 
     all_assertions = {
-        **latex_build_settings_test,
+        "is_deiconify_before": is_deiconify_before,
         **cp_init_settings_test,
-        **navbar_build_settings_test,
-        "is_deiconify_before": is_deiconify_before
+        **latex_build_settings_test,
+        **navbar_build_settings_test
     }
 
     for key, assertion in all_assertions.items():
