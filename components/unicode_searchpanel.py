@@ -8,8 +8,8 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
     popup = tk.Toplevel(parent, bg = COLORS["bg_main"]) 
     popup.title("Bind symbol to key")
     popup.configure(padx=20, pady=20)
-    popup.grab_set()
     popup.transient(parent)
+    popup.grab_set()
     popup.resizable(False, False)
 
     popuptitle =tk.Label(popup, text=f"Bind a key to {symbol} {name}", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_title"])
@@ -32,7 +32,7 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
 
     popup.bind("<Key>", on_key_press)
     popup.bind("<Escape>", lambda e: popup.destroy())
-    popup.focus_set()
+    popup.focus_force()
 
 def _do_search(query, results_frame, COLORS, FONTS):
     #clear previous results
