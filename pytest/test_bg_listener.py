@@ -162,8 +162,7 @@ def check_tk_exists(parent, child_name):
         return (None, False)
 def get_latex_build_tests():
 
-    # All of these should be True
-
+    # Check if all the widgets exist
     latex_frame, is_latex_frame = check_tk_exists(root, "latex_frame")
     title_label, is_title_label = check_tk_exists(latex_frame, "title_label")
     subtitle_label, is_subtitle_label = check_tk_exists(latex_frame, "subtitle_label")
