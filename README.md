@@ -131,9 +131,9 @@ In **bg-mode**, pressing ```CTRL + D``` enters **overlay-mode**
 
 In **overlay-mode**, script listens to one more key command:
 * ```a``` - Exit **overlay-mode**, into **bg-mode**
-* ```q/w/e/r``` - print some special characters to debug log, then enter **bg-mode**
 * ``` ` ``` - Exit the app entirely
 * ```\``` - Enter **cp-mode**
+* ```Escape``` - Exit key bind popup
 
 In **cp-mode**, we have:
 1. LaTeX editor:
