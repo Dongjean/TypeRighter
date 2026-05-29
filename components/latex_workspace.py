@@ -37,7 +37,7 @@ def build_latex_workspace(root, COLORS, FONTS):
 
     # LaTeX Output Container
     latex_output_container = tk.Frame(latex_frame, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, height=150, name="latex_output_container")
-    latex_output_container.pack(fill=tk.X, pady=(5, 20))
+    latex_output_container.pack(fill="x", pady=(5, 20))
     # Fix the height of the LaTeX Output Container
     latex_output_container.pack_propagate(False)
 
