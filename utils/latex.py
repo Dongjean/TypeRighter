@@ -42,6 +42,9 @@ import tkinter as tk
 import requests
 from io import BytesIO
 from PIL import Image, ImageTk
+import win32clipboard as clip
+import win32con
+from io import BytesIO
 
 def color_to_transparent(convert_color, img):
     
@@ -98,10 +101,44 @@ def display_latex_window_codecogs(canvas, latex_str):
             
             canvas.config(width=img.width, height=img.height)
             canvas.create_image(img.width // 2, img.height // 2, image=tk_img)
-
+            
+            # We need this reference to tk_img to signal to Python that we still need this variable
+            # This prevents Python from clearing tk_img from memory after we stop referencing it directly, allowing us to render it
             canvas.image = tk_img
+
+            # Save the PIL image so we can copy to clipboard later
+            canvas.pil_img = img
         else:
             print("API Error: Could not render image.")
     
     except Exception as e:
         print(e)
+
+def copy_canvas_image(canvas):
+
+    # Access the PIL image
+    img = canvas.pil_img
+
+    # Convert the image to RGBA just in case
+    rgba_img = img.convert("RGBA")
+
+    # Copy this RGBA image to a bytes stream, output, in BMP format
+    output = BytesIO()
+    rgba_img.save(output, "BMP")
+
+    # BPP images are just DIB images with a 14-byte header
+    # Slice out this 14-byte header to extract the DIB image data
+    dib_data = output.getvalue()[14:]
+
+    # Slicing a BytesIO() object creates a copy of it
+    # We can close the original BytesIO() object
+    output.close()
+
+    # Copy the image data in dib_data to clipboard
+    clip.OpenClipboard()
+    try:
+        clip.EmptyClipboard()
+        # win32con.CF_DIB is a windows-specific constant which identifies the DIB image format
+        clip.SetClipboardData(win32con.CF_DIB, dib_data)
+    finally:
+        clip.CloseClipboard()
