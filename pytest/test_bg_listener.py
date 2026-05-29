@@ -165,6 +165,9 @@ def check_widget_props(widget, props):
     widget_pack_info = widget.pack_info()
     curr_props = [
 
+        # Command prop (Check that the function exists only)
+        (prop[0], prop[1], True if widget.cget(prop[1]) else False) if prop[0] == "config" and prop[1] == "command"
+        else
         # Config props
         (prop[0], prop[1], widget.cget(prop[1])) if prop[0] == "config"
         else
@@ -177,11 +180,13 @@ def check_widget_props(widget, props):
         # Font prop
         (prop[0], prop[1], tkfont.nametofont(widget.cget("font")).actual()) if prop[0] == "misc" and prop[1] == "font"
         else
+        # pack_propagate prop
+        (prop[0], prop[1], widget.tk.call('pack', 'propagate', widget._w)) if prop[0] == "misc" and prop[1] == "pack_propagate"
+        else
         # Python syntax demands a fallback
         (prop[0], prop[1], prop[2])
         for prop in props
     ]
-
     is_widget_props = all([
         curr_props[index] == prop for index, prop in enumerate(props)
     ])
@@ -293,7 +298,9 @@ def get_latex_build_tests():
         ("pack", "fill", "x"),
         ("pack", "pady", (5, 20)),
 
-        ("misc", "widget_name", "latex_output_container")
+        ("misc", "widget_name", "latex_output_container"),
+
+        ("misc", "pack_propagate", False)
     ]
     is_latex_output_container_props = check_widget_props(latex_output_container, latex_output_container_props)
 
@@ -326,6 +333,7 @@ def get_latex_build_tests():
         ("config", "fg", COLORS["text_main"]),
         ("config", "bd", 0),
         ("config", "relief", "flat"),
+        ("config", "command", True), # Check that a function is linked to command
 
         ("pack", "side", "right"),
 
