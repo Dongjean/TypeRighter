@@ -41,6 +41,18 @@ FONTS = {
     "font_hyperlink": tkfont.Font(family="Segoe UI", size=10, weight="normal", underline=True),
 }
 
+# Windows
+WINDOWS = {
+    "latex-workspace": {
+        "name": "LaTeX",
+        "icon": "",
+    },
+    "user-auth": {
+        "name": "Login",
+        "icon": "",
+    }
+}
+
 def get_overlay_init_tests():
 
     # All of these should be True
@@ -182,6 +194,9 @@ def check_widget_props(widget, props):
         # Command prop (Check that the function exists only)
         (prop[0], prop[1], True if widget.cget(prop[1]) else False) if prop[0] == "config" and prop[1] == "command"
         else
+        # variable prop (for RadioButton)
+        (prop[0], prop[1], str(widget.cget(prop[1]))) if prop[0] == "config" and prop[1] == "variable"
+        else
         # Config props
         (prop[0], prop[1], widget.cget(prop[1])) if prop[0] == "config"
         else
@@ -204,6 +219,7 @@ def check_widget_props(widget, props):
         (prop[0], prop[1], prop[2])
         for prop in props
     ]
+    print(curr_props)
     is_widget_props = all([
         curr_props[index] == prop for index, prop in enumerate(props)
     ])
@@ -390,6 +406,74 @@ def get_latex_build_tests():
         "is_latex_output_canvas_props": is_latex_output_canvas_props,
         "is_compile_button_props": is_compile_button_props,
         "is_root_props": is_root_props
+    }
+
+def get_navbar_build_tests():
+
+    # Check if all the widgets exist
+    navbar_frame, is_navbar_frame = check_tk_exists(root, "navbar_frame")
+
+    # Check the properties of navbar_frame
+    navbar_frame_props = [
+        ("config", "bg", COLORS["bg_main"]),
+        ("config", "takefocus", '1'),
+
+        ("pack", "side", "right"),
+        ("pack", "fill", "both"),
+
+        ("misc", "widget_name", "navbar_frame")
+    ]
+    is_navbar_frame_props = check_widget_props(navbar_frame, navbar_frame_props)
+
+    # Check each window selector widget
+    is_window_selections = True
+    is_window_selections_props = True # If there are theoretically no window selections resolved, this is vacuously true
+    for key, value in WINDOWS.items():
+
+        # Check if this window selector exists
+        curr_window_selector, is_curr_window_selector = check_tk_exists(navbar_frame, key)
+        # If even a single window selector doesnt exist, fail the check
+        if not is_curr_window_selector:
+            is_window_selections = False
+        
+        # Check for the props of the window selector, if it exists
+        if is_curr_window_selector:
+            
+            curr_window_selector_props = [
+                ("config", "text", value["name"]),
+                ("config", "variable", str(navbar_frame.selected_window)),
+                ("config", "value", key),
+                ("config", "bg", COLORS["border"]),
+                ("config", "fg", COLORS["text_main"]),
+                ("config", "bd", 0),
+                ("config", "relief", "flat"),
+                ("config", "width", 10),
+                ("config", "height", 3),
+                ("config", "selectcolor", COLORS["accent_blue"]),
+                ("config", "activebackground", COLORS["accent_blue"]),
+                ("config", "indicatoron", False),
+                ("config", "command", True),
+
+                ("pack", "side", "top"),
+
+                ("misc", "widget_name", key),
+
+                ("misc", "font", FONTS["font_subtitle"].actual())
+            ]
+            is_curr_window_selector = check_widget_props(curr_window_selector, curr_window_selector_props)
+            # If even a single window selector's props is invalid, fail the check
+            if not is_curr_window_selector:
+                is_window_selections_props = False
+    
+    # Check that the current, default, selected window is the LaTeX window
+    is_default_window_selected = navbar_frame.selected_window.get() == "latex-workspace"
+
+    return {
+        "is_navbar_frame": is_navbar_frame,
+        "is_navbar_frame_props": is_navbar_frame_props,
+        "is_window_selections": is_window_selections,
+        "is_window_selections_props": is_window_selections_props,
+        "is_default_window_selected": is_default_window_selected
     }
 
 def test_overlay_init(subtests):
@@ -580,9 +664,13 @@ def test_control_panel_key(subtests):
     # Now, check the LaTeX editor build options
     latex_build_settings_test = get_latex_build_tests()
 
+    # Now, check that the NavBar is properly built
+    navbar_build_settings_test = get_navbar_build_tests()
+
     all_assertions = {
         **latex_build_settings_test,
         **cp_init_settings_test,
+        **navbar_build_settings_test,
         "is_deiconify_before": is_deiconify_before
     }
 
