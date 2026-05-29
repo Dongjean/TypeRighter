@@ -131,6 +131,9 @@ def get_cp_init_tests():
     # Check that it is not withdrawn
     is_deiconify = root.state() == "normal"
 
+    # Check that we have the root keybind to <Button-1>
+    is_root_bind = check_widget_props(root, [("misc", "bind", "<Button-1>")])
+
     return {
         "is_root": is_root,
         "is_title": is_title,
@@ -143,7 +146,9 @@ def get_cp_init_tests():
 
         "is_overlay_gone": is_overlay_gone,
 
-        "is_deiconify": is_deiconify
+        "is_deiconify": is_deiconify,
+
+        "is_root_bind": is_root_bind
     }
 
 def check_tk_exists(parent, child_name):
