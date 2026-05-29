@@ -144,4 +144,9 @@ In **cp-mode**, we have:
     * User Authentication with Firebase
     * Can Login or Signup through this page
 
+3. Unicode Menu: 
+    * Search Unicode using unicode codepoint or name
+    * Bind keys to unicode by press the bind button
+    * While overlay is active, press shortcut key followed by Ctrl + V to insert symbol 
+
 _All of the above in **cp-mode** are accessible via the right Navigation Bar_
