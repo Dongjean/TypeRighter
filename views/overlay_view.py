@@ -36,6 +36,9 @@ def overlay_init(root):
         canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="", tags="overlay")
     else:
         canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
+    # Make sure all of the above tasks of drawing out the overlay view's root window is updated before withdrawing
+    # This is because the OS doesnt update anything while the root window is withdrawn
+    root.update_idletasks()
     root.withdraw() # Hides the window and canvas first
 
 def trigger_overlay(root):
