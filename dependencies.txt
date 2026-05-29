@@ -6,3 +6,4 @@ matplotlib==3.10.9 # Not currently used, leaving the functions that do in the pr
 requests==2.34.2
 pyrebase4==4.9.0
 python-dotenv==1.2.2
+pytest-subtests==0.15.0

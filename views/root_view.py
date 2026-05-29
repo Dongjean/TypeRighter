@@ -1,5 +1,6 @@
 import tkinter as tk
 import queue
+import sys
 
 from views.control_panel_view import control_panel_init
 from views.overlay_view import trigger_overlay, hide_overlay, flash_red_overlay, overlay_init

@@ -71,6 +71,7 @@ def init_latex_window_codecogs(output_frame, background_color):
         output_frame,
         bg=background_color,
         highlightthickness=0,
+        name="latex_output_canvas"
     )
     canvas.pack(expand=True)
 

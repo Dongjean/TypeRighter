@@ -91,17 +91,17 @@ def clean_exit():
     root_view.gui_queue.put("destroy_root") # Stop the root window
     os._exit(0) # Hard exit to kill all threads instantly
 
+listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+COMBINATION = {
+    listener.canonical(keyboard.Key.ctrl_l),
+    keyboard.KeyCode.from_char('d'),
+}
+#load saved unicode shortcuts 
+shortcuts_unicode.load()
+
 border_thickness = 5
 if __name__ == "__main__":
     # Start Listener
-    listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-    COMBINATION = {
-        listener.canonical(keyboard.Key.ctrl_l),
-        keyboard.KeyCode.from_char('d'),
-    }
-    #load saved unicode shortcuts 
-    shortcuts_unicode.load()
-
     # .start() starts a non-blocking daemon thread
     listener.start()
 

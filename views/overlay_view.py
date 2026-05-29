@@ -1,4 +1,5 @@
 import tkinter as tk
+import sys
 
 def overlay_init(root):
     border_thickness = 5
@@ -12,13 +13,32 @@ def overlay_init(root):
     root.overrideredirect(True) # No title bar, no borders
     root.attributes("-topmost", True) # Always on top
     root.attributes("-alpha", 0.5) # Translucent, non-intrusive
-    root.attributes("-transparentcolor", "white") # Make anything white in root transparent
+    if sys.platform.startswith("win"):
+        root.attributes("-transparentcolor", "white") # Make anything white in root transparent
+    elif sys.platform.startswith("linux"):
+        # "#000001" is a funny color which unintentionally renders as near transparent
+        # This may not work right now
+        root.configure(bg="#000001")
     sw = root.winfo_screenwidth()
     sh = root.winfo_screenheight()
     root.geometry(f"{sw}x{sh}+0+0")
-    canvas = tk.Canvas(root, bg="white", highlightthickness=0, name="overlay")
+    if sys.platform.startswith("win"):
+        canvas = tk.Canvas(root, bg="white", highlightthickness=0, name="overlay")
+    elif sys.platform.startswith("linux"):
+        canvas = tk.Canvas(root, bg="#000001", highlightthickness=0, name="overlay")
+    else:
+        canvas = tk.Canvas(root, bg="white", highlightthickness=0, name="overlay")
+
     canvas.pack(fill=tk.BOTH, expand=True)
-    canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
+    if sys.platform.startswith("win"):
+        canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
+    elif sys.platform.startswith("linux"):
+        canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="", tags="overlay")
+    else:
+        canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
+    # Make sure all of the above tasks of drawing out the overlay view's root window is updated before withdrawing
+    # This is because the OS doesnt update anything while the root window is withdrawn
+    root.update_idletasks()
     root.withdraw() # Hides the window and canvas first
 
 def trigger_overlay(root):
