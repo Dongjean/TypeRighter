@@ -6,6 +6,7 @@ import os
 import sys
 import time
 import views.root_view as root_view
+import utils.shortcuts_unicode as shortcuts_unicode
 
 # For debugging
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
@@ -21,12 +22,6 @@ if getattr(sys, 'frozen', False):
 
 # Use canonical keys to account for certain combinations becoming Control Codes
 current_keys = set()
-SHORTCUTS = {
-    keyboard.KeyCode.from_char('q'): '∈',
-    keyboard.KeyCode.from_char('w'): 'ℝ',
-    keyboard.KeyCode.from_char('e'): 'ℤ',
-    keyboard.KeyCode.from_char('r'): 'ℕ',
-}
 
 def hide_overlay():
     root_view.gui_queue.put("hide_overlay")
@@ -45,20 +40,24 @@ def on_press(key):
         canonical_key = listener.canonical(key)
         # If the overlay is on, means we are listening for a 2nd key input
         if root_view.is_overlay_triggered:
-            SHORTCUT_RES = SHORTCUTS.get(key)
-
+            try: 
+                key_char = key.char
+                
+            except AttributeError:
+                key_char = None 
+                
             # Close the overlay
             if key == keyboard.KeyCode.from_char('a'):
-                hide_overlay()
-            # Shortcut symbols
-            elif SHORTCUT_RES:
-                print(SHORTCUT_RES)
                 hide_overlay()
             
             # Control panel window
             elif key == keyboard.KeyCode.from_char('\\'):
                 control_panel_window()
             
+            #Unicode Shortcut 
+            elif key_char and shortcuts_unicode.copy_symbol(key_char):
+                hide_overlay()
+
             # FOR DEBUG EASE
             elif key == keyboard.KeyCode.from_char('`'):
                 clean_exit()
@@ -100,6 +99,9 @@ if __name__ == "__main__":
         listener.canonical(keyboard.Key.ctrl_l),
         keyboard.KeyCode.from_char('d'),
     }
+    #load saved unicode shortcuts 
+    shortcuts_unicode.load()
+
     # .start() starts a non-blocking daemon thread
     listener.start()
 

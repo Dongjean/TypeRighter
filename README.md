@@ -131,9 +131,9 @@ In **bg-mode**, pressing ```CTRL + D``` enters **overlay-mode**
 
 In **overlay-mode**, script listens to one more key command:
 * ```a``` - Exit **overlay-mode**, into **bg-mode**
-* ```q/w/e/r``` - print some special characters to debug log, then enter **bg-mode**
 * ``` ` ``` - Exit the app entirely
 * ```\``` - Enter **cp-mode**
+* ```Escape``` - Exit key bind popup
 
 In **cp-mode**, we have:
 1. LaTeX editor:
@@ -143,5 +143,10 @@ In **cp-mode**, we have:
 2. Login page:
     * User Authentication with Firebase
     * Can Login or Signup through this page
+
+3. Unicode Menu: 
+    * Search Unicode using unicode codepoint or name
+    * Bind keys to unicode by press the bind button
+    * While overlay is active, press shortcut key followed by Ctrl + V to insert symbol 
 
 _All of the above in **cp-mode** are accessible via the right Navigation Bar_

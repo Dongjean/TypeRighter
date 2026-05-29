@@ -27,6 +27,7 @@ def control_panel_init(root):
         "border": "#2d2d2d",
         "accent_blue": "#2a5a9c",
         "hyperlink_blue": "#0099FF",
+        "action_green": "#00FF00"
     }
 
     # Custom Fonts
@@ -44,6 +45,10 @@ def control_panel_init(root):
         },
         "user-auth": {
             "name": "Login",
+            "icon": "",
+        }, 
+        "unicode-search": { 
+            "name": "Unicode\nSearch",
             "icon": "",
         }
     }
