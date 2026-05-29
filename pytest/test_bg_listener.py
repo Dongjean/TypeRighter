@@ -160,6 +160,34 @@ def check_tk_exists(parent, child_name):
 
         # The widget parent doesnt exist
         return (None, False)
+
+def check_widget_props(widget, props):
+    widget_pack_info = widget.pack_info()
+    curr_props = [
+
+        # Config props
+        (prop[0], prop[1], widget.cget(prop[1])) if prop[0] == "config"
+        else
+        # Pack props
+        (prop[0], prop[1], widget_pack_info[prop[1]]) if prop[0] == "pack"
+        else
+        # Widget name prop
+        (prop[0], prop[1], widget.winfo_name()) if prop[0] == "misc" and prop[1] == "widget_name"
+        else
+        # Font prop
+        (prop[0], prop[1], tkfont.nametofont(widget.cget("font")).actual()) if prop[0] == "misc" and prop[1] == "font"
+        else
+        # Python syntax demands a fallback
+        (prop[0], prop[1], prop[2])
+        for prop in props
+    ]
+
+    is_widget_props = all([
+        curr_props[index] == prop for index, prop in enumerate(props)
+    ])
+    
+    return is_widget_props
+
 def get_latex_build_tests():
 
     # Check if all the widgets exist
@@ -177,143 +205,135 @@ def get_latex_build_tests():
 
     # latex_frame
     # Get our desired latex_frame_props
-    latex_frame_props = {
-        "bg": COLORS["bg_main"],
-        "padx": 20,
-        "pady": 20,
-        "takefocus": "1"
-    }
+    latex_frame_props = [
+        ("config", "bg", COLORS["bg_main"]),
+        ("config", "padx", 20),
+        ("config", "pady", 20),
+        ("config", "takefocus", "1"),
 
-    # Get the real latex_frame_props with .cget(prop)
-    curr_latex_frame_props = {
-        key: latex_frame.cget(key) for key, value in latex_frame_props.items()
-    }
-    is_latex_frame_properties = all([
-        *[curr_latex_frame_props[key] == latex_frame_props[key] for key, value in latex_frame_props.items()],
-        latex_frame.winfo_name() == "latex_frame"
-    ])
+        ("pack", "side", "top"),
+        ("pack", "fill", "both"),
+        ("pack", "expand", True),
+
+        ("misc", "widget_name", "latex_frame")
+    ]
+    is_latex_frame_props = check_widget_props(latex_frame, latex_frame_props)
 
     # title_label
-    title_label_props = {
-        "text": "LaTeX Equation Editor",
-        "bg": COLORS["bg_main"],
-        "fg": COLORS["text_main"]
-    }
-    curr_title_label_props = {
-        key: title_label.cget(key) for key, value in title_label_props.items()
-    }
-    is_title_label_properties = all([
-        *[curr_title_label_props[key] == title_label_props[key] for key, value in title_label_props.items()],
-        tkfont.nametofont(title_label.cget("font")).actual() == FONTS["font_title"].actual(),
-        title_label.winfo_name() == "title_label"
-    ])
+    title_label_props = [
+        ("config", "text", "LaTeX Equation Editor"),
+        ("config", "bg", COLORS["bg_main"]),
+        ("config", "fg", COLORS["text_main"]),
+
+        ("pack", "fill", "x"),
+        ("pack", "pady", 0),
+
+        ("misc", "widget_name", "title_label"),
+
+        ("misc", "font", FONTS["font_title"].actual())
+    ]
+    is_title_label_props = check_widget_props(title_label, title_label_props)
 
     # subtitle_label
-    subtitle_label_props = {
-        "text": "Edit and preview complex mathematical formulas",
-        "bg": COLORS["bg_main"],
-        "fg": COLORS["text_muted"]
-    }
-    curr_subtitle_label_props = {
-        key: subtitle_label.cget(key) for key, value in subtitle_label_props.items()
-    }
-    is_subtitle_label_properties = all([
-        *[curr_subtitle_label_props[key] == subtitle_label_props[key] for key, value in subtitle_label_props.items()],
-        tkfont.nametofont(subtitle_label.cget("font")).actual() == FONTS["font_subtitle"].actual(),
-        subtitle_label.winfo_name() == "subtitle_label"
-    ])
+    subtitle_label_props = [
+        ("config", "text", "Edit and preview complex mathematical formulas"),
+        ("config", "bg", COLORS["bg_main"]),
+        ("config", "fg", COLORS["text_muted"]),
+
+        ("pack", "fill", "x"),
+        ("pack", "pady", (0, 15)),
+
+        ("misc", "widget_name", "subtitle_label"),
+
+        ("misc", "font", FONTS["font_subtitle"].actual())
+    ]
+    is_subtitle_label_props = check_widget_props(subtitle_label, subtitle_label_props)
 
     # editor_container
-    editor_container_props = {
-        "bg": COLORS["bg_input"],
-        "bd": 1,
-        "highlightbackground": COLORS["border"],
-        "highlightthickness": 1
-    }
-    curr_editor_container_props = {
-        key: editor_container.cget(key) for key, value in editor_container_props.items()
-    }
-    is_editor_container_properties = all([
-        *[curr_editor_container_props[key] == editor_container_props[key] for key, value in editor_container_props.items()],
-        editor_container.winfo_name() == "editor_container"
-    ])
+    editor_container_props = [
+        ("config", "bg", COLORS["bg_input"]),
+        ("config", "bd", 1),
+        ("config", "highlightbackground", COLORS["border"]),
+        ("config", "highlightthickness", 1),
+
+        ("pack", "fill", "both"),
+        ("pack", "expand", True),
+
+        ("misc", "widget_name", "editor_container"),
+    ]
+    is_editor_container_props = check_widget_props(editor_container, editor_container_props)
 
     # text_editor
-    text_editor_props = {
-        "bg": COLORS["bg_input"],
-        "fg": COLORS["text_main"],
-        "insertbackground": "white",
-        "bd": 0,
-        "padx": 15,
-        "pady": 15,
-        "wrap": "none"
-    }
-    curr_text_editor_props = {
-        key: text_editor.cget(key) for key, value in text_editor_props.items()
-    }
-    is_text_editor_properties = all([
-        *[curr_text_editor_props[key] == text_editor_props[key] for key, value in text_editor_props.items()],
-        tkfont.nametofont(text_editor.cget("font")).actual() == FONTS["font_subtitle"].actual(),
-        text_editor.winfo_name() == "text_editor"
-    ])
+    text_editor_props = [
+        ("config", "bg", COLORS["bg_input"]),
+        ("config", "fg", COLORS["text_main"]),
+        ("config", "insertbackground", "white"),
+        ("config", "bd", 0),
+        ("config", "padx", 15),
+        ("config", "pady", 15),
+        ("config", "wrap", "none"),
+
+        ("pack", "fill", "both"),
+        ("pack", "expand", True),
+
+        ("misc", "widget_name", "text_editor"),
+
+        ("misc", "font", FONTS["font_subtitle"].actual())
+    ]
+    is_text_editor_props = check_widget_props(text_editor, text_editor_props)
 
     # latex_output_container
-    latex_output_container_props = {
-        "bg": COLORS["bg_input"],
-        "bd": 1,
-        "highlightbackground": COLORS["border"],
-        "highlightthickness": 1,
-        "height": 150
-    }
-    curr_latex_output_container_props = {
-        key: latex_output_container.cget(key) for key, value in latex_output_container_props.items()
-    }
-    is_latex_output_container_properties = all([
-        *[curr_latex_output_container_props[key] == latex_output_container_props[key] for key, value in latex_output_container_props.items()],
-        latex_output_container.winfo_name() == "latex_output_container"
-    ])
+    latex_output_container_props = [
+        ("config", "bg", COLORS["bg_input"]),
+        ("config", "bd", 1),
+        ("config", "highlightbackground", COLORS["border"]),
+        ("config", "highlightthickness", 1),
+        ("config", "height", 150),
+
+        ("pack", "fill", "x"),
+        ("pack", "pady", (5, 20)),
+
+        ("misc", "widget_name", "latex_output_container")
+    ]
+    is_latex_output_container_props = check_widget_props(latex_output_container, latex_output_container_props)
 
     # preview_label
-    preview_label_props = {
-        "bg": "white"
-    }
-    curr_preview_label_props = {
-        key: preview_label.cget(key) for key, value in preview_label_props.items()
-    }
-    is_preview_label_properties = all([
-        *[curr_preview_label_props[key] == preview_label_props[key] for key, value in preview_label_props.items()],
-        preview_label.winfo_name() == "preview_label"
-    ])
+    preview_label_props = [
+        ("config", "bg", "white"),
+
+        ("pack", "fill", "both"),
+        ("pack", "expand", True),
+
+        ("misc", "widget_name", "preview_label")
+    ]
+    is_preview_label_props = check_widget_props(preview_label, preview_label_props)
 
     # latex_output_canvas
-    latex_output_canvas_props = {
-        "bg": "white",
-        "highlightthickness": "0"
-    }
-    curr_latex_output_canvas_props = {
-        key: latex_output_canvas.cget(key) for key, value in latex_output_canvas_props.items()
-    }
-    is_latex_output_canvas_properties = all([
-        *[curr_latex_output_canvas_props[key] == latex_output_canvas_props[key] for key, value in latex_output_canvas_props.items()],
-        latex_output_canvas.winfo_name() == "latex_output_canvas"
-    ])
+    latex_output_canvas_props = [
+        ("config", "bg", "white"),
+        ("config", "highlightthickness", "0"),
+
+        ("pack", "expand", True),
+
+        ("misc", "widget_name", "latex_output_canvas")
+    ]
+    is_latex_output_canvas_props = check_widget_props(latex_output_canvas, latex_output_canvas_props)
 
     # compile_button
-    compile_button_props = {
-        "text": "Compile",
-        "bg": COLORS["border"],
-        "fg": COLORS["text_main"],
-        "bd": 0,
-        "relief": "flat"
-    }
-    curr_compile_button_props = {
-        key: compile_button.cget(key) for key, value in compile_button_props.items()
-    }
-    is_compile_button_properties = all([
-        *[curr_compile_button_props[key] == compile_button_props[key] for key, value in compile_button_props.items()],
-        tkfont.nametofont(compile_button.cget("font")).actual() == FONTS["font_subtitle"].actual(),
-        compile_button.winfo_name() == "compile_button"
-    ])
+    compile_button_props = [
+        ("config", "text", "Compile"),
+        ("config", "bg", COLORS["border"]),
+        ("config", "fg", COLORS["text_main"]),
+        ("config", "bd", 0),
+        ("config", "relief", "flat"),
+
+        ("pack", "side", "right"),
+
+        ("misc", "widget_name", "compile_button"),
+
+        ("misc", "font", FONTS["font_subtitle"].actual())
+    ]
+    is_compile_button_props = check_widget_props(compile_button, compile_button_props)
 
     return {
         "is_latex_frame": is_latex_frame,
@@ -325,15 +345,15 @@ def get_latex_build_tests():
         "is_preview_label": is_preview_label,
         "is_latex_output_canvas": is_latex_output_canvas,
         "is_compile_button": is_compile_button,
-        "is_latex_frame_properties": is_latex_frame_properties,
-        "is_title_label_properties": is_title_label_properties,
-        "is_subtitle_label_properties": is_subtitle_label_properties,
-        "is_editor_container_properties": is_editor_container_properties,
-        "is_text_editor_properties": is_text_editor_properties,
-        "is_latex_output_container_properties": is_latex_output_container_properties,
-        "is_preview_label_properties": is_preview_label_properties,
-        "is_latex_output_canvas_properties": is_latex_output_canvas_properties,
-        "is_compile_button_properties": is_compile_button_properties
+        "is_latex_frame_props": is_latex_frame_props,
+        "is_title_label_props": is_title_label_props,
+        "is_subtitle_label_props": is_subtitle_label_props,
+        "is_editor_container_props": is_editor_container_props,
+        "is_text_editor_props": is_text_editor_props,
+        "is_latex_output_container_properties": is_latex_output_container_props,
+        "is_preview_label_props": is_preview_label_props,
+        "is_latex_output_canvas_props": is_latex_output_canvas_props,
+        "is_compile_button_props": is_compile_button_props
     }
 
 def test_overlay_init(subtests):
@@ -349,7 +369,7 @@ def test_overlay_init(subtests):
         **init_settings_test,
         "is_withdrawn": is_withdrawn
     }
-
+    
     for key, assertion in all_assertions.items():
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion
