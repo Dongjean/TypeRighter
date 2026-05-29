@@ -1,10 +1,20 @@
 import tkinter as tk
+from tkinter import font as tkfont
 
 import utils.firebase_app as fb
 
 def login(username_editor, password_editor):
     username = username_editor.get()
     password = password_editor.get()
+    print(f"loggin in for {username}, {password}")
+
+def build_user_auth(root, COLORS, FONTS):
+
+    # Reset root for a clean overlay init
+    # Remove all child widgets except for the navbar
+    for widget in root.winfo_children():
+        if widget.winfo_name() != "navbar_frame":
+          widget.destroy()
 
     # Login on firebase
     try:
@@ -76,6 +86,24 @@ def build_login_frame(root, auth_frame, COLORS, FONTS):
     login_hub_container.pack(expand=True)
 
     # Username Frame
+    username_frame = tk.Frame(login_hub_container, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1)
+    username_frame.pack(fill="x", expand=True)
+    username_label = tk.Label(username_frame, text="Username: ", bg=COLORS["bg_input"], fg=COLORS["text_main"], bd=0, font=FONTS["font_subtitle"])
+    username_label.pack(side="left")
+    username_editor = tk.Entry(username_frame, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=0, font=FONTS["font_subtitle"])
+    username_editor.pack(side="right")
+    # Bind the key release event inside text editor to our reader function
+    # tk.Text() has no native function to read text in real time, this is the best option
+  
+    # Password Frame
+    password_frame = tk.Frame(login_hub_container, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1)
+    password_frame.pack(fill="x", expand=True)
+    password_label = tk.Label(password_frame, text="Password: ", bg=COLORS["bg_input"], fg=COLORS["text_main"], bd=0, font=FONTS["font_subtitle"])
+    password_label.pack(side="left")
+    password_editor = tk.Entry(password_frame, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=0, font=FONTS["font_subtitle"])
+    password_editor.pack(side="right")
+    # Bind the key release event inside text editor to our reader function
+    # tk.Text() has no native function to read text in real time, this is the best option
     username_frame = tk.Frame(login_hub_container, bg=COLORS["bg_main"], bd=0)
     username_frame.pack(expand=True, pady=5)
     username_label = tk.Label(username_frame, text="Username: ", bg=COLORS["bg_main"], fg=COLORS["text_main"], bd=0, font=FONTS["font_subtitle"])
@@ -94,6 +122,9 @@ def build_login_frame(root, auth_frame, COLORS, FONTS):
     # Login Button
     login_button = tk.Button(login_hub_container, text="Login", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: login(username_editor, password_editor)))
     login_button.pack(side="bottom")
+
+    # Clicking anywhere outside the text editor frame makes us lose active focus
+    root.bind("<Button-1>", lambda event: event.widget.focus_set())
     # Enter keybind to login
     root.bind("<Return>", lambda event: login(username_editor, password_editor))
 
