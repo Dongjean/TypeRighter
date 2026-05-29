@@ -11,6 +11,7 @@ def compile_latex_codecogs(canvas, text_editor):
     latex_code = text_editor.get("1.0", "end-1c")
 
     latex.display_latex_window_codecogs(canvas, latex_code)
+    latex.copy_canvas_image(canvas)
 
     return "break"
 
