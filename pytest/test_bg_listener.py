@@ -162,7 +162,16 @@ def check_tk_exists(parent, child_name):
         return (None, False)
 
 def check_widget_props(widget, props):
-    widget_pack_info = widget.pack_info()
+    widget_pack_info = None
+    widget_binds = None
+    try:
+        widget_pack_info = widget.pack_info()
+    except AttributeError as e:
+        print(e)
+    try:
+        widget_binds = widget.bind()
+    except AttributeError as e:
+        print(e)
     curr_props = [
 
         # Command prop (Check that the function exists only)
@@ -182,6 +191,9 @@ def check_widget_props(widget, props):
         else
         # pack_propagate prop
         (prop[0], prop[1], widget.tk.call('pack', 'propagate', widget._w)) if prop[0] == "misc" and prop[1] == "pack_propagate"
+        else
+        # Bind prop
+        (prop[0], prop[1], prop[2] if prop[2] in widget_binds else None) if prop[0] == "misc" and prop[1] == "bind"
         else
         # Python syntax demands a fallback
         (prop[0], prop[1], prop[2])
@@ -283,7 +295,10 @@ def get_latex_build_tests():
 
         ("misc", "widget_name", "text_editor"),
 
-        ("misc", "font", FONTS["font_subtitle"].actual())
+        ("misc", "font", FONTS["font_subtitle"].actual()),
+
+        ("misc", "bind", "<Key-Return>"),
+        ("misc", "bind", "<Shift-Key-Return>")
     ]
     is_text_editor_props = check_widget_props(text_editor, text_editor_props)
 
@@ -343,6 +358,13 @@ def get_latex_build_tests():
     ]
     is_compile_button_props = check_widget_props(compile_button, compile_button_props)
 
+    # root
+    root_props = [
+        ("misc", "bind", "<Key-Return>"),
+        ("misc", "bind", "<Shift-Key-Return>")
+    ]
+    is_root_props = check_widget_props(root, root_props)
+
     return {
         "is_latex_frame": is_latex_frame,
         "is_title_label": is_title_label,
@@ -361,7 +383,8 @@ def get_latex_build_tests():
         "is_latex_output_container_properties": is_latex_output_container_props,
         "is_preview_label_props": is_preview_label_props,
         "is_latex_output_canvas_props": is_latex_output_canvas_props,
-        "is_compile_button_props": is_compile_button_props
+        "is_compile_button_props": is_compile_button_props,
+        "is_root_props": is_root_props
     }
 
 def test_overlay_init(subtests):
