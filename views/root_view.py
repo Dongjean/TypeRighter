@@ -23,7 +23,6 @@ def check_queue(root):
     try:
         # Check if there's a message in the queue
         msg = gui_queue.get(block=False)
-        print(msg)
         if msg == "trigger_overlay":
             trigger_overlay(root)
             is_overlay_triggered = True

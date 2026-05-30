@@ -35,7 +35,7 @@ def flash_red_overlay():
 def control_panel_window():
     root_view.gui_queue.put("control_panel_window")
 
-def on_press(key):
+def on_press(key, listener):
     if not root_view.is_control_panel_open:
         canonical_key = listener.canonical(key)
         # If the overlay is on, means we are listening for a 2nd key input
@@ -71,7 +71,7 @@ def on_press(key):
             if all(k in current_keys for k in COMBINATION):
                 trigger_overlay()
 
-def on_release(key):
+def on_release(key, listener):
     canonical_key = listener.canonical(key)
     try:
         current_keys.remove(canonical_key)
@@ -91,16 +91,17 @@ def clean_exit():
     root_view.gui_queue.put("destroy_root") # Stop the root window
     os._exit(0) # Hard exit to kill all threads instantly
 
-listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-COMBINATION = {
-    listener.canonical(keyboard.Key.ctrl_l),
-    keyboard.KeyCode.from_char('d'),
-}
 #load saved unicode shortcuts 
 shortcuts_unicode.load()
-
+COMBINATION = {}
 border_thickness = 5
 if __name__ == "__main__":
+    
+    listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+    COMBINATION = {
+        listener.canonical(keyboard.Key.ctrl_l),
+        keyboard.KeyCode.from_char('d'),
+    }
     # Start Listener
     # .start() starts a non-blocking daemon thread
     listener.start()
