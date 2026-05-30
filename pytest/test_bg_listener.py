@@ -13,6 +13,13 @@ from pynput import keyboard
 border_thickness = 5
 key_simulator = keyboard.Controller()
 
+# Helper function to pause the programme for a short few seconds while spamming root.update()
+def wait(root, period, interval=0.05):
+    deadline = time.time() + period
+    while time.time() < deadline:
+        root.update()
+        time.sleep(interval)
+
 # Color Palette
 COLORS = {
     "bg_main": "#202020",
@@ -80,9 +87,8 @@ def test_env():
     listener.stop()
 
     # Sleep for 150ms to let the tkinter root window properly close
-    time.sleep(0.15)
+    wait(root, 0.15)
 
-    root.update()
     # Delete all .after() instances
     try:
         for after_id in root.eval('after info').split():
@@ -553,8 +559,7 @@ def test_overlay_key(test_env, subtests):
     key_simulator.release("d")
 
     # Manually update the root window
-    time.sleep(0.15)
-    root.update()
+    wait(root, 0.15)
 
     # The overlay should be on right now
     # Check all of the overlay init settings, and then check that the window is not withdrawn
@@ -594,8 +599,7 @@ def test_exit_key(test_env, subtests):
 
     # The gui_queue logic polls the queue once every 100ms
     # Thus wait for 150ms minimally to allow the gui_queue to catch the keypress
-    time.sleep(0.15) # 0.15s = 150ms
-    root.update()
+    wait(root, 0.15) # 0.15s = 150ms
 
     # Check that the overlay is withdrawn now
     is_withdrawn = root.state() == "withdrawn"
@@ -630,8 +634,7 @@ def test_wrong_key(test_env, subtests):
     key_simulator.release(keyboard.Key.ctrl_l)
     key_simulator.release("d")
     
-    time.sleep(0.15)
-    root.update()
+    wait(root, 0.15)
 
     # Check that the overlay was on before
     is_deiconify_before = root.state() == "normal"
@@ -644,8 +647,7 @@ def test_wrong_key(test_env, subtests):
     key_simulator.release("f")
 
     # Wait 150ms to allow the gui_queue polling loop to catch it
-    time.sleep(0.15) # 0.15s = 150ms
-    root.update()
+    wait(root, 0.15) # 0.15s = 150ms
 
     # Overlay should be red now
     canvas = root.nametowidget(".overlay")
@@ -653,8 +655,7 @@ def test_wrong_key(test_env, subtests):
 
     # Red overlay is flashed for 1s
     # Thus wait 1.05s to allow the red overlay to go away
-    time.sleep(1.05)
-    root.update()
+    wait(root, 1.05)
 
     # Overlay should be withdrawn now
     is_withdrawn = root.state() == "withdrawn"
@@ -690,8 +691,7 @@ def test_control_panel_key(test_env, subtests):
     key_simulator.release(keyboard.Key.ctrl_l)
     key_simulator.release("d")
     
-    time.sleep(0.15)
-    root.update()
+    wait(root, 0.15)
 
     # Check that the overlay was on before
     is_deiconify_before = root.state() == "normal"
@@ -703,8 +703,7 @@ def test_control_panel_key(test_env, subtests):
     key_simulator.release("\\")
 
     # Wait 150ms to allow the gui_queue polling loop to catch it
-    time.sleep(0.15) # 0.15s = 150ms
-    root.update()
+    wait(root, 0.15) # 0.15s = 150ms
 
     # Now, check the control panel init options
     cp_init_settings_test = get_cp_init_tests(root, sw, sh)
@@ -745,8 +744,7 @@ def test_close_control_panel(test_env):
     key_simulator.release(keyboard.Key.f4)
 
     # Wait 150ms to allow the gui_queue polling loop to catch it
-    time.sleep(0.15) # 0.15s = 150ms
-    root.update()
+    wait(root, 0.15) # 0.15s = 150ms
 
     # If the overlay works properly now, then control panel has been closed properly
     # No need for asserts
@@ -791,8 +789,7 @@ def test_redo_overlay_key(test_env, subtests):
     key_simulator.release("d")
 
     # Manually update the root window
-    time.sleep(0.15)
-    root.update()
+    wait(root, 0.15)
 
     # The overlay should be on right now
     # Check all of the overlay init settings, and then check that the window is not withdrawn
@@ -832,8 +829,7 @@ def test_redo_exit_key(test_env, subtests):
 
     # The gui_queue logic polls the queue once every 100ms
     # Thus wait for 150ms minimally to allow the gui_queue to catch the keypress
-    time.sleep(0.15) # 0.15s = 150ms
-    root.update()
+    wait(root, 0.15) # 0.15s = 150ms
 
     # Check that the overlay is withdrawn now
     is_withdrawn = root.state() == "withdrawn"
@@ -868,8 +864,7 @@ def test_redo_wrong_key(test_env, subtests):
     key_simulator.release(keyboard.Key.ctrl_l)
     key_simulator.release("d")
     
-    time.sleep(0.15)
-    root.update()
+    wait(root, 0.15)
 
     # Check that the overlay was on before
     is_deiconify_before = root.state() == "normal"
@@ -882,8 +877,7 @@ def test_redo_wrong_key(test_env, subtests):
     key_simulator.release("f")
 
     # Wait 150ms to allow the gui_queue polling loop to catch it
-    time.sleep(0.15) # 0.15s = 150ms
-    root.update()
+    wait(root, 0.15) # 0.15s = 150ms
 
     # Overlay should be red now
     canvas = root.nametowidget(".overlay")
@@ -891,8 +885,7 @@ def test_redo_wrong_key(test_env, subtests):
 
     # Red overlay is flashed for 1s
     # Thus wait 1.05s to allow the red overlay to go away
-    time.sleep(1.05)
-    root.update()
+    wait(root, 1.05)
 
     # Overlay should be withdrawn now
     is_withdrawn = root.state() == "withdrawn"
