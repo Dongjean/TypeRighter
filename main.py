@@ -97,7 +97,7 @@ COMBINATION = {}
 border_thickness = 5
 if __name__ == "__main__":
     
-    listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+    listener = keyboard.Listener(on_press=lambda key: on_press(key, listener), on_release=lambda key: on_release(key, listener))
     COMBINATION = {
         listener.canonical(keyboard.Key.ctrl_l),
         keyboard.KeyCode.from_char('d'),
