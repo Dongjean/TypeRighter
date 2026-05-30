@@ -1,5 +1,6 @@
 import pytest
 from tkinter import font as tkfont
+import tkinter as tk
 
 import sys
 
@@ -23,13 +24,6 @@ COLORS = {
     "hyperlink_blue": "#0099FF",
 }
 
-# Custom Fonts
-FONTS = {
-    "font_title": tkfont.Font(family="Segoe UI", size=16, weight="bold"),
-    "font_subtitle": tkfont.Font(family="Segoe UI", size=10, weight="normal"),
-    "font_hyperlink": tkfont.Font(family="Segoe UI", size=10, weight="normal", underline=True),
-}
-
 # Windows
 WINDOWS = {
     "latex-workspace": {
@@ -50,18 +44,30 @@ def test_env():
 
     # Manually initialize the tkinter window without .mainloop()
     # Run root_view.root_init() without the last root.mainloop() line
-    root = main.root_view.root
-    main.root_view.overlay_init(root)
-    root.after(0, lambda: main.root_view.check_queue())
-    root.update()
 
     # Start the pynput thread
-    main.listener.start()
+    # main.listener.start()
 
+    listener = keyboard.Listener(on_press=lambda key: main.on_press(key, listener), on_release=lambda key: main.on_release(key, listener))
+    main.COMBINATION = {
+        listener.canonical(keyboard.Key.ctrl_l),
+        keyboard.KeyCode.from_char('d'),
+    }
+    listener.start()
+
+    root = main.root_view.root_init()
+    root.update()
     sw = root.winfo_screenwidth()
     sh = root.winfo_screenheight()
 
-    yield (root, sw, sh) # This is where the code runs
+    # Custom Fonts
+    FONTS = {
+        "font_title": tkfont.Font(family="Segoe UI", size=16, weight="bold"),
+        "font_subtitle": tkfont.Font(family="Segoe UI", size=10, weight="normal"),
+        "font_hyperlink": tkfont.Font(family="Segoe UI", size=10, weight="normal", underline=True),
+    }
+
+    yield (root, sw, sh, FONTS) # This is where the code runs
 
     # This is after all the tests
     # Close everything
@@ -70,11 +76,20 @@ def test_env():
     main.root_view.gui_queue.put("destroy_root")
 
     # Stop the pynput listener
-    main.listener.stop()
+    # main.listener.stop()
+    listener.stop()
 
     # Sleep for 150ms to let the tkinter root window properly close
     time.sleep(0.15)
 
+    root.update()
+    # Delete all .after() instances
+    try:
+        for after_id in root.eval('after info').split():
+            print(after_id)
+            root.after_cancel(after_id)
+    except Exception as e:
+        print(e)
 
 def get_overlay_init_tests(root, sw, sh):
 
@@ -249,7 +264,7 @@ def check_widget_props(widget, props):
     
     return is_widget_props
 
-def get_latex_build_tests(root):
+def get_latex_build_tests(root, FONTS):
 
     # Check if all the widgets exist
     latex_frame, is_latex_frame = check_tk_exists(root, "latex_frame")
@@ -431,7 +446,7 @@ def get_latex_build_tests(root):
         "is_root_props": is_root_props
     }
 
-def get_navbar_build_tests(root):
+def get_navbar_build_tests(root, FONTS):
 
     # Check if all the widgets exist
     navbar_frame, is_navbar_frame = check_tk_exists(root, "navbar_frame")
@@ -501,7 +516,7 @@ def get_navbar_build_tests(root):
 
 def test_overlay_init(test_env, subtests):
     
-    root, sw, sh = test_env
+    root, sw, sh, FONTS = test_env
 
     # Check for every property of root in the overlay that we set
 
@@ -521,7 +536,7 @@ def test_overlay_init(test_env, subtests):
 
 def test_overlay_key(test_env, subtests):
 
-    root, sw, sh = test_env
+    root, sw, sh, FONTS = test_env
 
     # Test that Ctrl + D works
     
@@ -562,7 +577,7 @@ def test_overlay_key(test_env, subtests):
 # Thus, Ctrl + D has already been pressed and overlay is on
 def test_exit_key(test_env, subtests):
 
-    root, sw, sh = test_env
+    root, sw, sh, FONTS = test_env
 
     # Test that Ctrl + D, then "a" properly turns off the overlay
 
@@ -597,7 +612,7 @@ def test_exit_key(test_env, subtests):
 
 def test_wrong_key(test_env, subtests):
 
-    root, sw, sh = test_env
+    root, sw, sh, FONTS = test_env
 
     # Check that the screen properly goes red, then turns off when a wrong key is pressed after Ctrl + D
 
@@ -657,7 +672,7 @@ def test_wrong_key(test_env, subtests):
 
 def test_control_panel_key(test_env, subtests):
 
-    root, sw, sh = test_env
+    root, sw, sh, FONTS = test_env
 
     # Check that the control panel properly opens, with the LaTeX editor as the default first window
 
@@ -695,10 +710,10 @@ def test_control_panel_key(test_env, subtests):
     cp_init_settings_test = get_cp_init_tests(root, sw, sh)
 
     # Now, check the LaTeX editor build options
-    latex_build_settings_test = get_latex_build_tests(root)
+    latex_build_settings_test = get_latex_build_tests(root, FONTS)
 
     # Now, check that the NavBar is properly built
-    navbar_build_settings_test = get_navbar_build_tests(root)
+    navbar_build_settings_test = get_navbar_build_tests(root, FONTS)
 
     all_assertions = {
         "is_deiconify_before": is_deiconify_before,
@@ -714,7 +729,7 @@ def test_control_panel_key(test_env, subtests):
 # As of here, the control panel view is open
 def test_close_control_panel(test_env):
 
-    root, sw, sh = test_env
+    root, sw, sh, FONTS = test_env
 
     # Check that when we close the control panel view, the overlay view is properly re-initialised and works fine
 
@@ -739,7 +754,7 @@ def test_close_control_panel(test_env):
 # Redo all of the overlay tests
 def test_redo_overlay_init(test_env, subtests):
     
-    root, sw, sh = test_env
+    root, sw, sh, FONTS = test_env
 
     # Check for every property of root in the overlay that we set
     
@@ -759,7 +774,7 @@ def test_redo_overlay_init(test_env, subtests):
 
 def test_redo_overlay_key(test_env, subtests):
 
-    root, sw, sh = test_env
+    root, sw, sh, FONTS = test_env
 
     # Test that Ctrl + D works
     
@@ -800,7 +815,7 @@ def test_redo_overlay_key(test_env, subtests):
 # Thus, Ctrl + D has already been pressed and overlay is on
 def test_redo_exit_key(test_env, subtests):
 
-    root, sw, sh = test_env
+    root, sw, sh, FONTS = test_env
 
     # Test that Ctrl + D, then "a" properly turns off the overlay
 
@@ -835,7 +850,7 @@ def test_redo_exit_key(test_env, subtests):
 
 def test_redo_wrong_key(test_env, subtests):
 
-    root, sw, sh = test_env
+    root, sw, sh, FONTS = test_env
 
     # Check that the screen properly goes red, then turns off when a wrong key is pressed after Ctrl + D
 
