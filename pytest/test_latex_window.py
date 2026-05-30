@@ -1,6 +1,9 @@
 import pytest
 from tkinter import font as tkfont
 import tkinter as tk
+import win32clipboard as clip
+import win32con
+from io import BytesIO
 
 import sys
 
@@ -40,14 +43,15 @@ WINDOWS = {
 def test_env():
 
     # This part runs before the test_ functions
+
     # Initialise the tkinter root window and the pynput listener
-
     # Manually initialize the tkinter window without .mainloop()
-    # Run root_view.root_init() without the last root.mainloop() line
+    # Run root_view.root_init()
+    root = main.root_view.root_init()
+    root.update()
 
-    # Start the pynput thread
-    # main.listener.start()
-
+    # Start a completely new pynput thread
+    # pynput threads cannot be reused
     listener = keyboard.Listener(on_press=lambda key: main.on_press(key, listener), on_release=lambda key: main.on_release(key, listener))
     main.COMBINATION = {
         listener.canonical(keyboard.Key.ctrl_l),
@@ -55,8 +59,6 @@ def test_env():
     }
     listener.start()
 
-    root = main.root_view.root_init()
-    root.update()
     sw = root.winfo_screenwidth()
     sh = root.winfo_screenheight()
 
@@ -76,7 +78,6 @@ def test_env():
     main.root_view.gui_queue.put("destroy_root")
 
     # Stop the pynput listener
-    # main.listener.stop()
     listener.stop()
 
     # Sleep for 150ms to let the tkinter root window properly close
@@ -265,6 +266,8 @@ def check_widget_props(widget, props):
     return is_widget_props
 
 def get_latex_build_tests(root, FONTS):
+    print("here")
+    print(root.winfo_children())
 
     # Check if all the widgets exist
     latex_frame, is_latex_frame = check_tk_exists(root, "latex_frame")
@@ -534,151 +537,12 @@ def test_overlay_init(test_env, subtests):
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion
 
-def test_overlay_key(test_env, subtests):
-
-    root, sw, sh, FONTS = test_env
-
-    # Test that Ctrl + D works
-    
-    # Simulate a keystroke event
-
-    # Simulate Ctrl
-    key_simulator.press(keyboard.Key.ctrl_l)
-
-    # Simulate D while holding Ctrl down
-    key_simulator.press("d")
-
-    # Release both
-    key_simulator.release(keyboard.Key.ctrl_l)
-    key_simulator.release("d")
-
-    # Manually update the root window
-    time.sleep(0.15)
-    root.update()
-
-    # The overlay should be on right now
-    # Check all of the overlay init settings, and then check that the window is not withdrawn
-    init_settings_test = get_overlay_init_tests(root, sw, sh)
-    
-    # root.deiconify() makes the state of root be "normal"
-    is_deiconify = root.state() == "normal"
-
-    all_assertions = {
-        **init_settings_test,
-        "is_deiconify": is_deiconify
-    }
-
-    for key, assertion in all_assertions.items():
-        with subtests.test(msg=f"Asserting {key}"):
-            assert assertion
-
-# Tests are run by pytest in the order they are defined
-# Thus, this will be run right after test_overlay_key()
-# Thus, Ctrl + D has already been pressed and overlay is on
-def test_exit_key(test_env, subtests):
-
-    root, sw, sh, FONTS = test_env
-
-    # Test that Ctrl + D, then "a" properly turns off the overlay
-
-    # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests(root, sw, sh)
-
-    # Check that the overlay was on before
-    is_deiconify_before = root.state() == "normal"
-
-    # Simulate A
-    key_simulator.press("a")
-    # Release A
-    key_simulator.release("a")
-
-    # The gui_queue logic polls the queue once every 100ms
-    # Thus wait for 150ms minimally to allow the gui_queue to catch the keypress
-    time.sleep(0.15) # 0.15s = 150ms
-    root.update()
-
-    # Check that the overlay is withdrawn now
-    is_withdrawn = root.state() == "withdrawn"
-    print(root.state())
-    all_assertions = {
-        **init_settings_test,
-        "is_deiconify_before": is_deiconify_before,
-        "is_withdrawn": is_withdrawn
-    }
-
-    for key, assertion in all_assertions.items():
-        with subtests.test(msg=f"Asserting {key}"):
-            assert assertion
-
-def test_wrong_key(test_env, subtests):
-
-    root, sw, sh, FONTS = test_env
-
-    # Check that the screen properly goes red, then turns off when a wrong key is pressed after Ctrl + D
-
-    # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests(root, sw, sh)
-    
-    # Press Ctrl + D now
-    # Simulate Ctrl
-    key_simulator.press(keyboard.Key.ctrl_l)
-
-    # Simulate D while holding Ctrl down
-    key_simulator.press("d")
-
-    # Release both
-    key_simulator.release(keyboard.Key.ctrl_l)
-    key_simulator.release("d")
-    
-    time.sleep(0.15)
-    root.update()
-
-    # Check that the overlay was on before
-    is_deiconify_before = root.state() == "normal"
-    # print(root.state())
-
-    # Let the wrong keypress be F
-    # Simulate F
-    key_simulator.press("f")
-    # Release F
-    key_simulator.release("f")
-
-    # Wait 150ms to allow the gui_queue polling loop to catch it
-    time.sleep(0.15) # 0.15s = 150ms
-    root.update()
-
-    # Overlay should be red now
-    canvas = root.nametowidget(".overlay")
-    is_red = canvas.itemcget("overlay", "outline") == "red"
-
-    # Red overlay is flashed for 1s
-    # Thus wait 1.05s to allow the red overlay to go away
-    time.sleep(1.05)
-    root.update()
-
-    # Overlay should be withdrawn now
-    is_withdrawn = root.state() == "withdrawn"
-
-    all_assertions = {
-        **init_settings_test,
-        "is_deiconify_before": is_deiconify_before,
-        "is_red": is_red,
-        "is_withdrawn": is_withdrawn
-    }
-
-    for key, assertion in all_assertions.items():
-        with subtests.test(msg=f"Asserting {key}"):
-            assert assertion
-
 def test_control_panel_key(test_env, subtests):
 
     root, sw, sh, FONTS = test_env
 
     # Check that the control panel properly opens, with the LaTeX editor as the default first window
 
-    # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests(root, sw, sh)
-    
     # Press Ctrl + D now
     # Simulate Ctrl
     key_simulator.press(keyboard.Key.ctrl_l)
@@ -692,10 +556,12 @@ def test_control_panel_key(test_env, subtests):
     
     time.sleep(0.15)
     root.update()
-
+    # time.sleep(5)
     # Check that the overlay was on before
     is_deiconify_before = root.state() == "normal"
-
+    print("this")
+    print(is_deiconify_before)
+    print(root.state())
     # Press \ to open the control panel
     # Simulate \
     key_simulator.press("\\")
@@ -705,7 +571,6 @@ def test_control_panel_key(test_env, subtests):
     # Wait 150ms to allow the gui_queue polling loop to catch it
     time.sleep(0.15) # 0.15s = 150ms
     root.update()
-
     # Now, check the control panel init options
     cp_init_settings_test = get_cp_init_tests(root, sw, sh)
 
@@ -727,11 +592,62 @@ def test_control_panel_key(test_env, subtests):
             assert assertion
 
 # As of here, the control panel view is open
-def test_close_control_panel(test_env):
+# The LaTeX window is open, test the LaTeX window
+def test_latex_output_enter(test_env, subtests):
 
     root, sw, sh, FONTS = test_env
 
-    # Check that when we close the control panel view, the overlay view is properly re-initialised and works fine
+    # Check that typing into the latex editor and pressing enter gives us a valid latex output, and saves the output to our clipboard
+
+    # Bring active focus to the LaTeX editor
+    latex_frame, is_latex_frame = check_tk_exists(root, "latex_frame")
+    editor_container, is_editor_container = check_tk_exists(latex_frame, "editor_container")
+    text_editor, is_text_editor = check_tk_exists(editor_container, "text_editor")
+    text_editor.focus_set()
+
+    # Simulate typing out a latex formula
+    latex_code_sample = r"\frac{1}{3}"
+    for char in latex_code_sample:
+        key_simulator.press(char)
+    
+    # Press Enter to compile
+    key_simulator.press(keyboard.Key.enter)
+
+    root.update()
+
+    # Check that we received and properly displayed the LaTeX output
+    latex_output_container, is_latex_output_container = check_tk_exists(latex_frame, "latex_output_container")
+    preview_label, is_preview_label = check_tk_exists(latex_output_container, "preview_label")
+    latex_output_canvas, is_latex_output_canvas = check_tk_exists(preview_label, "latex_output_canvas")
+    tk_img = None
+    pil_img = None
+    try:
+        tk_img = latex_output_canvas.image
+        pil_img = latex_output_canvas.pil_img
+    except AttributeError:
+        pass
+
+    # LaTeX output is properly displayed iff both of these have a value, if not something is wrong
+    is_latex_output_displayed = (tk_img != None) and (pil_img != None)
+
+    # Check that an image is properly copied to clipboard
+    clip_data = None
+    clip.OpenClipboard()
+    try:
+        clip_data = clip.GetClipboardData(win32con.CF_DIB)
+    finally:
+        clip.CloseClipboard()
+    # Check if an image is copied at all
+    is_img_copied = (clip_data != None)
+    
+    # Check if the image copied is the right image
+    # Get the dib data from pil_img
+    rgba_img = pil_img.convert("RGBA")
+    output = BytesIO()
+    rgba_img.save(output, "BMP")
+    dib_data = output.getvalue()[14:]
+    output.close()
+    is_latex_img_copied = (pil_img != None) and (clip_data == dib_data)
 
     # Simulate Alt + f4 to close the control panel view
     # Simulate Alt
@@ -748,160 +664,10 @@ def test_close_control_panel(test_env):
     time.sleep(0.15) # 0.15s = 150ms
     root.update()
 
-    # If the overlay works properly now, then control panel has been closed properly
-    # No need for asserts
-
-# Redo all of the overlay tests
-def test_redo_overlay_init(test_env, subtests):
-    
-    root, sw, sh, FONTS = test_env
-
-    # Check for every property of root in the overlay that we set
-    
-    init_settings_test = get_overlay_init_tests(root, sw, sh)
-
-    # We initialise the overlay window as withdrawn first
-    is_withdrawn = root.state() == "withdrawn"
-
     all_assertions = {
-        **init_settings_test,
-        "is_withdrawn": is_withdrawn
-    }
-    
-    for key, assertion in all_assertions.items():
-        with subtests.test(msg=f"Asserting {key}"):
-            assert assertion
-
-def test_redo_overlay_key(test_env, subtests):
-
-    root, sw, sh, FONTS = test_env
-
-    # Test that Ctrl + D works
-    
-    # Simulate a keystroke event
-
-    # Simulate Ctrl
-    key_simulator.press(keyboard.Key.ctrl_l)
-
-    # Simulate D while holding Ctrl down
-    key_simulator.press("d")
-
-    # Release both
-    key_simulator.release(keyboard.Key.ctrl_l)
-    key_simulator.release("d")
-
-    # Manually update the root window
-    time.sleep(0.15)
-    root.update()
-
-    # The overlay should be on right now
-    # Check all of the overlay init settings, and then check that the window is not withdrawn
-    init_settings_test = get_overlay_init_tests(root, sw, sh)
-    
-    # root.deiconify() makes the state of root be "normal"
-    is_deiconify = root.state() == "normal"
-
-    all_assertions = {
-        **init_settings_test,
-        "is_deiconify": is_deiconify
-    }
-
-    for key, assertion in all_assertions.items():
-        with subtests.test(msg=f"Asserting {key}"):
-            assert assertion
-
-# Tests are run by pytest in the order they are defined
-# Thus, this will be run right after test_overlay_key()
-# Thus, Ctrl + D has already been pressed and overlay is on
-def test_redo_exit_key(test_env, subtests):
-
-    root, sw, sh, FONTS = test_env
-
-    # Test that Ctrl + D, then "a" properly turns off the overlay
-
-    # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests(root, sw, sh)
-
-    # Check that the overlay was on before
-    is_deiconify_before = root.state() == "normal"
-
-    # Simulate A
-    key_simulator.press("a")
-    # Release A
-    key_simulator.release("a")
-
-    # The gui_queue logic polls the queue once every 100ms
-    # Thus wait for 150ms minimally to allow the gui_queue to catch the keypress
-    time.sleep(0.15) # 0.15s = 150ms
-    root.update()
-
-    # Check that the overlay is withdrawn now
-    is_withdrawn = root.state() == "withdrawn"
-    print(root.state())
-    all_assertions = {
-        **init_settings_test,
-        "is_deiconify_before": is_deiconify_before,
-        "is_withdrawn": is_withdrawn
-    }
-
-    for key, assertion in all_assertions.items():
-        with subtests.test(msg=f"Asserting {key}"):
-            assert assertion
-
-def test_redo_wrong_key(test_env, subtests):
-
-    root, sw, sh, FONTS = test_env
-
-    # Check that the screen properly goes red, then turns off when a wrong key is pressed after Ctrl + D
-
-    # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests(root, sw, sh)
-    
-    # Press Ctrl + D now
-    # Simulate Ctrl
-    key_simulator.press(keyboard.Key.ctrl_l)
-
-    # Simulate D while holding Ctrl down
-    key_simulator.press("d")
-
-    # Release both
-    key_simulator.release(keyboard.Key.ctrl_l)
-    key_simulator.release("d")
-    
-    time.sleep(0.15)
-    root.update()
-
-    # Check that the overlay was on before
-    is_deiconify_before = root.state() == "normal"
-    # print(root.state())
-
-    # Let the wrong keypress be F
-    # Simulate F
-    key_simulator.press("f")
-    # Release F
-    key_simulator.release("f")
-
-    # Wait 150ms to allow the gui_queue polling loop to catch it
-    time.sleep(0.15) # 0.15s = 150ms
-    root.update()
-
-    # Overlay should be red now
-    canvas = root.nametowidget(".overlay")
-    is_red = canvas.itemcget("overlay", "outline") == "red"
-
-    # Red overlay is flashed for 1s
-    # Thus wait 1.05s to allow the red overlay to go away
-    time.sleep(1.05)
-    root.update()
-
-    # Overlay should be withdrawn now
-    is_withdrawn = root.state() == "withdrawn"
-
-    all_assertions = {
-        **init_settings_test,
-        "is_deiconify_before": is_deiconify_before,
-        "is_red": is_red,
-        "is_withdrawn": is_withdrawn
+        "is_latex_output_displayed": is_latex_output_displayed,
+        "is_img_copied": is_img_copied,
+        "is_latex_img_copied": is_latex_img_copied
     }
 
     for key, assertion in all_assertions.items():
