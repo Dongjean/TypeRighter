@@ -116,4 +116,5 @@ if __name__ == "__main__":
     icon.run_detached()
 
     # Initialise and run main_view.root
-    root_view.root_init() # Blocking function
+    root = root_view.root_init()
+    root.mainloop() # Blocking function
