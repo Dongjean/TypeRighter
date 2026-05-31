@@ -46,8 +46,8 @@ WINDOWS = {
 #temp path for tests, avoid overwriting
 #creates a temp file cleaned by OS later
 #saves original bindings and directory
-def isolate_binding(temp_path_factory): 
-    fake_dir = temp_path_factory.mktemp("unicode_bindings")
+def isolate_binding(tmp_path_factory): 
+    fake_dir = tmp_path_factory.mktemp("unicode_bindings")
     fake_path = str(fake_dir / "test_shortcuts_unicode.json")
     saved_path = shortcuts_unicode._PATH
     saved_bindings = dict(shortcuts_unicode.bindings)
@@ -130,6 +130,9 @@ def check_tk_exists(parent, child_name):
 
 #check widget properties
 def check_widget_props(widget, props):
+    if widget is None: 
+        return False
+    
     widget_pack_info = None
     widget_binds = None
     try:
@@ -191,7 +194,7 @@ def get_unicode_menu_build_test(root, FONTS):
     )
 
     subtitle_label = next(
-        (w for w in children if isinstance(w, tk.Label) and w.cget("text") == "Search for unicode symbol by name or codepoint"),
+        (w for w in children if isinstance(w, tk.Label) and w.cget("text") == "Search for unicode symbols by name or codepoint"),
         None,
     )
     search_box = next((w for w in children if isinstance(w, tk.Entry)), None)
@@ -208,7 +211,7 @@ def get_unicode_menu_build_test(root, FONTS):
         ("config", "bg", COLORS["bg_main"]), 
         ("config", "padx", 20), 
         ("config", "pady", 20), 
-        ("config", "takefocus", True),
+        ("config", "takefocus", "1"),
 
         ("pack","side", "top"),
         ("pack", "fill", "both"),
@@ -336,7 +339,8 @@ def test_unicode_search_function(subtests):
     is_codepoint_prefix_uplus = ( 
         result_u is not None
         and result_u[0] == "Ω"
-        and result_u[1] == 0x03A9
+        and result_u[1] == "GREEK CAPITAL LETTER OMEGA"
+        and result_u[2] == 0x03A9
     )
 
     #search by cp with 0XXXXX
@@ -344,7 +348,8 @@ def test_unicode_search_function(subtests):
     is_codepoint_prefix_0x= ( 
         result_0x is not None
         and result_0x[0] == "Ω"
-        and result_0x[1] == 0x03A9
+        and result_0x[1] == "GREEK CAPITAL LETTER OMEGA"
+        and result_0x[2] == 0x03A9
     )
 
     #search by cp witout U+ (hex)
@@ -352,7 +357,8 @@ def test_unicode_search_function(subtests):
     is_codepoint_prefix_bare_hex = (
         result_bare_hex is not None 
         and result_bare_hex[0] == "Ω"
-        and result_bare_hex[1] == 0x03A9
+        and result_bare_hex[1] == "GREEK CAPITAL LETTER OMEGA"
+        and result_bare_hex[2] == 0x03A9
     )
 
     #search by cp without U+ (dec)
@@ -360,7 +366,8 @@ def test_unicode_search_function(subtests):
     is_codepoint_prefix_bare_dec = ( 
         result_bare_dec is not None 
         and result_bare_dec[0] == "Ω"
-        and result_bare_dec[1] == 0x03A9
+        and result_bare_dec[1] == "GREEK CAPITAL LETTER OMEGA"
+        and result_bare_dec[2] == 0x03A9
     )
 
     #search by cp HTML input 
@@ -368,7 +375,8 @@ def test_unicode_search_function(subtests):
     is_codepoint_HTML = (
         result_HTML is not None
         and result_HTML[0] == "Ω"
-        and result_HTML[1] == 0x03A9
+        and result_HTML[1] == "GREEK CAPITAL LETTER OMEGA"
+        and result_HTML[2] == 0x03A9
     )
 
     #invalid input 
@@ -446,7 +454,7 @@ def test_unicode_copy_paste (subtests):
     shortcuts_unicode.set_binding("s", "Ω")
     returned = shortcuts_unicode.copy_symbol("s")
     is_copied_symbol = returned == "Ω"
-    is_match_copied_symbol_clipboard = pyperclip.paste() == "Ω" is True 
+    is_match_copied_symbol_clipboard = pyperclip.paste() == "Ω"
 
     #check symbol on a unbound key 
     pyperclip.copy("Pray")
