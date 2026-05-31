@@ -35,43 +35,72 @@ def flash_red_overlay():
 def control_panel_window():
     root_view.gui_queue.put("control_panel_window")
 
-def on_press(key, listener):
+def on_press_shortcut(key, listener):
+
+    # The overlay is on, so we are listening for a 2nd key input
+    if root_view.is_overlay_triggered:
+        try: 
+            key_char = key.char
+            
+        except AttributeError:
+            key_char = None 
+            
+        # Close the overlay
+        if key == keyboard.KeyCode.from_char('a'):
+            hide_overlay()
+        
+        # Control panel window
+        elif key == keyboard.KeyCode.from_char('\\'):
+            control_panel_window()
+        
+        #Unicode Shortcut 
+        elif key_char and shortcuts_unicode.copy_symbol(key_char):
+            hide_overlay()
+
+        # FOR DEBUG EASE
+        elif key == keyboard.KeyCode.from_char('`'):
+            clean_exit()
+
+        # No recognised key
+        else:
+            flash_red_overlay()
+    
+    # After a single press event, return back to bg_listener
+
+    # Stop shortcut_listener
+    listener.stop()
+
+    # Start a new bg_listener
+    bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
+    global COMBINATION
+    COMBINATION = {
+        bg_listener.canonical(keyboard.Key.ctrl_l),
+        keyboard.KeyCode.from_char('d'),
+    }
+    bg_listener.start()
+
+def on_press_bg(key, listener):
     if not root_view.is_control_panel_open:
         canonical_key = listener.canonical(key)
         # If the overlay is on, means we are listening for a 2nd key input
-        if root_view.is_overlay_triggered:
-            try: 
-                key_char = key.char
-                
-            except AttributeError:
-                key_char = None 
-                
-            # Close the overlay
-            if key == keyboard.KeyCode.from_char('a'):
-                hide_overlay()
-            
-            # Control panel window
-            elif key == keyboard.KeyCode.from_char('\\'):
-                control_panel_window()
-            
-            #Unicode Shortcut 
-            elif key_char and shortcuts_unicode.copy_symbol(key_char):
-                hide_overlay()
 
-            # FOR DEBUG EASE
-            elif key == keyboard.KeyCode.from_char('`'):
-                clean_exit()
-
-            # No recognised key
-            else:
-                flash_red_overlay()
-
-        elif canonical_key in COMBINATION:
+        if canonical_key in COMBINATION:
             current_keys.add(canonical_key)
             if all(k in current_keys for k in COMBINATION):
                 trigger_overlay()
 
-def on_release(key, listener):
+                # Before we stop bg_listener, release the pressed keys and clear current_keys
+                for pressed_key in COMBINATION:
+                    keyboard.Controller().release(pressed_key)
+                current_keys.clear()
+                # Stop the bg_listener
+                listener.stop()
+
+                # Start a new shortcut_listener which suppresses typing
+                shortcut_listener = keyboard.Listener(suppress=True, on_press=lambda key: on_press_shortcut(key, shortcut_listener))
+                shortcut_listener.start()
+
+def on_release_bg(key, listener):
     canonical_key = listener.canonical(key)
     try:
         current_keys.remove(canonical_key)
@@ -82,12 +111,20 @@ def on_release(key, listener):
 def create_image():
     return Image.new('RGB', (64, 64), (0, 200, 100)) # Green square
 
+def stop_all_pynput_keyboard_listeners():
+    # Loop through all active threads in the Python process
+    for thread in threading.enumerate():
+        # Check if the thread is an instance of a pynput keyboard listener
+        if isinstance(thread, (keyboard.Listener)):
+            if thread.running:
+                thread.stop()
+
 # Clean exit function
 def clean_exit():
     print("\nShutting down cleanly...")
     print("___")
     icon.stop() # Stop the tray icon
-    listener.stop() # Stop the keyboard listener
+    stop_all_pynput_keyboard_listeners() # Stop the keyboard listener
     root_view.gui_queue.put("destroy_root") # Stop the root window
     os._exit(0) # Hard exit to kill all threads instantly
 
@@ -97,14 +134,15 @@ COMBINATION = {}
 border_thickness = 5
 if __name__ == "__main__":
     
-    listener = keyboard.Listener(on_press=lambda key: on_press(key, listener), on_release=lambda key: on_release(key, listener))
+    # The bg_listener which only listens for the COMBINATION
+    bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
     COMBINATION = {
-        listener.canonical(keyboard.Key.ctrl_l),
+        bg_listener.canonical(keyboard.Key.ctrl_l),
         keyboard.KeyCode.from_char('d'),
     }
     # Start Listener
     # .start() starts a non-blocking daemon thread
-    listener.start()
+    bg_listener.start()
 
     # Start Tray Icon
     icon = pystray.Icon("TypeRighter")
