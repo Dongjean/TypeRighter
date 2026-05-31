@@ -36,9 +36,8 @@ def control_panel_window():
     root_view.gui_queue.put("control_panel_window")
 
 def on_press_shortcut(key, listener):
+
     # The overlay is on, so we are listening for a 2nd key input
-    print(key)
-    print("hi")
     if root_view.is_overlay_triggered:
         try: 
             key_char = key.char
