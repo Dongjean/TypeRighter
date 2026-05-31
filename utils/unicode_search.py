@@ -29,7 +29,7 @@ def search_by_codepoint(text):
 
             cleaned = cleaned.rstrip(';')
 
-            if cleaned.startwith("&#X"): 
+            if cleaned.startswith("&#X"): 
                 cp = int(cleaned[3:], 16) #hex HTML input
             else: 
                 cp = int(cleaned[2:],10) #dec HTML input
