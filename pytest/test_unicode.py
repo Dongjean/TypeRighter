@@ -12,6 +12,13 @@ import utils.shortcuts_unicode as shortcuts_unicode
 border_thickness = 5
 key_simulator = keyboard.Controller() 
 
+# Helper function to pause the programme for a short few seconds while spamming root.update()
+def wait(root, period, interval=0.05):
+    deadline = time.time() + period
+    while time.time() < deadline:
+        root.update()
+        time.sleep(interval)
+
 # Color Palette
 COLORS = {
     "bg_main": "#202020",
@@ -47,13 +54,19 @@ WINDOWS = {
 #creates a temp file cleaned by OS later
 #saves original bindings and directory
 def isolate_binding(tmp_path_factory): 
+    print("1")
     fake_dir = tmp_path_factory.mktemp("unicode_bindings")
+    print("2")
     fake_path = str(fake_dir / "test_shortcuts_unicode.json")
+    print("3")
     saved_path = shortcuts_unicode._PATH
+    print("4")
     saved_bindings = dict(shortcuts_unicode.bindings)
+    print("5")
     shortcuts_unicode._PATH = fake_path 
+    print("6")
     shortcuts_unicode.bindings.clear() 
-
+    print("7")
     yield 
 
     #load saved bindings and actual directory 
@@ -75,7 +88,7 @@ def test_env():
 
     # Start a completely new pynput thread
     # pynput threads cannot be reused
-    listener = keyboard.Listener(on_press=lambda key: main.on_press(key, listener), on_release=lambda key: main.on_release(key, listener))
+    listener = keyboard.Listener(on_press=lambda key: main.on_press_bg(key, listener), on_release=lambda key: main.on_release_bg(key, listener))
     main.COMBINATION = {
         listener.canonical(keyboard.Key.ctrl_l),
         keyboard.KeyCode.from_char('d'),
@@ -98,12 +111,11 @@ def test_env():
     main.root_view.gui_queue.put("destroy_root")
 
     # Stop the pynput listener
-    listener.stop()
+    main.stop_all_pynput_keyboard_listeners()
 
     # Sleep for 150ms to let the tkinter root window properly close
-    time.sleep(0.15)
+    wait(root, 0.15)
 
-    root.update()
     # Delete all .after() instances
     try:
         for after_id in root.eval('after info').split():
@@ -301,14 +313,12 @@ def test_unicode_search_menu(test_env, subtests):
     key_simulator.release(keyboard.Key.ctrl_l)
     key_simulator.release("d")
     
-    time.sleep(0.15)
-    root.update()
+    wait(root, 0.15)
 
     #enter control-panel-mode with\ 
     key_simulator.press("\\")
     key_simulator.release("\\")
-    time.sleep(0.15)
-    root.update()
+    wait(root, 0.15)
 
     #finds unicode search button
     navbar_frame = root.nametowidget("navbar_frame")
@@ -489,8 +499,7 @@ def test_unicode_copy_via_overlay(test_env, subtests):
     key_simulator.press(keyboard.Key.f4)
     key_simulator.release(keyboard.Key.alt_l)
     key_simulator.release(keyboard.Key.f4)
-    time.sleep(0.15)
-    root.update()
+    wait(root, 0.15)
 
     is_control_panel_closed = main.root_view.is_control_panel_open == False
 
@@ -502,15 +511,13 @@ def test_unicode_copy_via_overlay(test_env, subtests):
     key_simulator.press("d")
     key_simulator.release(keyboard.Key.ctrl_l)
     key_simulator.release("d")
-    time.sleep(0.15)
-    root.update()
+    wait(root, 0.15)
 
     is_overlay_on_before = main.root_view.is_overlay_triggered == True
 
     key_simulator.press("q")
     key_simulator.release("q")
-    time.sleep(0.15)
-    root.update()
+    wait(root, 0.15)
 
     is_clipboard_has_symbol = pyperclip.paste() == "Ω"
     is_overlay_off_after = main.root_view.is_overlay_triggered == False
@@ -529,5 +536,3 @@ def test_unicode_copy_via_overlay(test_env, subtests):
     for key, assertion in all_assertions.items():
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion
-
-
