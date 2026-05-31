@@ -111,18 +111,20 @@ def on_release_bg(key, listener):
 def create_image():
     return Image.new('RGB', (64, 64), (0, 200, 100)) # Green square
 
-# Clean exit function
-def clean_exit():
-    print("\nShutting down cleanly...")
-    print("___")
-    icon.stop() # Stop the tray icon
-    # listener.stop() # Stop the keyboard listener
+def stop_all_pynput_keyboard_listeners():
     # Loop through all active threads in the Python process
     for thread in threading.enumerate():
         # Check if the thread is an instance of a pynput keyboard listener
         if isinstance(thread, (keyboard.Listener)):
             if thread.running:
                 thread.stop()
+
+# Clean exit function
+def clean_exit():
+    print("\nShutting down cleanly...")
+    print("___")
+    icon.stop() # Stop the tray icon
+    stop_all_pynput_keyboard_listeners() # Stop the keyboard listener
     root_view.gui_queue.put("destroy_root") # Stop the root window
     os._exit(0) # Hard exit to kill all threads instantly
 
