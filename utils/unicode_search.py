@@ -23,12 +23,24 @@ def search_by_codepoint(text):
     #if user input decimals
     try: 
         cleaned = text.strip().upper()
+
+        #Handle HTML inputs 
         if cleaned.startswith('&#'): 
-            cp = int(cleaned[2:], 16)
-    #if user input 'U+2FFF' or '2FFF' or decimals
+
+            cleaned = cleaned.rstrip(';')
+
+            if cleaned.startswith("&#X"): 
+                cp = int(cleaned[3:], 16) #hex HTML input
+            else: 
+                cp = int(cleaned[2:],10) #dec HTML input
         else: 
-            cleaned = cleaned.removeprefix('U+').removeprefix('0X')
-            cp = int(cleaned, 16)
+            cleaned = cleaned.removeprefix('U+').removeprefix('0X') #if non HTML i.e. standard search
+
+            #if input is purely digits no prefix
+            if cleaned.isdigit(): 
+                cp = int(cleaned, 10)
+            else: 
+                cp = int(cleaned, 16)
             
         ch = chr(cp) 
         name = unicodedata.name(ch, "UNNAMED CHARACTER") 
