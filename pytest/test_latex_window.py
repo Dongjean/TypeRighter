@@ -16,6 +16,13 @@ from pynput import keyboard
 border_thickness = 5
 key_simulator = keyboard.Controller()
 
+# Helper function to pause the programme for a short few seconds while spamming root.update()
+def wait(root, period, interval=0.05):
+    deadline = time.time() + period
+    while time.time() < deadline:
+        root.update()
+        time.sleep(interval)
+
 # Color Palette
 COLORS = {
     "bg_main": "#202020",
@@ -81,9 +88,8 @@ def test_env():
     listener.stop()
 
     # Sleep for 150ms to let the tkinter root window properly close
-    time.sleep(0.15)
+    wait(root, 0.15)
 
-    root.update()
     # Delete all .after() instances
     try:
         for after_id in root.eval('after info').split():
@@ -554,8 +560,7 @@ def test_control_panel_key(test_env, subtests):
     key_simulator.release(keyboard.Key.ctrl_l)
     key_simulator.release("d")
     
-    time.sleep(0.15)
-    root.update()
+    wait(root, 0.15)
     # time.sleep(5)
     # Check that the overlay was on before
     is_deiconify_before = root.state() == "normal"
@@ -569,8 +574,7 @@ def test_control_panel_key(test_env, subtests):
     key_simulator.release("\\")
 
     # Wait 150ms to allow the gui_queue polling loop to catch it
-    time.sleep(0.15) # 0.15s = 150ms
-    root.update()
+    wait(root, 0.15) # 0.15s = 150ms
     # Now, check the control panel init options
     cp_init_settings_test = get_cp_init_tests(root, sw, sh)
 
@@ -613,7 +617,8 @@ def test_latex_output_enter(test_env, subtests):
     # Press Enter to compile
     key_simulator.press(keyboard.Key.enter)
 
-    root.update()
+    # Wait a little bit to allow some buffer time for the LaTeX output to be processed
+    wait(root, 0.15)
 
     # Check that we received and properly displayed the LaTeX output
     latex_output_container, is_latex_output_container = check_tk_exists(latex_frame, "latex_output_container")
@@ -661,8 +666,7 @@ def test_latex_output_enter(test_env, subtests):
     key_simulator.release(keyboard.Key.f4)
 
     # Wait 150ms to allow the gui_queue polling loop to catch it
-    time.sleep(0.15) # 0.15s = 150ms
-    root.update()
+    wait(root, 0.15) # 0.15s = 150ms
 
     all_assertions = {
         "is_latex_output_displayed": is_latex_output_displayed,
