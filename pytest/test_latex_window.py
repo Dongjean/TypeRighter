@@ -59,7 +59,7 @@ def test_env():
 
     # Start a completely new pynput thread
     # pynput threads cannot be reused
-    listener = keyboard.Listener(on_press=lambda key: main.on_press(key, listener), on_release=lambda key: main.on_release(key, listener))
+    listener = keyboard.Listener(on_press=lambda key: main.on_press_bg(key, listener), on_release=lambda key: main.on_release_bg(key, listener))
     main.COMBINATION = {
         listener.canonical(keyboard.Key.ctrl_l),
         keyboard.KeyCode.from_char('d'),
@@ -85,7 +85,7 @@ def test_env():
     main.root_view.gui_queue.put("destroy_root")
 
     # Stop the pynput listener
-    listener.stop()
+    main.stop_all_pynput_keyboard_listeners()
 
     # Sleep for 150ms to let the tkinter root window properly close
     wait(root, 0.15)
