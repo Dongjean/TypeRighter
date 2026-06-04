@@ -19,6 +19,7 @@ if getattr(sys, 'frozen', False):
     sys.stderr = open(os.devnull, 'w')
 
 # Key listener
+keyboard_controller = keyboard.Controller()
 
 # Use canonical keys to account for certain combinations becoming Control Codes
 current_keys = set()
@@ -35,6 +36,12 @@ def flash_red_overlay():
 def control_panel_window():
     root_view.gui_queue.put("control_panel_window")
 
+def insert_unicode(char):
+
+    # Pause the program before typing in the character to allow some buffer time
+    time.sleep(0.03)
+    keyboard_controller.type(char)
+
 def on_press_shortcut(key, listener):
 
     # The overlay is on, so we are listening for a 2nd key input
@@ -44,7 +51,7 @@ def on_press_shortcut(key, listener):
             
         except AttributeError:
             key_char = None 
-            
+
         # Close the overlay
         if key == keyboard.KeyCode.from_char('a'):
             hide_overlay()
@@ -53,13 +60,18 @@ def on_press_shortcut(key, listener):
         elif key == keyboard.KeyCode.from_char('\\'):
             control_panel_window()
         
-        #Unicode Shortcut 
-        elif key_char and shortcuts_unicode.copy_symbol(key_char):
-            hide_overlay()
-
         # FOR DEBUG EASE
         elif key == keyboard.KeyCode.from_char('`'):
             clean_exit()
+
+        # Unicode Shortcut 
+        elif key_char and (unicode_symbol := shortcuts_unicode.copy_symbol(key_char)):
+            if unicode_symbol:
+                # Directly insert this symbol with pynput
+                # Insert it from a different thread to bypass this pynput listener's suppress=True
+                threading.Thread(target=lambda: insert_unicode(unicode_symbol), daemon=True).start()
+
+                hide_overlay()
 
         # No recognised key
         else:
