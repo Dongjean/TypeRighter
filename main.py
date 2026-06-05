@@ -50,6 +50,8 @@ def on_press_shortcut(key, listener):
             
         except AttributeError:
             key_char = None 
+        except Exception as e:
+            key_char = None
 
         # Close the overlay
         if key == keyboard.KeyCode.from_char('a'):
