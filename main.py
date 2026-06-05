@@ -36,11 +36,10 @@ def flash_red_overlay():
 def control_panel_window():
     root_view.gui_queue.put("control_panel_window")
 
-def insert_unicode(char):
-
-    # Pause the program before typing in the character to allow some buffer time
-    time.sleep(0.03)
-    keyboard_controller.type(char)
+def insert_unicode(unicode_char, key_char):
+    
+    keyboard_controller.release(key_char)
+    keyboard_controller.type(unicode_char)
 
 def on_press_shortcut(key, listener):
 
@@ -59,7 +58,7 @@ def on_press_shortcut(key, listener):
         # Control panel window
         elif key == keyboard.KeyCode.from_char('\\'):
             control_panel_window()
-        
+
         # FOR DEBUG EASE
         elif key == keyboard.KeyCode.from_char('`'):
             clean_exit()
@@ -69,19 +68,19 @@ def on_press_shortcut(key, listener):
             if unicode_symbol:
                 # Directly insert this symbol with pynput
                 # Insert it from a different thread to bypass this pynput listener's suppress=True
-                threading.Thread(target=lambda: insert_unicode(unicode_symbol), daemon=True).start()
+                threading.Thread(target=lambda: insert_unicode(unicode_symbol, key_char), daemon=True).start()
 
                 hide_overlay()
 
         # No recognised key
         else:
             flash_red_overlay()
-    
+
     # After a single press event, return back to bg_listener
 
     # Stop shortcut_listener
     listener.stop()
-
+    
     # Start a new bg_listener
     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
     global COMBINATION
