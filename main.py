@@ -19,6 +19,7 @@ if getattr(sys, 'frozen', False):
     sys.stderr = open(os.devnull, 'w')
 
 # Key listener
+keyboard_controller = keyboard.Controller()
 
 # Use canonical keys to account for certain combinations becoming Control Codes
 current_keys = set()
@@ -35,16 +36,22 @@ def flash_red_overlay():
 def control_panel_window():
     root_view.gui_queue.put("control_panel_window")
 
+def insert_unicode(unicode_char, key_char):
+    
+    keyboard_controller.release(key_char)
+    keyboard_controller.type(unicode_char)
+
 def on_press_shortcut(key, listener):
 
     # The overlay is on, so we are listening for a 2nd key input
     if root_view.is_overlay_triggered:
         try: 
             key_char = key.char
-            
         except AttributeError:
             key_char = None 
-            
+        except Exception as e:
+            key_char = None
+
         # Close the overlay
         if key == keyboard.KeyCode.from_char('a'):
             hide_overlay()
@@ -52,24 +59,28 @@ def on_press_shortcut(key, listener):
         # Control panel window
         elif key == keyboard.KeyCode.from_char('\\'):
             control_panel_window()
-        
-        #Unicode Shortcut 
-        elif key_char and shortcuts_unicode.copy_symbol(key_char):
-            hide_overlay()
 
         # FOR DEBUG EASE
         elif key == keyboard.KeyCode.from_char('`'):
             clean_exit()
 
+        # Unicode Shortcut 
+        elif key_char and (unicode_symbol := shortcuts_unicode.copy_symbol(key_char)):
+            # Directly insert this symbol with pynput
+            # Insert it from a different thread to bypass this pynput listener's suppress=True
+            threading.Thread(target=lambda: insert_unicode(unicode_symbol, key_char), daemon=True).start()
+
+            hide_overlay()
+
         # No recognised key
         else:
             flash_red_overlay()
-    
+
     # After a single press event, return back to bg_listener
 
     # Stop shortcut_listener
     listener.stop()
-
+    
     # Start a new bg_listener
     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
     global COMBINATION
