@@ -83,21 +83,15 @@ def on_press_shortcut(key, listener):
     
     # Start a new bg_listener
     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
-    global COMBINATION
-    COMBINATION = {
-        bg_listener.canonical(keyboard.Key.ctrl_l),
-        keyboard.KeyCode.from_char('d'),
-    }
     bg_listener.start()
 
 def on_press_bg(key, listener):
     if not root_view.is_control_panel_open:
         canonical_key = listener.canonical(key)
         # If the overlay is on, means we are listening for a 2nd key input
-
-        if canonical_key in COMBINATION:
+        if canonical_key in map(listener.canonical, COMBINATION):
             current_keys.add(canonical_key)
-            if all(k in current_keys for k in COMBINATION):
+            if all(k in current_keys for k in map(listener.canonical, COMBINATION)):
                 trigger_overlay()
 
                 # Before we stop bg_listener, release the pressed keys and clear current_keys
@@ -141,16 +135,15 @@ def clean_exit():
 
 #load saved unicode shortcuts 
 shortcuts_unicode.load()
-COMBINATION = {}
+COMBINATION = [
+    keyboard.Key.ctrl_l,
+    keyboard.KeyCode.from_char('d'),
+]
 border_thickness = 5
 if __name__ == "__main__":
     
     # The bg_listener which only listens for the COMBINATION
     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
-    COMBINATION = {
-        bg_listener.canonical(keyboard.Key.ctrl_l),
-        keyboard.KeyCode.from_char('d'),
-    }
     # Start Listener
     # .start() starts a non-blocking daemon thread
     bg_listener.start()

@@ -89,10 +89,6 @@ def test_env():
     # Start a completely new pynput thread
     # pynput threads cannot be reused
     listener = keyboard.Listener(on_press=lambda key: main.on_press_bg(key, listener), on_release=lambda key: main.on_release_bg(key, listener))
-    main.COMBINATION = {
-        listener.canonical(keyboard.Key.ctrl_l),
-        keyboard.KeyCode.from_char('d'),
-    }
     listener.start()
 
     sw = root.winfo_screenwidth()

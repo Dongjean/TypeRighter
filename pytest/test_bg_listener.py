@@ -56,10 +56,6 @@ def test_env():
     # main.listener.start()
 
     listener = keyboard.Listener(on_press=lambda key: main.on_press_bg(key, listener), on_release=lambda key: main.on_release_bg(key, listener))
-    main.COMBINATION = {
-        listener.canonical(keyboard.Key.ctrl_l),
-        keyboard.KeyCode.from_char('d'),
-    }
     listener.start()
 
     root = main.root_view.root_init()
