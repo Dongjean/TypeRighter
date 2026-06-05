@@ -47,7 +47,6 @@ def on_press_shortcut(key, listener):
     if root_view.is_overlay_triggered:
         try: 
             key_char = key.char
-            
         except AttributeError:
             key_char = None 
         except Exception as e:
@@ -67,12 +66,11 @@ def on_press_shortcut(key, listener):
 
         # Unicode Shortcut 
         elif key_char and (unicode_symbol := shortcuts_unicode.copy_symbol(key_char)):
-            if unicode_symbol:
-                # Directly insert this symbol with pynput
-                # Insert it from a different thread to bypass this pynput listener's suppress=True
-                threading.Thread(target=lambda: insert_unicode(unicode_symbol, key_char), daemon=True).start()
+            # Directly insert this symbol with pynput
+            # Insert it from a different thread to bypass this pynput listener's suppress=True
+            threading.Thread(target=lambda: insert_unicode(unicode_symbol, key_char), daemon=True).start()
 
-                hide_overlay()
+            hide_overlay()
 
         # No recognised key
         else:
