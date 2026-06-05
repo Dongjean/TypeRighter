@@ -153,7 +153,7 @@ def test_control_panel_key(test_env, subtests):
     latex_build_settings_test = get_latex_build_tests(root, FONTS, COLORS)
 
     # Now, check that the NavBar is properly built
-    navbar_build_settings_test = get_navbar_build_tests(root, FONTS, COLORS, WINDOWS)
+    navbar_build_settings_test = get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, "latex-workspace")
 
     all_assertions = {
         "is_deiconify_before": is_deiconify_before,

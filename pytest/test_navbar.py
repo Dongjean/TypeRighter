@@ -12,39 +12,16 @@ import main as main
 import time
 from pynput import keyboard
 
+# Import helper functions
+from helpers.main_test_helpers import wait, check_tk_exists
+from helpers.overlay_view_test_helpers import get_overlay_init_tests
+from helpers.cp_view_test_helpers import get_cp_init_tests
+from helpers.latex_window_test_helpers import get_latex_build_tests
+from helpers.navbar_component_test_helpers import get_navbar_build_tests
+from helpers.user_auth_window_test_helpers import get_user_auth_build_tests
 
 border_thickness = 5
 key_simulator = keyboard.Controller()
-
-# Helper function to pause the programme for a short few seconds while spamming root.update()
-def wait(root, period, interval=0.05):
-    deadline = time.time() + period
-    while time.time() < deadline:
-        root.update()
-        time.sleep(interval)
-
-# Color Palette
-COLORS = {
-    "bg_main": "#202020",
-    "bg_input": "#1a1a1a",
-    "text_main": "#e3e3e3",
-    "text_muted": "#888888",
-    "border": "#2d2d2d",
-    "accent_blue": "#2a5a9c",
-    "hyperlink_blue": "#0099FF",
-}
-
-# Windows
-WINDOWS = {
-    "latex-workspace": {
-        "name": "LaTeX",
-        "icon": "",
-    },
-    "user-auth": {
-        "name": "Login",
-        "icon": "",
-    },
-}
 
 @pytest.fixture(scope="module")
 def test_env():
@@ -71,8 +48,30 @@ def test_env():
         "font_subtitle": tkfont.Font(family="Segoe UI", size=10, weight="normal"),
         "font_hyperlink": tkfont.Font(family="Segoe UI", size=10, weight="normal", underline=True),
     }
+    # Color Palette
+    COLORS = {
+        "bg_main": "#202020",
+        "bg_input": "#1a1a1a",
+        "text_main": "#e3e3e3",
+        "text_muted": "#888888",
+        "border": "#2d2d2d",
+        "accent_blue": "#2a5a9c",
+        "hyperlink_blue": "#0099FF",
+    }
 
-    yield (root, sw, sh, FONTS) # This is where the code runs
+    # Windows
+    WINDOWS = {
+        "latex-workspace": {
+            "name": "LaTeX",
+            "icon": "",
+        },
+        "user-auth": {
+            "name": "Login",
+            "icon": "",
+        },
+    }
+
+    yield (root, sw, sh, FONTS, COLORS, WINDOWS) # This is where the code runs
 
     # This is after all the tests
     # Close everything
@@ -94,679 +93,9 @@ def test_env():
     except Exception as e:
         print(e)
 
-def get_overlay_init_tests(root, sw, sh):
-
-    # All of these should be True
-    is_root = root != None
-    is_overrideredirect = root.overrideredirect() == True
-    is_topmost = root.attributes("-topmost") == True
-    is_alpha = root.attributes("-alpha") == 0.5
-    is_transparentcolor = False
-    if sys.platform.startswith("win"):
-        is_transparentcolor = str(root.attributes("-transparentcolor")) == "white"
-    elif sys.platform.startswith("linux"):
-        # Just skip the test by letting it pass
-        is_transparentcolor = True
-    else:
-        is_transparentcolor = str(root.attributes("-transparentcolor")) == "white"
-    is_geometry = root.geometry() == f"{sw}x{sh}+0+0"
-
-    # Check the canvas' properties in the overlay that we set
-    # We tagged the canvas that we made with "overlay"
-    canvas = root.nametowidget(".overlay")
-    is_canvas = canvas != None
-    is_bg = canvas.cget("bg") == "white"
-    is_highlightthickness = canvas.cget("highlightthickness") == "0"
-    is_fill = canvas.pack_info().get("fill") == "both"
-    is_expand = canvas.pack_info().get("expand") == True
-
-    canvas_rectangle_id = canvas.find_withtag("overlay")[0]
-    is_rectangle = canvas.type(canvas_rectangle_id) == "rectangle"
-    is_coords = canvas.coords("overlay") == [border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2]
-    is_outline = canvas.itemcget("overlay", "outline") == "green"
-    is_width = float(canvas.itemcget("overlay", "width")) == border_thickness
-    is_fill = canvas.itemcget("overlay", "fill") == "white"
-
-    return {
-        "is_root": is_root,
-        "is_overrideredirect": is_overrideredirect,
-        "is_topmost": is_topmost,
-        "is_alpha": is_alpha,
-        "is_transparentcolor": is_transparentcolor,
-        "is_geometry": is_geometry,
-
-        "is_canvas": is_canvas,
-        "is_bg": is_bg,
-        "is_highlightthickness": is_highlightthickness,
-        "is_fill": is_fill,
-        "is_expand": is_expand,
-
-        "is_rectangle": is_rectangle,
-        "is_coords": is_coords,
-        "is_outline": is_outline,
-        "is_width": is_width,
-        "is_fill": is_fill
-    }
-
-def get_cp_init_tests(root, sw, sh):
-
-    # All of these should be True
-
-    is_root = root != None
-    is_title = root.title() == "TypeRighter - Control Panel"
-
-    # There is a known bug with tkinter, where root.overrideredirect() == None when we set it to False
-    # This is because setting it to False gives control of the title bar and borders to the native OS
-    # The windows OS returns 0, but for some reason tkinter's internal boolean converters converts that to None
-    is_overrideredirect = root.overrideredirect() == None
-    is_topmost = root.attributes("-topmost") == False
-    is_alpha = root.attributes("-alpha") == 1
-    is_transparentcolor = False
-    if sys.platform.startswith("win"):
-        is_transparentcolor = str(root.attributes("-transparentcolor")) == ""
-    elif sys.platform.startswith("linux"):
-        # Just skip the test by letting it pass
-        is_transparentcolor = True
-    else:
-        is_transparentcolor = str(root.attributes("-transparentcolor")) == ""
-    is_geometry = root.geometry() == f"{sw // 2}x{sh // 2}+0+0"
-    is_bg_white = root.cget("bg") == "#ffffff"
-
-    # Check that there is no overlay canvas anymore
-    is_overlay_gone = False
-    try:
-        # Try to access the overlay_canvas
-        root.nametowidget(".overlay")
-    except KeyError:
-        # If we cannot find it because any child widget with the name "overlay" cannot be found, then overlay is truly gone
-        is_overlay_gone = True
-
-    # Check that it is not withdrawn
-    is_deiconify = root.state() == "normal"
-
-    # Check that we have the root keybind to <Button-1>
-    is_root_bind = check_widget_props(root, [("misc", "bind", "<Button-1>")])
-
-    return {
-        "is_root": is_root,
-        "is_title": is_title,
-        "is_overrideredirect": is_overrideredirect,
-        "is_topmost": is_topmost,
-        "is_alpha": is_alpha,
-        "is_transparentcolor": is_transparentcolor,
-        "is_geometry": is_geometry,
-        "is_bg_white": is_bg_white,
-
-        "is_overlay_gone": is_overlay_gone,
-
-        "is_deiconify": is_deiconify,
-
-        "is_root_bind": is_root_bind
-    }
-
-def check_tk_exists(parent, child_name):
-    try:
-
-        # Widget with name child_name exists under the widget parent
-        child_widget = parent.nametowidget(child_name)
-        return (child_widget, True)
-    except KeyError:
-
-        # Widget with name child_name does not exist under the widget parent
-        return (None, False)
-    except AttributeError:
-
-        # The widget parent doesnt exist
-        return (None, False)
-
-def check_widget_props(widget, props):
-    widget_pack_info = None
-    widget_binds = None
-    try:
-        widget_pack_info = widget.pack_info()
-    except AttributeError as e:
-        print(e)
-    try:
-        widget_binds = widget.bind()
-    except AttributeError as e:
-        print(e)
-    curr_props = [
-
-        # Command prop (Check that the function exists only)
-        (prop[0], prop[1], True if widget.cget(prop[1]) else False) if prop[0] == "config" and prop[1] == "command"
-        else
-        # variable prop (for RadioButton)
-        (prop[0], prop[1], str(widget.cget(prop[1]))) if prop[0] == "config" and prop[1] == "variable"
-        else
-        # Config props
-        (prop[0], prop[1], widget.cget(prop[1])) if prop[0] == "config"
-        else
-        # Pack props
-        (prop[0], prop[1], widget_pack_info[prop[1]]) if prop[0] == "pack"
-        else
-        # Widget name prop
-        (prop[0], prop[1], widget.winfo_name()) if prop[0] == "misc" and prop[1] == "widget_name"
-        else
-        # Font prop
-        (prop[0], prop[1], tkfont.nametofont(widget.cget("font")).actual()) if prop[0] == "misc" and prop[1] == "font"
-        else
-        # pack_propagate prop
-        (prop[0], prop[1], widget.tk.call('pack', 'propagate', widget._w)) if prop[0] == "misc" and prop[1] == "pack_propagate"
-        else
-        # Bind prop
-        (prop[0], prop[1], prop[2] if prop[2] in widget_binds else None) if prop[0] == "misc" and prop[1] == "bind"
-        else
-        # Python syntax demands a fallback
-        (prop[0], prop[1], prop[2])
-        for prop in props
-    ]
-    print(curr_props)
-    is_widget_props = all([
-        curr_props[index] == prop for index, prop in enumerate(props)
-    ])
-    
-    return is_widget_props
-
-def get_latex_build_tests(root, FONTS):
-    print("here")
-    print(root.winfo_children())
-
-    # Check if all the widgets exist
-    latex_frame, is_latex_frame = check_tk_exists(root, "latex_frame")
-    title_label, is_title_label = check_tk_exists(latex_frame, "title_label")
-    subtitle_label, is_subtitle_label = check_tk_exists(latex_frame, "subtitle_label")
-    editor_container, is_editor_container = check_tk_exists(latex_frame, "editor_container")
-    text_editor, is_text_editor = check_tk_exists(editor_container, "text_editor")
-    latex_output_container, is_latex_output_container = check_tk_exists(latex_frame, "latex_output_container")
-    preview_label, is_preview_label = check_tk_exists(latex_output_container, "preview_label")
-    latex_output_canvas, is_latex_output_canvas = check_tk_exists(preview_label, "latex_output_canvas")
-    compile_button, is_compile_button = check_tk_exists(editor_container, "compile_button")
-
-    # Check the properties of each widget
-
-    # latex_frame
-    # Get our desired latex_frame_props
-    latex_frame_props = [
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "padx", 20),
-        ("config", "pady", 20),
-        ("config", "takefocus", "1"),
-
-        ("pack", "side", "top"),
-        ("pack", "fill", "both"),
-        ("pack", "expand", True),
-
-        ("misc", "widget_name", "latex_frame")
-    ]
-    is_latex_frame_props = check_widget_props(latex_frame, latex_frame_props)
-
-    # title_label
-    title_label_props = [
-        ("config", "text", "LaTeX Equation Editor"),
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "fg", COLORS["text_main"]),
-
-        ("pack", "fill", "x"),
-        ("pack", "pady", 0),
-
-        ("misc", "widget_name", "title_label"),
-
-        ("misc", "font", FONTS["font_title"].actual())
-    ]
-    is_title_label_props = check_widget_props(title_label, title_label_props)
-
-    # subtitle_label
-    subtitle_label_props = [
-        ("config", "text", "Edit and preview complex mathematical formulas"),
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "fg", COLORS["text_muted"]),
-
-        ("pack", "fill", "x"),
-        ("pack", "pady", (0, 15)),
-
-        ("misc", "widget_name", "subtitle_label"),
-
-        ("misc", "font", FONTS["font_subtitle"].actual())
-    ]
-    is_subtitle_label_props = check_widget_props(subtitle_label, subtitle_label_props)
-
-    # editor_container
-    editor_container_props = [
-        ("config", "bg", COLORS["bg_input"]),
-        ("config", "bd", 1),
-        ("config", "highlightbackground", COLORS["border"]),
-        ("config", "highlightthickness", 1),
-
-        ("pack", "fill", "both"),
-        ("pack", "expand", True),
-
-        ("misc", "widget_name", "editor_container"),
-    ]
-    is_editor_container_props = check_widget_props(editor_container, editor_container_props)
-
-    # text_editor
-    text_editor_props = [
-        ("config", "bg", COLORS["bg_input"]),
-        ("config", "fg", COLORS["text_main"]),
-        ("config", "insertbackground", "white"),
-        ("config", "bd", 0),
-        ("config", "padx", 15),
-        ("config", "pady", 15),
-        ("config", "wrap", "none"),
-
-        ("pack", "fill", "both"),
-        ("pack", "expand", True),
-
-        ("misc", "widget_name", "text_editor"),
-
-        ("misc", "font", FONTS["font_subtitle"].actual()),
-
-        ("misc", "bind", "<Key-Return>"),
-        ("misc", "bind", "<Shift-Key-Return>")
-    ]
-    is_text_editor_props = check_widget_props(text_editor, text_editor_props)
-
-    # latex_output_container
-    latex_output_container_props = [
-        ("config", "bg", COLORS["bg_input"]),
-        ("config", "bd", 1),
-        ("config", "highlightbackground", COLORS["border"]),
-        ("config", "highlightthickness", 1),
-        ("config", "height", 150),
-
-        ("pack", "fill", "x"),
-        ("pack", "pady", (5, 20)),
-
-        ("misc", "widget_name", "latex_output_container"),
-
-        ("misc", "pack_propagate", False)
-    ]
-    is_latex_output_container_props = check_widget_props(latex_output_container, latex_output_container_props)
-
-    # preview_label
-    preview_label_props = [
-        ("config", "bg", "white"),
-
-        ("pack", "fill", "both"),
-        ("pack", "expand", True),
-
-        ("misc", "widget_name", "preview_label")
-    ]
-    is_preview_label_props = check_widget_props(preview_label, preview_label_props)
-
-    # latex_output_canvas
-    latex_output_canvas_props = [
-        ("config", "bg", "white"),
-        ("config", "highlightthickness", "0"),
-
-        ("pack", "expand", True),
-
-        ("misc", "widget_name", "latex_output_canvas")
-    ]
-    is_latex_output_canvas_props = check_widget_props(latex_output_canvas, latex_output_canvas_props)
-
-    # compile_button
-    compile_button_props = [
-        ("config", "text", "Compile"),
-        ("config", "bg", COLORS["border"]),
-        ("config", "fg", COLORS["text_main"]),
-        ("config", "bd", 0),
-        ("config", "relief", "flat"),
-        ("config", "command", True), # Check that a function is linked to command
-
-        ("pack", "side", "right"),
-
-        ("misc", "widget_name", "compile_button"),
-
-        ("misc", "font", FONTS["font_subtitle"].actual())
-    ]
-    is_compile_button_props = check_widget_props(compile_button, compile_button_props)
-
-    # root
-    root_props = [
-        ("misc", "bind", "<Key-Return>"),
-        ("misc", "bind", "<Shift-Key-Return>")
-    ]
-    is_root_props = check_widget_props(root, root_props)
-
-    return {
-        "is_latex_frame": is_latex_frame,
-        "is_title_label": is_title_label,
-        "is_subtitle_label": is_subtitle_label,
-        "is_editor_container": is_editor_container,
-        "is_text_editor": is_text_editor,
-        "is_latex_output_container": is_latex_output_container,
-        "is_preview_label": is_preview_label,
-        "is_latex_output_canvas": is_latex_output_canvas,
-        "is_compile_button": is_compile_button,
-        "is_latex_frame_props": is_latex_frame_props,
-        "is_title_label_props": is_title_label_props,
-        "is_subtitle_label_props": is_subtitle_label_props,
-        "is_editor_container_props": is_editor_container_props,
-        "is_text_editor_props": is_text_editor_props,
-        "is_latex_output_container_properties": is_latex_output_container_props,
-        "is_preview_label_props": is_preview_label_props,
-        "is_latex_output_canvas_props": is_latex_output_canvas_props,
-        "is_compile_button_props": is_compile_button_props,
-        "is_root_props": is_root_props
-    }
-
-def get_navbar_build_tests(root, FONTS, curr_window):
-
-    # Check if all the widgets exist
-    navbar_frame, is_navbar_frame = check_tk_exists(root, "navbar_frame")
-
-    # Check the properties of navbar_frame
-    navbar_frame_props = [
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "takefocus", '1'),
-
-        ("pack", "side", "right"),
-        ("pack", "fill", "both"),
-
-        ("misc", "widget_name", "navbar_frame")
-    ]
-    is_navbar_frame_props = check_widget_props(navbar_frame, navbar_frame_props)
-
-    # Check each window selector widget
-    is_window_selections = True
-    is_window_selections_props = True # If there are theoretically no window selections resolved, this is vacuously true
-    for key, value in WINDOWS.items():
-
-        # Check if this window selector exists
-        curr_window_selector, is_curr_window_selector = check_tk_exists(navbar_frame, key)
-        # If even a single window selector doesnt exist, fail the check
-        if not is_curr_window_selector:
-            is_window_selections = False
-        
-        # Check for the props of the window selector, if it exists
-        if is_curr_window_selector:
-            
-            curr_window_selector_props = [
-                ("config", "text", value["name"]),
-                ("config", "variable", str(navbar_frame.selected_window)),
-                ("config", "value", key),
-                ("config", "bg", COLORS["border"]),
-                ("config", "fg", COLORS["text_main"]),
-                ("config", "bd", 0),
-                ("config", "relief", "flat"),
-                ("config", "width", 10),
-                ("config", "height", 3),
-                ("config", "selectcolor", COLORS["accent_blue"]),
-                ("config", "activebackground", COLORS["accent_blue"]),
-                ("config", "indicatoron", False),
-                ("config", "command", True),
-
-                ("pack", "side", "top"),
-
-                ("misc", "widget_name", key),
-
-                ("misc", "font", FONTS["font_subtitle"].actual())
-            ]
-            is_curr_window_selector = check_widget_props(curr_window_selector, curr_window_selector_props)
-            # If even a single window selector's props is invalid, fail the check
-            if not is_curr_window_selector:
-                is_window_selections_props = False
-    
-    # Check that the current, default, selected window is the LaTeX window
-    is_default_window_selected = navbar_frame.selected_window.get() == curr_window
-
-    return {
-        "is_navbar_frame": is_navbar_frame,
-        "is_navbar_frame_props": is_navbar_frame_props,
-        "is_window_selections": is_window_selections,
-        "is_window_selections_props": is_window_selections_props,
-        "is_default_window_selected": is_default_window_selected
-    }
-
-def get_user_auth_build_tests(root, FONTS):
-
-    # Check if all the widgets exist
-    auth_frame, is_auth_frame = check_tk_exists(root, "auth_frame")
-    title_label, is_title_label = check_tk_exists(auth_frame, "title_label")
-    login_hub_container, is_login_hub_container = check_tk_exists(auth_frame, "login_hub_container")
-    username_frame, is_username_frame = check_tk_exists(login_hub_container, "username_frame")
-    username_label, is_username_label = check_tk_exists(username_frame, "username_label")
-    username_editor, is_username_editor = check_tk_exists(username_frame, "username_editor")
-    password_frame, is_password_frame = check_tk_exists(login_hub_container, "password_frame")
-    password_label, is_password_label = check_tk_exists(password_frame, "password_label")
-    password_editor, is_password_editor = check_tk_exists(password_frame, "password_editor")
-    login_button, is_login_button = check_tk_exists(login_hub_container, "login_button")
-    change_frame, is_change_frame = check_tk_exists(login_hub_container, "change_frame")
-    change_text, is_change_text = check_tk_exists(change_frame, "change_text")
-    change_button, is_change_button = check_tk_exists(change_frame, "change_button")
-
-    # Check the properties of each widget
-
-    # auth_frame
-    auth_frame_props = [
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "padx", 20),
-        ("config", "pady", 20),
-        ("config", "takefocus", "1"),
-
-        ("pack", "side", "top"),
-        ("pack", "fill", "both"),
-        ("pack", "expand", True),
-
-        ("misc", "widget_name", "auth_frame")
-    ]
-    is_auth_frame_props = check_widget_props(auth_frame, auth_frame_props)
-
-    # title_label
-    title_label_props = [
-        ("config", "text", "Login"),
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "fg", COLORS["text_main"]),
-
-        ("pack", "fill", "x"),
-        ("pack", "pady", 0),
-
-        ("misc", "widget_name", "title_label"),
-
-        ("misc", "font", FONTS["font_title"].actual())
-    ]
-    is_title_label_props = check_widget_props(title_label, title_label_props)
-
-
-    # login_hub_container
-    login_hub_container_props = [
-        ("config", "bg", COLORS["bg_input"]),
-        ("config", "bd", 0),
-
-        ("pack", "expand", True),
-
-        ("misc", "widget_name", "login_hub_container"),
-    ]
-    is_login_hub_container_props = check_widget_props(login_hub_container, login_hub_container_props)
-
-    # username_frame
-    username_frame_props = [
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "bd", 0),
-
-        ("pack", "expand", True),
-        ("pack", "pady", 5),
-
-        ("misc", "widget_name", "username_frame"),
-    ]
-    is_username_frame_props = check_widget_props(username_frame, username_frame_props)
-
-    # username_label
-    username_label_props = [
-        ("config", "text", "Username: "),
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "fg", COLORS["text_main"]),
-        ("config", "bd", 0),
-
-        ("pack", "side", "left"),
-
-        ("misc", "widget_name", "username_label"),
-
-        ("misc", "font", FONTS["font_subtitle"].actual())
-    ]
-    is_username_label_props = check_widget_props(username_label, username_label_props)
-
-    # username_editor
-    username_editor_props = [
-        ("config", "bg", COLORS["bg_input"]),
-        ("config", "fg", COLORS["text_main"]),
-        ("config", "insertbackground", "white"),
-        ("config", "bd", 1),
-        ("config", "highlightbackground", 1),
-
-        ("pack", "side", "right"),
-
-        ("misc", "widget_name", "username_editor"),
-
-        ("misc", "font", FONTS["font_subtitle"].actual())
-    ]
-    is_username_editor_props = check_widget_props(username_editor, username_editor_props)
-
-    # password_frame
-    password_frame_props = [
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "bd", 0),
-
-        ("pack", "expand", True),
-        ("pack", "pady", 5),
-
-        ("misc", "widget_name", "password_frame"),
-    ]
-    is_password_frame_props = check_widget_props(password_frame, password_frame_props)
-
-    # password_label
-    password_label_props = [
-        ("config", "text", "Username: "),
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "fg", COLORS["text_main"]),
-        ("config", "bd", 0),
-
-        ("pack", "side", "left"),
-
-        ("misc", "widget_name", "password_label"),
-
-        ("misc", "font", FONTS["font_subtitle"].actual())
-    ]
-    is_password_label_props = check_widget_props(password_label, password_label_props)
-
-    # password_editor
-    password_editor_props = [
-        ("config", "bg", COLORS["bg_input"]),
-        ("config", "fg", COLORS["text_main"]),
-        ("config", "insertbackground", "white"),
-        ("config", "bd", 1),
-        ("config", "highlightbackground", 1),
-
-        ("pack", "side", "right"),
-
-        ("misc", "widget_name", "password_editor"),
-
-        ("misc", "font", FONTS["font_subtitle"].actual())
-    ]
-    is_password_editor_props = check_widget_props(password_editor, password_editor_props)
-
-    # login_button
-    login_button_props = [
-        ("config", "text", "Login"),
-        ("config", "bg", COLORS["border"]),
-        ("config", "fg", COLORS["text_main"]),
-        ("config", "bd", 0),
-        ("config", "relief", "flat"),
-        ("config", "command", True), # Check that a function is linked to command
-
-        ("pack", "side", "bottom"),
-
-        ("misc", "widget_name", "login_button"),
-
-        ("misc", "font", FONTS["font_subtitle"].actual())
-    ]
-    is_login_button_props = check_widget_props(login_button, login_button_props)
-
-    # change_frame
-    change_frame_props = [
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "bd", 0),
-
-        ("pack", "side", "bottom"),
-
-        ("misc", "widget_name", "change_frame"),
-    ]
-    is_change_frame_props = check_widget_props(change_frame, change_frame_props)
-
-    # change_text
-    change_text_props = [
-        ("config", "text", "Don't have an account? "),
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "fg", COLORS["text_main"]),
-        ("config", "bd", 0),
-
-        ("pack", "side", "left"),
-
-        ("misc", "widget_name", "change_text"),
-
-        ("misc", "font", FONTS["font_subtitle"].actual())
-    ]
-    is_change_text_props = check_widget_props(change_text, change_text_props)
-
-    # change_button
-    change_button_props = [
-        ("config", "text", "Login"),
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "fg", COLORS["hyperlink_blue"]),
-        ("config", "bd", 0),
-        ("config", "relief", "flat"),
-        ("config", "cursor", "hand2"),
-
-        ("pack", "side", "left"),
-
-        ("misc", "widget_name", "change_button"),
-
-        ("misc", "font", FONTS["font_hyperlink"].actual()),
-
-        ("misc", "bind", "<Button-1>")
-    ]
-    is_change_button_props = check_widget_props(change_button, change_button_props)
-
-    # root
-    root_props = [
-        ("misc", "bind", "<Key-Return>")
-    ]
-    is_root_props = check_widget_props(root, root_props)
-
-    return {
-        "is_auth_frame": is_auth_frame,
-        "is_title_label": is_title_label,
-        "is_login_hub_container": is_login_hub_container,
-        "is_username_frame": is_username_frame,
-        "is_username_label": is_username_label,
-        "is_username_editor": is_username_editor,
-        "is_password_frame": is_password_frame,
-        "is_password_label": is_password_label,
-        "is_password_editor": is_password_editor,
-        "is_login_button": is_login_button,
-        "is_change_frame": is_change_frame,
-        "is_change_text": is_change_text,
-        "is_change_button": is_change_button,
-        "is_auth_frame_props": is_auth_frame_props,
-        "is_title_label_props": is_title_label_props,
-        "is_login_hub_container_props": is_login_hub_container_props,
-        "is_username_frame_props": is_username_frame_props,
-        "is_username_label_props": is_username_label_props,
-        "is_username_editor_props": is_username_editor_props,
-        "is_password_frame_props": is_password_frame_props,
-        "is_password_label_props": is_password_label_props,
-        "is_password_editor_props": is_password_editor_props,
-        "is_login_button_props": is_login_button_props,
-        "is_change_frame_props": is_change_frame_props,
-        "is_change_text_props": is_change_text_props,
-        "is_change_button_props": is_change_button_props,
-        "is_root_props": is_root_props
-    }
-
 def test_overlay_init(test_env, subtests):
     
-    root, sw, sh, FONTS = test_env
+    root, sw, sh, FONTS, COLORS, WINDOWS = test_env
 
     # Check for every property of root in the overlay that we set
 
@@ -786,7 +115,7 @@ def test_overlay_init(test_env, subtests):
 
 def test_control_panel_key(test_env, subtests):
 
-    root, sw, sh, FONTS = test_env
+    root, sw, sh, FONTS, COLORS, WINDOWS = test_env
 
     # Check that the control panel properly opens, with the LaTeX editor as the default first window
 
@@ -817,10 +146,10 @@ def test_control_panel_key(test_env, subtests):
     cp_init_settings_test = get_cp_init_tests(root, sw, sh)
 
     # Now, check the LaTeX editor build options
-    latex_build_settings_test = get_latex_build_tests(root, FONTS)
+    latex_build_settings_test = get_latex_build_tests(root, FONTS, COLORS)
 
     # Now, check that the NavBar is properly built
-    navbar_build_settings_test = get_navbar_build_tests(root, FONTS, "latex-workspace")
+    navbar_build_settings_test = get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, "latex-workspace")
 
     all_assertions = {
         "is_deiconify_before": is_deiconify_before,
@@ -842,7 +171,7 @@ TEST_FUNCS = {
 # The LaTeX window is open, test the LaTeX window
 def test_navbar(test_env, subtests):
 
-    root, sw, sh, FONTS = test_env
+    root, sw, sh, FONTS, COLORS, WINDOWS = test_env
 
     # Check that typing into the latex editor and pressing enter gives us a valid latex output, and saves the output to our clipboard
 
@@ -856,10 +185,10 @@ def test_navbar(test_env, subtests):
         curr_window_selector.invoke()
         # Give it some short buffer time to change windows fully
         wait(root, 0.05)
-        window_navbar_tests[key + "_navbar"] = get_navbar_build_tests(root, FONTS, key)
+        window_navbar_tests[key + "_navbar"] = get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, key)
 
         # Perform the respective initialisation tests for each resulting window
-        window_build_tests[key + "_build"] = TEST_FUNCS[key](root, FONTS)
+        window_build_tests[key + "_build"] = TEST_FUNCS[key](root, FONTS, COLORS)
     
     root.update()
 

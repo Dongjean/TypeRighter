@@ -1,6 +1,6 @@
 from helpers.main_test_helpers import check_tk_exists, check_widget_props
 
-def get_navbar_build_tests(root, FONTS, COLORS, WINDOWS):
+def get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, curr_window):
 
     # Check if all the widgets exist
     navbar_frame, is_navbar_frame = check_tk_exists(root, "navbar_frame")
@@ -58,7 +58,7 @@ def get_navbar_build_tests(root, FONTS, COLORS, WINDOWS):
                 is_window_selections_props = False
     
     # Check that the current, default, selected window is the LaTeX window
-    is_default_window_selected = navbar_frame.selected_window.get() == "latex-workspace"
+    is_default_window_selected = navbar_frame.selected_window.get() == curr_window
 
     return {
         "is_navbar_frame": is_navbar_frame,
