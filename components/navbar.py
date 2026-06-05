@@ -2,7 +2,7 @@ import tkinter as tk
 
 from tkinter import font as tkfont
 
-import views.root_view as root_view
+import views.view_handler as view_handler
 
 
 import components.latex_workspace as latex_workspace

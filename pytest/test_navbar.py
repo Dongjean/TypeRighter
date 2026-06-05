@@ -54,7 +54,7 @@ def test_env():
     # Initialise the tkinter root window and the pynput listener
     # Manually initialize the tkinter window without .mainloop()
     # Run root_view.root_init()
-    root = main.root_view.root_init()
+    root = main.view_handler.root_init()
     root.update()
 
     # Start a completely new pynput thread
@@ -78,7 +78,7 @@ def test_env():
     # Close everything
     
     # Destroy the root window
-    main.root_view.gui_queue.put("destroy_root")
+    main.view_handler.gui_queue.put("destroy_root")
 
     # Stop the pynput listener
     main.stop_all_pynput_keyboard_listeners()

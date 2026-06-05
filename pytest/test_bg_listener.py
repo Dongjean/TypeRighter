@@ -58,7 +58,7 @@ def test_env():
     listener = keyboard.Listener(on_press=lambda key: main.on_press_bg(key, listener), on_release=lambda key: main.on_release_bg(key, listener))
     listener.start()
 
-    root = main.root_view.root_init()
+    root = main.view_handler.root_init()
     root.update()
     sw = root.winfo_screenwidth()
     sh = root.winfo_screenheight()
@@ -76,7 +76,7 @@ def test_env():
     # Close everything
     
     # Destroy the root window
-    main.root_view.gui_queue.put("destroy_root")
+    main.view_handler.gui_queue.put("destroy_root")
 
     # Stop the pynput listener
     # main.listener.stop()

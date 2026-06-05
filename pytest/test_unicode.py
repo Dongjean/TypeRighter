@@ -82,7 +82,7 @@ def test_env():
     # Initialise the tkinter root window and the pynput listener
     # Manually initialize the tkinter window without .mainloop()
     # Run root_view.root_init()
-    root = main.root_view.root_init()
+    root = main.view_handler.root_init()
     root.update()
 
 
@@ -104,7 +104,7 @@ def test_env():
     yield (root, sw, sh, FONTS)
 
         # Destroy the root window
-    main.root_view.gui_queue.put("destroy_root")
+    main.view_handler.gui_queue.put("destroy_root")
 
     # Stop the pynput listener
     main.stop_all_pynput_keyboard_listeners()
@@ -497,7 +497,7 @@ def test_unicode_copy_via_overlay(test_env, subtests):
     key_simulator.release(keyboard.Key.f4)
     wait(root, 0.15)
 
-    is_control_panel_closed = main.root_view.is_control_panel_open == False
+    is_control_panel_closed = main.view_handler.is_control_panel_open == False
 
     # Reset the clipboard to a known sentinel so we can detect change
     pyperclip.copy("Pray")
@@ -509,14 +509,14 @@ def test_unicode_copy_via_overlay(test_env, subtests):
     key_simulator.release("d")
     wait(root, 0.15)
 
-    is_overlay_on_before = main.root_view.is_overlay_triggered == True
+    is_overlay_on_before = main.view_handler.is_overlay_triggered == True
 
     key_simulator.press("q")
     key_simulator.release("q")
     wait(root, 0.15)
 
     is_clipboard_has_symbol = pyperclip.paste() == "Ω"
-    is_overlay_off_after = main.root_view.is_overlay_triggered == False
+    is_overlay_off_after = main.view_handler.is_overlay_triggered == False
     is_root_withdrawn = root.state() == "withdrawn"
 
     shortcuts_unicode.bindings.clear()

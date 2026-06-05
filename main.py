@@ -5,7 +5,7 @@ import threading
 import os
 import sys
 import time
-import views.root_view as root_view
+import views.view_handler as view_handler
 import utils.shortcuts_unicode as shortcuts_unicode
 
 # For debugging
@@ -25,16 +25,16 @@ keyboard_controller = keyboard.Controller()
 current_keys = set()
 
 def hide_overlay():
-    root_view.gui_queue.put("hide_overlay")
+    view_handler.gui_queue.put("hide_overlay")
 
 def trigger_overlay():
-    root_view.gui_queue.put("trigger_overlay")
+    view_handler.gui_queue.put("trigger_overlay")
 
 def flash_red_overlay():
-    root_view.gui_queue.put("flash_red_overlay")
+    view_handler.gui_queue.put("flash_red_overlay")
 
 def control_panel_window():
-    root_view.gui_queue.put("control_panel_window")
+    view_handler.gui_queue.put("control_panel_window")
 
 def insert_unicode(unicode_char, key_char):
     
@@ -44,7 +44,7 @@ def insert_unicode(unicode_char, key_char):
 def on_press_shortcut(key, listener):
 
     # The overlay is on, so we are listening for a 2nd key input
-    if root_view.is_overlay_triggered:
+    if view_handler.is_overlay_triggered:
         try: 
             key_char = key.char
         except AttributeError:
@@ -86,7 +86,7 @@ def on_press_shortcut(key, listener):
     bg_listener.start()
 
 def on_press_bg(key, listener):
-    if not root_view.is_control_panel_open:
+    if not view_handler.is_control_panel_open:
         canonical_key = listener.canonical(key)
         # If the overlay is on, means we are listening for a 2nd key input
         if canonical_key in map(listener.canonical, COMBINATION):
@@ -130,7 +130,7 @@ def clean_exit():
     print("___")
     icon.stop() # Stop the tray icon
     stop_all_pynput_keyboard_listeners() # Stop the keyboard listener
-    root_view.gui_queue.put("destroy_root") # Stop the root window
+    view_handler.gui_queue.put("destroy_root") # Stop the root window
     os._exit(0) # Hard exit to kill all threads instantly
 
 #load saved unicode shortcuts 
@@ -159,5 +159,5 @@ if __name__ == "__main__":
     icon.run_detached()
 
     # Initialise and run main_view.root
-    root = root_view.root_init()
+    root = view_handler.root_init()
     root.mainloop() # Blocking function
