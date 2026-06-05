@@ -9,43 +9,12 @@ import pyperclip
 import utils.unicode_search as unicode_search 
 import utils.shortcuts_unicode as shortcuts_unicode
 
+# Import helper functions
+from helpers.main_test_helpers import wait
+from helpers.unicode_window_test_helpers import get_unicode_menu_build_test
+
 border_thickness = 5
-key_simulator = keyboard.Controller() 
-
-# Helper function to pause the programme for a short few seconds while spamming root.update()
-def wait(root, period, interval=0.05):
-    deadline = time.time() + period
-    while time.time() < deadline:
-        root.update()
-        time.sleep(interval)
-
-# Color Palette
-COLORS = {
-    "bg_main": "#202020",
-    "bg_input": "#1a1a1a",
-    "text_main": "#e3e3e3",
-    "text_muted": "#888888",
-    "border": "#2d2d2d",
-    "accent_blue": "#2a5a9c",
-    "hyperlink_blue": "#0099FF",
-    "action_green":"#00FF00"
-}
-
-# Windows
-WINDOWS = {
-    "latex-workspace": {
-        "name": "LaTeX",
-        "icon": "",
-    },
-    "user-auth": {
-        "name": "Login",
-        "icon": "",
-    }, 
-    "unicode-search": { 
-    "name": "Unicode\nSearch",
-    "icon": "",
-    }
-}
+key_simulator = keyboard.Controller()
 
 #Pytest automatically runs tests w/o argument passed manually
 @pytest.fixture(scope="module", autouse = True)
@@ -101,9 +70,37 @@ def test_env():
         "font_hyperlink": tkfont.Font(family="Segoe UI", size=10, weight="normal", underline=True),
     }
 
-    yield (root, sw, sh, FONTS)
+    # Color Palette
+    COLORS = {
+        "bg_main": "#202020",
+        "bg_input": "#1a1a1a",
+        "text_main": "#e3e3e3",
+        "text_muted": "#888888",
+        "border": "#2d2d2d",
+        "accent_blue": "#2a5a9c",
+        "hyperlink_blue": "#0099FF",
+        "action_green":"#00FF00"
+    }
 
-        # Destroy the root window
+    # Windows
+    WINDOWS = {
+        "latex-workspace": {
+            "name": "LaTeX",
+            "icon": "",
+        },
+        "user-auth": {
+            "name": "Login",
+            "icon": "",
+        }, 
+        "unicode-search": { 
+        "name": "Unicode\nSearch",
+        "icon": "",
+        }
+    }
+    
+    yield (root, sw, sh, FONTS, COLORS, WINDOWS)
+
+    # Destroy the root window
     main.view_handler.gui_queue.put("destroy_root")
 
     # Stop the pynput listener
@@ -118,184 +115,11 @@ def test_env():
             print(after_id)
             root.after_cancel(after_id)
     except Exception as e:
-        print(e)
+        print(e)  
 
-    
-#check if widget exists
-def check_tk_exists(parent, child_name): 
-    try: 
-        child_widget = parent.nametowidget(child_name)
-        return(child_widget, True) 
-    
-    #if child widget name does not exist
-    except KeyError: 
-        return(None, False)
-    
-    #if the parent widget does not exist
-    except AttributeError: 
-        return(None, False)
-    
+def test_unicode_search_menu(test_env, subtests):
 
-#check widget properties
-def check_widget_props(widget, props):
-    if widget is None: 
-        return False
-    
-    widget_pack_info = None
-    widget_binds = None
-    try:
-        widget_pack_info = widget.pack_info()
-    except AttributeError as e:
-        print(e)
-    try:
-        widget_binds = widget.bind()
-    except AttributeError as e:
-        print(e)
-    curr_props = [
-
-        # Command prop (Check that the function exists only)
-        (prop[0], prop[1], True if widget.cget(prop[1]) else False) if prop[0] == "config" and prop[1] == "command"
-        else
-        # variable prop (for RadioButton)
-        (prop[0], prop[1], str(widget.cget(prop[1]))) if prop[0] == "config" and prop[1] == "variable"
-        else
-        # Config props (config styles i.e. bg, text)
-        (prop[0], prop[1], widget.cget(prop[1])) if prop[0] == "config"
-        else
-        # Pack props (config layouts)
-        (prop[0], prop[1], widget_pack_info[prop[1]]) if prop[0] == "pack"
-        else
-        # Widget name prop
-        (prop[0], prop[1], widget.winfo_name()) if prop[0] == "misc" and prop[1] == "widget_name"
-        else
-        # Font prop
-        (prop[0], prop[1], tkfont.nametofont(widget.cget("font")).actual()) if prop[0] == "misc" and prop[1] == "font"
-        else
-        # pack_propagate prop
-        (prop[0], prop[1], widget.tk.call('pack', 'propagate', widget._w)) if prop[0] == "misc" and prop[1] == "pack_propagate"
-        else
-        # Bind prop
-        (prop[0], prop[1], prop[2] if prop[2] in widget_binds else None) if prop[0] == "misc" and prop[1] == "bind"
-        else
-        # Python syntax demands a fallback
-        (prop[0], prop[1], prop[2])
-        for prop in props
-    ]
-    print(curr_props)
-    is_widget_props = all([
-        curr_props[index] == prop for index, prop in enumerate(props)
-    ])
-    
-    return is_widget_props
-
-#check if unicode search menu opens
-def get_unicode_menu_build_test(root, FONTS): 
-    panel_frame, is_panel_frame = check_tk_exists(root, "unicode_search_panel")
-
-    #for all widgets within the search frame w/o names
-    children = panel_frame.winfo_children() if is_panel_frame else[]
-
-
-    title_label = next( 
-        (w for w in children if isinstance(w, tk.Label)and w.cget("text") == "Unicode Symbol Search"), 
-        None,
-    )
-
-    subtitle_label = next(
-        (w for w in children if isinstance(w, tk.Label) and w.cget("text") == "Search for unicode symbols by name or codepoint"),
-        None,
-    )
-    search_box = next((w for w in children if isinstance(w, tk.Entry)), None)
-    results_frame = next((w for w in children if isinstance(w, tk.Frame)), None)
-
-    #check if search menu's inner widget exists (future: to name each inner widgets)
-    is_title_label = title_label is not None
-    is_subtitle_label = subtitle_label is not None
-    is_search_box = search_box is not None
-    is_results_frame = results_frame is not None
-
-    #panel_frame
-    panel_frame_props = [ 
-        ("config", "bg", COLORS["bg_main"]), 
-        ("config", "padx", 20), 
-        ("config", "pady", 20), 
-        ("config", "takefocus", "1"),
-
-        ("pack","side", "top"),
-        ("pack", "fill", "both"),
-        ("pack", "expand", True),
-
-        ("misc", "widget_name", "unicode_search_panel"),
-    ] 
-    is_panel_frame_props = check_widget_props(panel_frame, panel_frame_props)
-   
-    #title_label
-    title_label_prop= [ 
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "fg", COLORS["text_main"]),
-        ("misc", "font", FONTS["font_title"].actual()),
-        ("config", "text", "Unicode Symbol Search"),
-        ("pack", "fill", "x"),
-        ("pack", "pady", 0),
-    ]
-    is_title_label_props = check_widget_props(title_label, title_label_prop)
-
-    #subtitle_label 
-    subtitle_label_prop = [ 
-        ("config", "fg", COLORS["text_muted"]), 
-        ("config", "bg", COLORS["bg_main"]),
-        ("config", "text", "Search for unicode symbols by name or codepoint"),
-        ("pack", "fill", "x"),
-        ("pack", "pady", (0,15)),
-        ("misc", "font", FONTS["font_subtitle"].actual()),
-    ]
-
-    is_subtitle_label_props = check_widget_props(subtitle_label, subtitle_label_prop)
-
-    #search_box
-    search_box_prop = [ 
-        ("config", "fg", COLORS["text_main"]), 
-        ("config", "bg", COLORS["bg_input"]),
-        ("config", "insertbackground", "white"), 
-        ("config", "highlightbackground", COLORS["border"]), 
-        ("config", "highlightthickness", 1), 
-        ("config", "bd", 1),
-        ("pack", "fill", "x"),
-        ("pack", "ipady", 6),
-        ("misc", "font", FONTS["font_subtitle"].actual()),
-    ]
-    is_search_box_props=check_widget_props(search_box,search_box_prop)
-
-    #results_frame 
-    results_frame_prop = [ 
-        ("config", "bg", COLORS["bg_main"]), 
-        ("pack", "fill", "both"), 
-        ("pack", "expand", True),
-        ("pack", "pady", (15,0)), 
-    ]
-    is_result_frame_props = check_widget_props(results_frame,results_frame_prop)
-
-    #verify the toggling from latex window to unicode window destorys the previous 
-    _, is_latex_frame_present = check_tk_exists(root, "latex_frame")
-    is_latex_frame_destroyed = not is_latex_frame_present
-
-    return { 
-        "is_panel_frame": is_panel_frame, 
-        "is_title_label": is_title_label, 
-        "is_subtitle_label": is_subtitle_label, 
-        "is_search_box": is_search_box, 
-        "is_results_frame": is_results_frame, 
-        "is_panel_frame_prop": is_panel_frame_props,
-        "is_title_label_prop": is_title_label_props, 
-        "is_subtitle_label_prop": is_subtitle_label_props, 
-        "is_search_box_prop": is_search_box_props, 
-        "is_results_frame_prop": is_result_frame_props, 
-        "is_latex_frame_destroyed": is_latex_frame_destroyed,
-    }
-
-def test_unicode_search_menu(test_env, subtests): 
-
-    root, sw, sh, FONTS = test_env 
+    root, sw, sh, FONTS, COLORS, WINDOWS = test_env 
     # Check that the control panel properly opens, with the LaTeX editor as the default first window
 
     # Press Ctrl + D now
@@ -325,7 +149,7 @@ def test_unicode_search_menu(test_env, subtests):
     #check that unicode search is indeed the curr window 
     is_unicode_selected = navbar_frame.selected_window.get() == "unicode-search" 
 
-    unicode_setting_tests = get_unicode_menu_build_test(root, FONTS)
+    unicode_setting_tests = get_unicode_menu_build_test(root, FONTS, COLORS, WINDOWS)
 
     all_assertions = { 
         "is_unicode_selected": is_unicode_selected, 
@@ -484,7 +308,8 @@ def test_unicode_copy_paste (subtests):
             assert assertion
 
 def test_unicode_copy_via_overlay(test_env, subtests): 
-    root, sw, sh, FONTS = test_env
+
+    root, sw, sh, FONTS, COLORS, WINDOWS = test_env
 
     shortcuts_unicode.bindings.clear()
     shortcuts_unicode.set_binding("q", "Ω")
