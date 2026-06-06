@@ -88,6 +88,10 @@ def test_env():
         "user-auth": {
             "name": "Login",
             "icon": "",
+        },
+        "unicode-search": { 
+        "name": "Unicode\nSearch",
+        "icon": "",
         }
     }
 

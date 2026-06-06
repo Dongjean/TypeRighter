@@ -5,6 +5,7 @@ key_simulator = keyboard.Controller()
 from helpers.main_test_helpers import wait, check_tk_exists, check_widget_props
 from helpers.latex_window_test_helpers import get_latex_build_tests
 from helpers.user_auth_window_test_helpers import get_user_auth_build_tests
+from helpers.unicode_window_test_helpers import get_unicode_menu_build_test
 
 def get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, curr_window):
 
@@ -77,6 +78,7 @@ def get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, curr_window):
 TEST_FUNCS = {
     "latex-workspace": get_latex_build_tests,
     "user-auth": get_user_auth_build_tests,
+    "unicode-search": get_unicode_menu_build_test,
 }
 
 # As of here, the control panel view is open

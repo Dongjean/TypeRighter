@@ -10,7 +10,7 @@ import utils.shortcuts_unicode as shortcuts_unicode
 import main as main
 
 #check if unicode search menu opens
-def get_unicode_menu_build_test(root, FONTS, COLORS, WINDOWS): 
+def get_unicode_menu_build_test(root, FONTS, COLORS): 
     panel_frame, is_panel_frame = check_tk_exists(root, "unicode_search_panel")
 
     #for all widgets within the search frame w/o names
@@ -146,7 +146,7 @@ def helper_test_unicode_search_menu(test_env, subtests):
     #check that unicode search is indeed the curr window 
     is_unicode_selected = navbar_frame.selected_window.get() == "unicode-search" 
 
-    unicode_setting_tests = get_unicode_menu_build_test(root, FONTS, COLORS, WINDOWS)
+    unicode_setting_tests = get_unicode_menu_build_test(root, FONTS, COLORS)
 
     all_assertions = { 
         "is_unicode_selected": is_unicode_selected, 
