@@ -1,6 +1,6 @@
 import sys
 
-from helpers.main_test_helpers import check_widget_props
+from helper_functions.main_test_helpers import check_widget_props
 
 def get_cp_init_tests(root, sw, sh):
 

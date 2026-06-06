@@ -1,4 +1,4 @@
-from helpers.main_test_helpers import check_tk_exists, check_widget_props
+from helper_functions.main_test_helpers import check_tk_exists, check_widget_props
 
 def get_user_auth_build_tests(root, FONTS, COLORS):
 
