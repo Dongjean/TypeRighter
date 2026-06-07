@@ -7,11 +7,7 @@ import utils.shortcuts_unicode as shortcuts_unicode
 
 # Import helper functions
 from helper_functions.main_test_helpers import wait
-from tester_functions.overlay_view_testers import helper_test_overlay_init, helper_test_overlay_key, helper_test_exit_key, helper_test_wrong_key
-from tester_functions.cp_view_testers import helper_test_control_panel_key, helper_test_close_control_panel
-from tester_functions.latex_window_testers import helper_test_latex_output_enter
-from tester_functions.navbar_component_testers import helper_test_navbar
-from tester_functions.unicode_window_testers import unicode_tester
+from tester_functions.main_testers import overlay_tester, latex_tester,navbar_tester, unicode_tester
 
 key_simulator = keyboard.Controller()
 
@@ -121,57 +117,10 @@ def test_env():
 
 def test_systematic(test_env, subtests):
 
-    # OVERLAY TEST START
+    overlay_tester(test_env, subtests)
 
-    helper_test_overlay_init(test_env, subtests)
+    latex_tester(test_env, subtests)
 
-    helper_test_overlay_key(test_env, subtests)
-
-    # This will be run right after test_overlay_key()
-    # Thus, Ctrl + D has already been pressed and overlay is on
-    helper_test_exit_key(test_env, subtests)
-
-    helper_test_wrong_key(test_env, subtests)
-    
-    helper_test_control_panel_key(test_env, subtests)
-
-    helper_test_close_control_panel(test_env)
-
-    # Redo all of the overlay tests
-    helper_test_overlay_init(test_env, subtests)
-
-    helper_test_overlay_key(test_env, subtests)
-
-    # This will be run right after test_overlay_key()
-    # Thus, Ctrl + D has already been pressed and overlay is on
-    helper_test_exit_key(test_env, subtests)
-
-    helper_test_wrong_key(test_env, subtests)
-
-    # OVERLAY VIEW TEST END
-
-    # LATEX WINDOW TEST START
-
-    helper_test_overlay_init(test_env, subtests)
-
-    helper_test_control_panel_key(test_env, subtests)
-
-    helper_test_latex_output_enter(test_env, subtests)
-
-    # LATEX WINDOW TEST END
-
-    # NAVBAR COMPONENT TEST START
-
-    helper_test_overlay_init(test_env, subtests)
-
-    helper_test_control_panel_key(test_env, subtests)
-
-    helper_test_navbar(test_env, subtests)
-
-    # NAVBAR COMPONENT TEST END
-
-    # UNICODE WINDOW TEST START
+    navbar_tester(test_env, subtests)
 
     unicode_tester(test_env, subtests)
-
-    # UNICODE WINDOW TEST END
