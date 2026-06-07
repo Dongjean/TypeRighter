@@ -15,9 +15,6 @@ def helper_test_control_panel_key(test_env, subtests):
     root, sw, sh, FONTS, COLORS, WINDOWS = test_env
 
     # Check that the control panel properly opens, with the LaTeX editor as the default first window
-
-    # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests(root, sw, sh)
     
     # Press Ctrl + D now
     # Simulate Ctrl

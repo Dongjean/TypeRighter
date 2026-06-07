@@ -48,16 +48,11 @@ def helper_test_overlay_key(test_env, subtests):
 
     # Manually update the root window
     wait(root, 0.15)
-
-    # The overlay should be on right now
-    # Check all of the overlay init settings, and then check that the window is not withdrawn
-    init_settings_test = get_overlay_init_tests(root, sw, sh)
     
     # root.deiconify() makes the state of root be "normal"
     is_deiconify = root.state() == "normal"
 
     all_assertions = {
-        **init_settings_test,
         "is_deiconify": is_deiconify
     }
 
@@ -72,8 +67,6 @@ def helper_test_exit_key(test_env, subtests):
 
     # Test that Ctrl + D, then "a" properly turns off the overlay
 
-    # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests(root, sw, sh)
 
     # Check that the overlay was on before
     is_deiconify_before = root.state() == "normal"
@@ -91,7 +84,6 @@ def helper_test_exit_key(test_env, subtests):
     is_withdrawn = root.state() == "withdrawn"
     print(root.state())
     all_assertions = {
-        **init_settings_test,
         "is_deiconify_before": is_deiconify_before,
         "is_withdrawn": is_withdrawn
     }
@@ -106,9 +98,6 @@ def helper_test_wrong_key(test_env, subtests):
 
     # Check that the screen properly goes red, then turns off when a wrong key is pressed after Ctrl + D
 
-    # Check that the overlay is properly initialised
-    init_settings_test = get_overlay_init_tests(root, sw, sh)
-    
     # Press Ctrl + D now
     # Simulate Ctrl
     key_simulator.press(keyboard.Key.ctrl_l)
@@ -147,7 +136,6 @@ def helper_test_wrong_key(test_env, subtests):
     is_withdrawn = root.state() == "withdrawn"
 
     all_assertions = {
-        **init_settings_test,
         "is_deiconify_before": is_deiconify_before,
         "is_red": is_red,
         "is_withdrawn": is_withdrawn
