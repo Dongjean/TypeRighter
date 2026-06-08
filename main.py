@@ -85,6 +85,49 @@ def on_press_shortcut(key, listener):
     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
     bg_listener.start()
 
+keys = ""
+
+def press(key):
+    global keys
+    try:
+        if key.char != "\\":
+            keys += key.char
+    except:
+        pass
+
+def release(key, listener):
+    global keys
+    try:
+        if key.char == "\\":
+            listener.stop()
+            if keys == "a":
+                hide_overlay()
+            elif keys == "s":
+                control_panel_window()
+            elif keys == "`":
+                clean_exit()
+            elif unicode_symbol := shortcuts_unicode.copy_symbol(keys):
+                threading.Thread(target=lambda: insert_unicode(unicode_symbol, ","), daemon=True).start()
+                shortcut_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, shortcut_listener))
+                shortcut_listener.start()
+            elif keys == "alpha":
+                threading.Thread(target=lambda: insert_unicode("α", ","), daemon=True).start()
+                shortcut_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, shortcut_listener))
+                shortcut_listener.start()
+            keys = ""
+    except:
+        listener.stop()
+        shortcut_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, shortcut_listener))
+        shortcut_listener.start()
+        keys = ""
+
+def win32_keyboard_filter(msg, data, listener):
+    if data.vkCode == 220:
+        listener.stop()
+        new_listener = keyboard.Listener(suppress=True, on_press=lambda key: press(key), on_release=lambda key: release(key, new_listener))
+        new_listener.start()
+        listener.suppress_event()
+
 def on_press_bg(key, listener):
     if not view_handler.is_control_panel_open:
         canonical_key = listener.canonical(key)
@@ -92,17 +135,18 @@ def on_press_bg(key, listener):
         if canonical_key in map(listener.canonical, COMBINATION):
             current_keys.add(canonical_key)
             if all(k in current_keys for k in map(listener.canonical, COMBINATION)):
-                trigger_overlay()
+                if not view_handler.is_overlay_triggered:
+                    trigger_overlay()
+                elif view_handler.is_overlay_triggered:
+                    hide_overlay()
 
                 # Before we stop bg_listener, release the pressed keys and clear current_keys
                 for pressed_key in COMBINATION:
                     keyboard.Controller().release(pressed_key)
                 current_keys.clear()
-                # Stop the bg_listener
-                listener.stop()
 
-                # Start a new shortcut_listener which suppresses typing
-                shortcut_listener = keyboard.Listener(suppress=True, on_press=lambda key: on_press_shortcut(key, shortcut_listener))
+                # Start a new shortcut_listener which suppresses only our breakout key
+                shortcut_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, shortcut_listener))
                 shortcut_listener.start()
 
 def on_release_bg(key, listener):
