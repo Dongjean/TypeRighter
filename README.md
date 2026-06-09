@@ -124,7 +124,7 @@ There are 3 'Modes' to the app:
 
 In the root directory, run the script with:
 ```bash
-python main.pyw
+python main.py
 ```
 
 **bg-mode**
