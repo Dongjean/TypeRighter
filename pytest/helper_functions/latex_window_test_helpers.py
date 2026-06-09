@@ -10,6 +10,7 @@ def get_latex_build_tests(root, FONTS, COLORS):
     text_editor, is_text_editor = check_tk_exists(editor_container, "text_editor")
     latex_output_container, is_latex_output_container = check_tk_exists(latex_frame, "latex_output_container")
     preview_label, is_preview_label = check_tk_exists(latex_output_container, "preview_label")
+    download_button, is_download_button = check_tk_exists(preview_label, "download_button")
     latex_output_canvas, is_latex_output_canvas = check_tk_exists(preview_label, "latex_output_canvas")
     compile_button, is_compile_button = check_tk_exists(editor_container, "compile_button")
 
@@ -125,6 +126,23 @@ def get_latex_build_tests(root, FONTS, COLORS):
     ]
     is_preview_label_props = check_widget_props(preview_label, preview_label_props)
 
+    # download_button
+    download_button_props = [
+        ("config", "text", "Download"),
+        ("config", "bg", COLORS["border"]),
+        ("config", "fg", COLORS["text_main"]),
+        ("config", "bd", 0),
+        ("config", "relief", "flat"),
+        ("config", "command", True), # Check that a function is linked to command
+
+        ("pack", "side", "right"),
+
+        ("misc", "widget_name", "download_button"),
+
+        ("misc", "font", FONTS["font_subtitle"].actual())
+    ]
+    is_download_button_props = check_widget_props(download_button, download_button_props)
+
     # latex_output_canvas
     latex_output_canvas_props = [
         ("config", "bg", "white"),
@@ -168,6 +186,7 @@ def get_latex_build_tests(root, FONTS, COLORS):
         "is_text_editor": is_text_editor,
         "is_latex_output_container": is_latex_output_container,
         "is_preview_label": is_preview_label,
+        "is_download_button": is_download_button,
         "is_latex_output_canvas": is_latex_output_canvas,
         "is_compile_button": is_compile_button,
         "is_latex_frame_props": is_latex_frame_props,
@@ -177,6 +196,7 @@ def get_latex_build_tests(root, FONTS, COLORS):
         "is_text_editor_props": is_text_editor_props,
         "is_latex_output_container_properties": is_latex_output_container_props,
         "is_preview_label_props": is_preview_label_props,
+        "is_download_button_props": is_download_button_props,
         "is_latex_output_canvas_props": is_latex_output_canvas_props,
         "is_compile_button_props": is_compile_button_props,
         "is_root_props": is_root_props

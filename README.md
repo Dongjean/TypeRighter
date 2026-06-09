@@ -124,21 +124,28 @@ There are 3 'Modes' to the app:
 
 In the root directory, run the script with:
 ```bash
-python main.pyw
+python main.py
 ```
 
-In **bg-mode**, pressing ```CTRL + D``` enters **overlay-mode**
+**bg-mode**
+* Pressing ```CTRL + D``` enters **overlay-mode**
+* Otherwise, normal typing is permitted
 
-In **overlay-mode**, script listens to one more key command:
-* ```a``` - Exit **overlay-mode**, into **bg-mode**
-* ``` ` ``` - Exit the app entirely
-* ```\``` - Enter **cp-mode**
-* ```Escape``` - Exit key bind popup
+**overlay-mode**
+* Green overlay indicates **overlay-mode**
+* Typing ```\``` is blocked
+* Press and hold ```\``` to insert a new command:
+    * ```a``` - Exit **overlay-mode**, into **bg-mode**
+    * ```s``` - Exit **overlay-mode**, into **cp-mode**
+    * ``` ` ``` - Exit the app entirely
+    * Any other single character inserts its preset shortcut unicode
+    * Otherwise, if the typed character matches a unicode character name, insert it *(incomplete)*
 
-In **cp-mode**, we have:
+**cp-mode**
 1. LaTeX editor:
     * Enter LaTeX code in the text editor
     * Press enter or click the compile button to have the LaTeX output displayed
+    * Press the download button to save the LaTeX output
 
 2. Login page:
     * User Authentication with Firebase

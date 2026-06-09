@@ -15,6 +15,19 @@ def compile_latex_codecogs(canvas, text_editor):
 
     return "break"
 
+def download_latex(canvas):
+
+    # Get the current image in the canvas
+    latex_img = canvas.pil_img
+
+    save_path = tk.filedialog.asksaveasfilename(
+        initialfile="latex_output_TypeRighter",
+        defaultextension=".png",
+        filetypes=[("PNG files", "*.png"), ("JPEG files", "*.jpg"), ("All files", "*.*")]
+    )
+
+    latex_img.save(save_path)
+
 def build_latex_workspace(root, COLORS, FONTS):
 
     # Frame for LaTeX workspace
@@ -42,15 +55,19 @@ def build_latex_workspace(root, COLORS, FONTS):
     # Fix the height of the LaTeX Output Container
     latex_output_container.pack_propagate(False)
 
-    # LaTeX Image Output (incomplete)
+    # LaTeX Image Output
     preview_label = tk.Frame(latex_output_container, bg="white", name="preview_label")
     preview_label.pack(fill="both", expand=True)
+
+    # LaTeX download button
+    download_button = tk.Button(preview_label, text="Download", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: download_latex(canvas)), name="download_button")
+    download_button.pack(side="bottom", anchor="e")
 
     # Initialise the latex window the moment the output frame is mounted
     global canvas
     canvas = latex.init_latex_window_codecogs(preview_label, "white")
 
-    # LaTeX compiler button and key listener
+    # LaTeX compiler button
     compile_button = tk.Button(editor_container, text="Compile", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: compile_latex_codecogs(canvas, text_editor)), name="compile_button")
     compile_button.pack(side="right")
 
