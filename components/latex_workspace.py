@@ -20,7 +20,13 @@ def download_latex(canvas):
     # Get the current image in the canvas
     latex_img = canvas.pil_img
 
-    latex_img.save("latex_output_TypeRighter.png")
+    save_path = tk.filedialog.asksaveasfilename(
+        initialfile="latex_output_TypeRighter",
+        defaultextension=".png",
+        filetypes=[("PNG files", "*.png"), ("JPEG files", "*.jpg"), ("All files", "*.*")]
+    )
+
+    latex_img.save(save_path)
 
 def build_latex_workspace(root, COLORS, FONTS):
 
