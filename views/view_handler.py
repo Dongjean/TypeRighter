@@ -10,9 +10,6 @@ from views.overlay_view import trigger_overlay, hide_overlay, flash_red_overlay,
 # Thread-safe queue
 gui_queue = queue.Queue()
 
-# # Opening up the global root for the tkinter
-# root = tk.Tk()
-
 is_overlay_triggered = False
 is_control_panel_open = False
 
@@ -53,14 +50,15 @@ def root_init():
 
     # Run check_queue() the moment the root window opens
     root.after(0, lambda: check_queue(root))
-    root.protocol("WM_DELETE_WINDOW", lambda: delete_window_handler(root))
+
+    # Run delete_control_panel_handler() when the root window is closed
+    # If we are in the control panel, we are back to overlay mode
+    # If we are in overlay mode and somehow reach this, we still stay in overlay mode
+    # Defining this callback function for WM_DELETE_WINDOW overrides the default behaviour, so it wont run root.destroy()
+    root.protocol("WM_DELETE_WINDOW", lambda: delete_control_panel_handler(root))
     return root
 
-# On closure of window, initialise the base listener overlay again
-# If we are in the control panel, we are back to normal mode
-# If we are in normal mode and somehow reach this, we are still back to normal mode
-# Defining this callback function for WM_DELETE_WINDOW overrides the default behaviour, so it wont run root.destroy()
-def delete_window_handler(root):
+def delete_control_panel_handler(root):
     global is_control_panel_open
     overlay_init(root)
     is_control_panel_open = False

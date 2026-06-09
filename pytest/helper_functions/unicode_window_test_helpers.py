@@ -1,199 +1,16 @@
-import pytest 
+from pynput import keyboard
+
+key_simulator = keyboard.Controller()
+
 import tkinter as tk
-from tkinter import font as tkfont
-import sys 
-import main as main 
-import time 
-from pynput import keyboard 
 import pyperclip 
+from helper_functions.main_test_helpers import wait, check_tk_exists, check_widget_props
 import utils.unicode_search as unicode_search 
 import utils.shortcuts_unicode as shortcuts_unicode
-
-border_thickness = 5
-key_simulator = keyboard.Controller() 
-
-# Helper function to pause the programme for a short few seconds while spamming root.update()
-def wait(root, period, interval=0.05):
-    deadline = time.time() + period
-    while time.time() < deadline:
-        root.update()
-        time.sleep(interval)
-
-# Color Palette
-COLORS = {
-    "bg_main": "#202020",
-    "bg_input": "#1a1a1a",
-    "text_main": "#e3e3e3",
-    "text_muted": "#888888",
-    "border": "#2d2d2d",
-    "accent_blue": "#2a5a9c",
-    "hyperlink_blue": "#0099FF",
-    "action_green":"#00FF00"
-}
-
-# Windows
-WINDOWS = {
-    "latex-workspace": {
-        "name": "LaTeX",
-        "icon": "",
-    },
-    "user-auth": {
-        "name": "Login",
-        "icon": "",
-    }, 
-    "unicode-search": { 
-    "name": "Unicode\nSearch",
-    "icon": "",
-    }
-}
-
-#Pytest automatically runs tests w/o argument passed manually
-@pytest.fixture(scope="module", autouse = True)
-
-#temp path for tests, avoid overwriting
-#creates a temp file cleaned by OS later
-#saves original bindings and directory
-def isolate_binding(tmp_path_factory): 
-    print("1")
-    fake_dir = tmp_path_factory.mktemp("unicode_bindings")
-    print("2")
-    fake_path = str(fake_dir / "test_shortcuts_unicode.json")
-    print("3")
-    saved_path = shortcuts_unicode._PATH
-    print("4")
-    saved_bindings = dict(shortcuts_unicode.bindings)
-    print("5")
-    shortcuts_unicode._PATH = fake_path 
-    print("6")
-    shortcuts_unicode.bindings.clear() 
-    print("7")
-    yield 
-
-    #load saved bindings and actual directory 
-    shortcuts_unicode._PATH = saved_path 
-    shortcuts_unicode.bindings.clear()
-    shortcuts_unicode.bindings.update(saved_bindings)
-       
-@pytest.fixture(scope = "module")
-def test_env(): 
-
-    # This part runs before the test_ functions
-
-    # Initialise the tkinter root window and the pynput listener
-    # Manually initialize the tkinter window without .mainloop()
-    # Run root_view.root_init()
-    root = main.root_view.root_init()
-    root.update()
-
-
-    # Start a completely new pynput thread
-    # pynput threads cannot be reused
-    listener = keyboard.Listener(on_press=lambda key: main.on_press_bg(key, listener), on_release=lambda key: main.on_release_bg(key, listener))
-    main.COMBINATION = {
-        listener.canonical(keyboard.Key.ctrl_l),
-        keyboard.KeyCode.from_char('d'),
-    }
-    listener.start()
-
-    sw = root.winfo_screenwidth()
-    sh = root.winfo_screenheight()
-
-    # Custom Fonts
-    FONTS = {
-        "font_title": tkfont.Font(family="Segoe UI", size=16, weight="bold"),
-        "font_subtitle": tkfont.Font(family="Segoe UI", size=10, weight="normal"),
-        "font_hyperlink": tkfont.Font(family="Segoe UI", size=10, weight="normal", underline=True),
-    }
-
-    yield (root, sw, sh, FONTS)
-
-        # Destroy the root window
-    main.root_view.gui_queue.put("destroy_root")
-
-    # Stop the pynput listener
-    main.stop_all_pynput_keyboard_listeners()
-
-    # Sleep for 150ms to let the tkinter root window properly close
-    wait(root, 0.15)
-
-    # Delete all .after() instances
-    try:
-        for after_id in root.eval('after info').split():
-            print(after_id)
-            root.after_cancel(after_id)
-    except Exception as e:
-        print(e)
-
-    
-#check if widget exists
-def check_tk_exists(parent, child_name): 
-    try: 
-        child_widget = parent.nametowidget(child_name)
-        return(child_widget, True) 
-    
-    #if child widget name does not exist
-    except KeyError: 
-        return(None, False)
-    
-    #if the parent widget does not exist
-    except AttributeError: 
-        return(None, False)
-    
-
-#check widget properties
-def check_widget_props(widget, props):
-    if widget is None: 
-        return False
-    
-    widget_pack_info = None
-    widget_binds = None
-    try:
-        widget_pack_info = widget.pack_info()
-    except AttributeError as e:
-        print(e)
-    try:
-        widget_binds = widget.bind()
-    except AttributeError as e:
-        print(e)
-    curr_props = [
-
-        # Command prop (Check that the function exists only)
-        (prop[0], prop[1], True if widget.cget(prop[1]) else False) if prop[0] == "config" and prop[1] == "command"
-        else
-        # variable prop (for RadioButton)
-        (prop[0], prop[1], str(widget.cget(prop[1]))) if prop[0] == "config" and prop[1] == "variable"
-        else
-        # Config props (config styles i.e. bg, text)
-        (prop[0], prop[1], widget.cget(prop[1])) if prop[0] == "config"
-        else
-        # Pack props (config layouts)
-        (prop[0], prop[1], widget_pack_info[prop[1]]) if prop[0] == "pack"
-        else
-        # Widget name prop
-        (prop[0], prop[1], widget.winfo_name()) if prop[0] == "misc" and prop[1] == "widget_name"
-        else
-        # Font prop
-        (prop[0], prop[1], tkfont.nametofont(widget.cget("font")).actual()) if prop[0] == "misc" and prop[1] == "font"
-        else
-        # pack_propagate prop
-        (prop[0], prop[1], widget.tk.call('pack', 'propagate', widget._w)) if prop[0] == "misc" and prop[1] == "pack_propagate"
-        else
-        # Bind prop
-        (prop[0], prop[1], prop[2] if prop[2] in widget_binds else None) if prop[0] == "misc" and prop[1] == "bind"
-        else
-        # Python syntax demands a fallback
-        (prop[0], prop[1], prop[2])
-        for prop in props
-    ]
-    print(curr_props)
-    is_widget_props = all([
-        curr_props[index] == prop for index, prop in enumerate(props)
-    ])
-    
-    return is_widget_props
+import main as main
 
 #check if unicode search menu opens
-def get_unicode_menu_build_test(root, FONTS): 
+def get_unicode_menu_build_test(root, FONTS, COLORS): 
     panel_frame, is_panel_frame = check_tk_exists(root, "unicode_search_panel")
 
     #for all widgets within the search frame w/o names
@@ -297,9 +114,9 @@ def get_unicode_menu_build_test(root, FONTS):
         "is_latex_frame_destroyed": is_latex_frame_destroyed,
     }
 
-def test_unicode_search_menu(test_env, subtests): 
+def helper_test_unicode_search_menu(test_env, subtests):
 
-    root, sw, sh, FONTS = test_env 
+    root, sw, sh, FONTS, COLORS, WINDOWS = test_env 
     # Check that the control panel properly opens, with the LaTeX editor as the default first window
 
     # Press Ctrl + D now
@@ -329,7 +146,7 @@ def test_unicode_search_menu(test_env, subtests):
     #check that unicode search is indeed the curr window 
     is_unicode_selected = navbar_frame.selected_window.get() == "unicode-search" 
 
-    unicode_setting_tests = get_unicode_menu_build_test(root, FONTS)
+    unicode_setting_tests = get_unicode_menu_build_test(root, FONTS, COLORS)
 
     all_assertions = { 
         "is_unicode_selected": is_unicode_selected, 
@@ -340,7 +157,7 @@ def test_unicode_search_menu(test_env, subtests):
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion
 
-def test_unicode_search_function(subtests): 
+def helper_test_unicode_search_function(subtests): 
 
     #search by codepoint
 
@@ -448,8 +265,8 @@ def test_unicode_search_function(subtests):
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion
 
-    #check copy and paste function
-def test_unicode_copy_paste (subtests):
+#check copy and paste function
+def helper_test_unicode_copy_paste (subtests):
 
     shortcuts_unicode.bindings.clear()
 
@@ -487,8 +304,9 @@ def test_unicode_copy_paste (subtests):
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion
 
-def test_unicode_copy_via_overlay(test_env, subtests): 
-    root, sw, sh, FONTS = test_env
+def helper_test_unicode_copy_via_overlay(test_env, subtests): 
+
+    root, sw, sh, FONTS, COLORS, WINDOWS = test_env
 
     shortcuts_unicode.bindings.clear()
     shortcuts_unicode.set_binding("q", "Ω")
@@ -501,7 +319,7 @@ def test_unicode_copy_via_overlay(test_env, subtests):
     key_simulator.release(keyboard.Key.f4)
     wait(root, 0.15)
 
-    is_control_panel_closed = main.root_view.is_control_panel_open == False
+    is_control_panel_closed = main.view_handler.is_control_panel_open == False
 
     # Reset the clipboard to a known sentinel so we can detect change
     pyperclip.copy("Pray")
@@ -513,14 +331,14 @@ def test_unicode_copy_via_overlay(test_env, subtests):
     key_simulator.release("d")
     wait(root, 0.15)
 
-    is_overlay_on_before = main.root_view.is_overlay_triggered == True
+    is_overlay_on_before = main.view_handler.is_overlay_triggered == True
 
     key_simulator.press("q")
     key_simulator.release("q")
     wait(root, 0.15)
 
     is_clipboard_has_symbol = pyperclip.paste() == "Ω"
-    is_overlay_off_after = main.root_view.is_overlay_triggered == False
+    is_overlay_off_after = main.view_handler.is_overlay_triggered == False
     is_root_withdrawn = root.state() == "withdrawn"
 
     shortcuts_unicode.bindings.clear()
