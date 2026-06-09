@@ -124,7 +124,7 @@ There are 3 'Modes' to the app:
 
 In the root directory, run the script with:
 ```bash
-python main.pyw
+python main.py
 ```
 
 **bg-mode**
@@ -145,6 +145,7 @@ python main.pyw
 1. LaTeX editor:
     * Enter LaTeX code in the text editor
     * Press enter or click the compile button to have the LaTeX output displayed
+    * Press the download button to save the LaTeX output
 
 2. Login page:
     * User Authentication with Firebase
