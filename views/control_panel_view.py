@@ -54,7 +54,11 @@ def control_panel_init(root):
         "unicode-search": { 
             "name": "Unicode\nSearch",
             "icon": "",
-        }
+        },
+        "settings-window": {
+            "name": "Settings",
+            "icon": "",
+        },
     }
 
     # Build the navbar and initialise the first window
