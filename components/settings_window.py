@@ -72,11 +72,11 @@ def build_settings_window(root, COLORS, FONTS):
 
     # Subwindow Label
     subwindow_label = tk.Label(subwindow_header, text="route", fg=COLORS["text_muted"], bg=COLORS["bg_main"], font=FONTS["font_subtitle"], name="subwindow_label")
-    subwindow_label.pack(fill="none", pady=0)
+    subwindow_label.pack(fill="none", anchor="center", side="right", expand=True, pady=0)
 
     # Back Button
     back_button = tk.Button(subwindow_header, text="Back", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], activebackground=COLORS["accent_blue"], command=(lambda: back(settings_frame)), name="back_button")
-    back_button.pack(fill="none", anchor="w", pady=0)
+    back_button.pack(fill="none", anchor="w", side="left", pady=0)
 
     # Settings Container to contain the settings selector and settings sub-windows
     # If is_selecting == True, we display the settings selection menu
