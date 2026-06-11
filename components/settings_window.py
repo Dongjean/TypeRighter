@@ -7,22 +7,22 @@ is_selecting = True
 curr_subwindow = ""
 
 SETTINGS = {
-    "preferences": {
+    "preferences-setting": {
         "name": "Preferences"
     },
-    "another": {
+    "another-setting": {
         "name": "Another one!"
     },
 }
 
 destroy_functions = {
-    "preferences": destroy_preferences_setting,
-    "another": destroy_another_setting,
+    "preferences-setting": destroy_preferences_setting,
+    "another-setting": destroy_another_setting,
 }
 
 init_functions = {
-    "preferences": build_preferences_setting,
-    "another": build_another_setting,
+    "preferences-setting": build_preferences_setting,
+    "another-setting": build_another_setting,
 }
 
 def select_setting(selected_setting, settings_container, subwindow_label, COLORS, FONTS):
