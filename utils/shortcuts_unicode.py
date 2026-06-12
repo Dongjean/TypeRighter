@@ -20,7 +20,13 @@ _lock = threading.Lock()
 
 bindings = {}
 
-RESERVED_KEYS ={"a", "\\", "`"}
+def _norm(key): 
+    if key is None: 
+        key = ""
+    key = key.strip().lower()
+    return key 
+
+RESERVED_KEYS ={"a", "s", "\\", "`"}
 
 #load from file 
 def load(): 
@@ -49,12 +55,14 @@ def _save():
 
 #binds key to symbol (note: upper & lower treated same)
 def set_binding(key, symbol):
-    if key is None: 
-        key =""
-    key = key.lower()
+    key = _norm(key)
 
-    if len(key) != 1:
-        return False, "Please enter a single character key." 
+    if not key: 
+        return False, "Please enter a key or phrase"
+    
+    if "\\" in key:
+        return False, "Invalid key. Please enter a valid key."
+    
     if key in RESERVED_KEYS: 
         return False, f"'{key}' is reserved and cannot be used as a shortcut key."
     if not symbol: 
@@ -71,9 +79,7 @@ def set_binding(key, symbol):
 
 #unbind 
 def remove_binding(key): 
-    if key == None:
-        key =""
-    key = key.lower()
+    key = _norm(key)
 
     with _lock: 
         if key in bindings: 
@@ -89,10 +95,8 @@ def remove_binding(key):
 
 #read symbol binded to key
 def lookup(key): 
-    if key == None:
-        key =""
-    key = key.lower()
-
+    key = _norm(key)
+ 
     with _lock: 
         return bindings.get(key)
     
