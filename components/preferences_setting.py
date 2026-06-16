@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+import utils.shortcuts_unicode as shortcuts_unicode
+
 def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     
     # Preferences Frame
@@ -32,17 +34,8 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     curr_keybinds_label = tk.Label(curr_keybinds_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Current Keybinds", name="curr_keybinds_label")
     curr_keybinds_label.pack()
 
-    # Fake list of keybinds
-    curr_keybinds = {
-        "\\": "Breakout",
-        "a": "Close",
-        "`": "Exit",
-        "q": "⊂",
-        "w": "∅",
-        "e": "∈",
-        "r": "⊂",
-        "t": "⊆",
-    }
+    # Get the Dictionary of Keybinds
+    curr_keybinds = shortcuts_unicode.all_bindings()
 
     # Show Each Keybind
     for key, bind in curr_keybinds.items():
