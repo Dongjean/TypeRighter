@@ -58,6 +58,10 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
         # The Corresponding Bind Label
         bind_label = tk.Label(keybind_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text=bind, name=f"{key}_bind_label")
         bind_label.pack(side="left")
+
+        # This Keybind's Unbinder
+        keybind_unbinder =tk.Button(keybind_container, text="Unbind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command=None, name=f"{key}_keybind_unbinder")
+        keybind_unbinder.pack(side="right", padx=8)
     
     # Current Phrase Bindings Container
     curr_phrasebinds_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="curr_phrasebinds_container")
@@ -80,12 +84,16 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
         phrasebind_container.pack()
 
         # The Phrase Label
-        phrase_label = tk.Label(curr_phrasebinds_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], highlightbackground="white", highlightthickness=1, fg=COLORS["text_main"], text=phrase, name=f"{phrase}_phrase_label")
+        phrase_label = tk.Label(phrasebind_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], highlightbackground="white", highlightthickness=1, fg=COLORS["text_main"], text=phrase, name=f"{phrase}_phrase_label")
         phrase_label.pack(side="left")
 
         # The Corresponding Bind Label
-        bind_label = tk.Label(curr_phrasebinds_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text=bind, name=f"{phrase}_bind_label")
+        bind_label = tk.Label(phrasebind_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text=bind, name=f"{phrase}_bind_label")
         bind_label.pack(side="left")
+
+        # This Phrase Binding's Unbinder
+        phrasebind_unbinder =tk.Button(phrasebind_container, text="Unbind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command=None, name=f"{phrase}_phrasebind_unbinder")
+        phrasebind_unbinder.pack(side="right", padx=8)
 
 def destroy_preferences_setting(settings_subwindow_container):
     for widget in settings_subwindow_container.winfo_children():
