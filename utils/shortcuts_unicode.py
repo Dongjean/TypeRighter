@@ -15,6 +15,12 @@ def _data_dir():
     os.makedirs(folder, exist_ok=True)
     return folder
     
+DEFAULT_BINDINGS = {
+    "`": "Exit App",
+    "a": "Close Overlay",
+    "s": "Control Panel",
+    "\\": "Breakout Key",
+}
 _PATH = os.path.join(_data_dir(), "shortcuts_unicode.json")
 _lock = threading.Lock()
 
@@ -32,8 +38,13 @@ def load():
                     bindings = json.load(f)
             except (json.JSONDecodeError, IOError):
                 bindings = {}
-        else: 
-            bindings = {}
+        else:
+            # Create a new file, and add in the default binds
+            bindings = DEFAULT_BINDINGS
+            temp = _PATH + ".tmp" 
+            with open(temp, "w", encoding="utf-8") as f:
+                json.dump(bindings, f, ensure_ascii=False, indent=4)
+            os.replace(temp, _PATH)
         return dict(bindings) #copy of bindings
 
 #save to file
@@ -93,8 +104,18 @@ def lookup(key):
         key =""
     key = key.lower()
 
-    with _lock: 
+    with _lock:
         return bindings.get(key)
+
+def get_key_from_value(value):
+
+    # Assume each value only has one unique key
+    key = next((k for k, v in bindings.items() if v == value), None)
+
+    if not key:
+        return None
+    else:
+        return key
     
 #shows all bindings 
 def all_bindings(): 

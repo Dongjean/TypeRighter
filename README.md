@@ -156,4 +156,11 @@ python main.py
     * Bind keys to unicode by press the bind button
     * While overlay is active, press shortcut key followed by Ctrl + V to insert symbol 
 
+4. Settings:
+    * Preferences Setting
+        * Select the template you wish to edit
+        * Rebind or Unbind the shortcuts from that template
+    * Control Panel Setting (not implemented)
+        * Edit the size and popup location of the control panel
+
 _All of the above in **cp-mode** are accessible via the right Navigation Bar_
