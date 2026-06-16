@@ -7,6 +7,7 @@ import sys
 import time
 import views.view_handler as view_handler
 import utils.shortcuts_unicode as shortcuts_unicode
+import ctypes
 
 # For debugging
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
@@ -46,7 +47,7 @@ keys = ""
 def on_press_shortcut(key):
     global keys
     try:
-        if key.char != "\\":
+        if key.char != BREAKOUT_KEY:
             keys += key.char
     except:
         pass
@@ -54,8 +55,8 @@ def on_press_shortcut(key):
 def on_release_shortcut(key, listener):
     global keys
     try:
-        if key.char == "\\":
-            print(keys)
+        if key.char == BREAKOUT_KEY:
+            
             listener.stop()
             if shortcuts_unicode.lookup(keys) == "Close Overlay":
                 hide_overlay()
@@ -83,12 +84,17 @@ def on_release_shortcut(key, listener):
         overlay_listener.start()
         keys = ""
 
-# Filter for overlay_listener that filters out "\""
+# Filter for overlay_listener that filters out BREAKOUT_KEY
 def win32_keyboard_filter(msg, data, listener):
     
-    # 220 is the windows virtual key code for "\"
-    if data.vkCode == 220:
-        # Once "\" is detected, stop overlay_listener
+    # Get the windows virtual key code for BREAKOUT_KEY
+    user32 = ctypes.windll.user32
+    result = user32.VkKeyScanW(BREAKOUT_KEY)
+    breakout_vk_code = result & 0xFF
+
+    # Filter JUST the BREAKOUT_KEY
+    if data.vkCode == breakout_vk_code:
+        # Once BREAKOUT_KEY is detected, stop overlay_listener
         listener.stop()
 
         # Start shortcut_listener, which catches all keystrokes and runs till "\" is released
@@ -152,6 +158,7 @@ def clean_exit():
 
 #load saved unicode shortcuts 
 shortcuts_unicode.load()
+BREAKOUT_KEY = shortcuts_unicode.get_key_from_value("Breakout Key") or "\\"
 COMBINATION = [
     keyboard.Key.ctrl_l,
     keyboard.KeyCode.from_char('d'),

@@ -103,8 +103,18 @@ def lookup(key):
         key =""
     key = key.lower()
 
-    with _lock: 
+    with _lock:
         return bindings.get(key)
+
+def get_key_from_value(value):
+
+    # Assume each value only has one unique key
+    key = next((k for k, v in bindings.items() if v == value), None)
+
+    if not key:
+        return None
+    else:
+        return key
     
 #shows all bindings 
 def all_bindings(): 
