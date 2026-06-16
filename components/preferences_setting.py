@@ -63,8 +63,10 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
         bind_label.pack(side="left")
 
         # This Keybind's Unbinder
-        keybind_unbinder =tk.Button(keybind_container, text="Unbind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command=None, name=f"{key}_keybind_unbinder")
-        keybind_unbinder.pack(side="right", padx=8)
+        # Display this iff it isnt one of the protected keys
+        if bind not in ["Exit App", "Close Overlay", "Control Panel", "Breakout Key"]:
+            keybind_unbinder = tk.Button(keybind_container, text="Unbind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command=lambda key=key: shortcuts_unicode.remove_binding(key), name=f"{key}_keybind_unbinder")
+            keybind_unbinder.pack(side="right", padx=8)
     
     keybinds_label.bind("<Button-1>", lambda e: toggle_widget_visibility(keybinds_display_container))
 
