@@ -3,13 +3,20 @@ from tkinter import ttk
 
 import utils.shortcuts_unicode as shortcuts_unicode
 
-def toggle_widget_visibility(widget):
+def toggle_binds_expansion(binds_container, label):
     
+    # Get the text property of the label, without the trailing ▲▼
+    text = label["text"][:-1]
     # If the widget is already visible, turn it off
-    if widget.winfo_ismapped():
-        widget.pack_forget()
+    if binds_container.winfo_ismapped():
+        binds_container.pack_forget()
+        text += "▼"
     else:
-        widget.pack()
+        binds_container.pack()
+        text += "▲"
+    
+    # Update the label
+    label.configure(text=text)
 
 def _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS):
     
@@ -114,7 +121,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     keybinds_container.pack()
     
     # Keybinds Label
-    keybinds_label = tk.Label(keybinds_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Current Keybinds", name="keybinds_label")
+    keybinds_label = tk.Label(keybinds_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Current Keybinds ▼", name="keybinds_label")
     keybinds_label.pack()
             
     keybinds_display_container = tk.Frame(keybinds_container, bg=COLORS["bg_input"], name="phrasebinds_display_container")
@@ -147,14 +154,14 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
         keybind_rebinder = tk.Button(keybind_container, text="Rebind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command = lambda to_bind=bind, old_key=key: _rebind_key(preferences_frame, keybinds_display_container, to_bind, old_key, COLORS, FONTS), name=f"{key}_keybind_rebinder")
         keybind_rebinder.pack(side="right")
     
-    keybinds_label.bind("<Button-1>", lambda e: toggle_widget_visibility(keybinds_display_container))
+    keybinds_label.bind("<Button-1>", lambda e: toggle_binds_expansion(keybinds_display_container, keybinds_label))
 
     # Current Phrase Bindings Container
     phrasebinds_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="phrasebinds_container")
     phrasebinds_container.pack()
 
     # Phrase Bindings Label
-    phrasebinds_label = tk.Label(phrasebinds_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Current Phrase Bindings", name="phrasebinds_label")
+    phrasebinds_label = tk.Label(phrasebinds_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Current Phrase Bindings ▼", name="phrasebinds_label")
     phrasebinds_label.pack()
 
     # Fake list of Phrase Bindings
@@ -183,7 +190,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
         phrasebind_unbinder =tk.Button(phrasebind_container, text="Unbind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command=None, name=f"{phrase}_phrasebind_unbinder")
         phrasebind_unbinder.pack(side="right", padx=8)
     
-    phrasebinds_label.bind("<Button-1>", lambda e: toggle_widget_visibility(phrasebinds_display_container))
+    phrasebinds_label.bind("<Button-1>", lambda e: toggle_binds_expansion(phrasebinds_display_container, phrasebinds_label))
 
 def destroy_preferences_setting(settings_subwindow_container):
     for widget in settings_subwindow_container.winfo_children():
