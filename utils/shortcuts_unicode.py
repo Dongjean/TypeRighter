@@ -19,6 +19,7 @@ DEFAULT_BINDINGS = {
     "`": "Exit App",
     "a": "Close Overlay",
     "s": "Control Panel",
+    "\\": "Breakout Key",
 }
 _PATH = os.path.join(_data_dir(), "shortcuts_unicode.json")
 _lock = threading.Lock()
