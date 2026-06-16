@@ -57,11 +57,11 @@ def on_release_shortcut(key, listener):
         if key.char == "\\":
             print(keys)
             listener.stop()
-            if keys == "a":
+            if shortcuts_unicode.lookup(keys) == "Close Overlay":
                 hide_overlay()
-            elif keys == "s":
+            elif shortcuts_unicode.lookup(keys) == "Control Panel":
                 control_panel_window()
-            elif keys == "`":
+            elif shortcuts_unicode.lookup(keys) == "Exit App":
                 clean_exit()
             elif unicode_symbol := shortcuts_unicode.copy_symbol(keys):
                 threading.Thread(target=lambda: insert_char(unicode_symbol), daemon=True).start()
