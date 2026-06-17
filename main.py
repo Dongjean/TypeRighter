@@ -9,6 +9,8 @@ import views.view_handler as view_handler
 import utils.shortcuts_unicode as shortcuts_unicode
 import ctypes
 
+import utils.unicode_search as unicode_search
+
 # For debugging
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
 sys.stdout = open(log_path, "a", encoding="utf-8", errors="replace", buffering=1) 
@@ -76,7 +78,11 @@ def on_release_shortcut(key, listener):
                 overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
                 overlay_listener.start()
             else:
-                # Future unicode searching feature
+                # Unicode searching feature
+                unicode_results = unicode_search.search(keys)
+
+                if unicode_results:
+                    threading.Thread(target=lambda: insert_char(unicode_results[0][0]), daemon=True).start()
                 overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
                 overlay_listener.start()
             keys = ""
