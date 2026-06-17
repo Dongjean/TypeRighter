@@ -44,8 +44,8 @@ def check_queue(root):
     except queue.Empty:
         pass
 
-    # Poll every 100 ms
-    root.after(100, lambda: check_queue(root))
+    # Poll every 10 ms
+    root.after(10, lambda: check_queue(root))
 
 def root_init():
 
