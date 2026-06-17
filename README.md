@@ -134,12 +134,15 @@ python main.py
 **overlay-mode**
 * Green overlay indicates **overlay-mode**
 * Typing ```\``` is blocked
-* Press and hold ```\``` to insert a new command:
+* Press and hold ```\``` to insert a new command, and a preview can be seen in a popup on the screen:
     * ```a``` - Exit **overlay-mode**, into **bg-mode**
     * ```s``` - Exit **overlay-mode**, into **cp-mode**
     * ``` ` ``` - Exit the app entirely
     * Any other single character inserts its preset shortcut unicode
-    * Otherwise, if the typed character matches a unicode character name, insert it *(incomplete)*
+    * If there is no preset shortcut unicode, insert its preset unicode phrase
+    * Otherwise, if the typed character matches a unicode character name, insert it
+
+_All of the above shortcuts, including ```\```, ```a```, ```s``` and ``` ` ```, can be changed via Preferences Settings in **cp-mode**_
 
 **cp-mode**
 1. LaTeX editor:
