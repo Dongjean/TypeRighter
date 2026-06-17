@@ -39,7 +39,7 @@ def control_panel_window():
 
 def insert_char(char):
 
-    keyboard_controller.release("\\")
+    keyboard_controller.release(BREAKOUT_KEY)
     keyboard_controller.type(char)
 
 keys = ""
@@ -48,7 +48,9 @@ def on_press_shortcut(key):
     global keys
     try:
         if key.char != BREAKOUT_KEY:
+            print(key.char)
             keys += key.char
+            view_handler.gui_queue.put(f"append_textbox_{keys}")
     except:
         pass
 
@@ -56,7 +58,7 @@ def on_release_shortcut(key, listener):
     global keys
     try:
         if key.char == BREAKOUT_KEY:
-            
+            view_handler.gui_queue.put("destroy_textbox")
             listener.stop()
             if shortcuts_unicode.lookup(keys) == "Close Overlay":
                 hide_overlay()
@@ -79,10 +81,7 @@ def on_release_shortcut(key, listener):
                 overlay_listener.start()
             keys = ""
     except:
-        listener.stop()
-        overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
-        overlay_listener.start()
-        keys = ""
+        pass
 
 # Filter for overlay_listener that filters out BREAKOUT_KEY
 def win32_keyboard_filter(msg, data, listener):
@@ -97,11 +96,13 @@ def win32_keyboard_filter(msg, data, listener):
         # Once BREAKOUT_KEY is detected, stop overlay_listener
         listener.stop()
 
-        # Start shortcut_listener, which catches all keystrokes and runs till "\" is released
+        view_handler.gui_queue.put("trigger_textbox")
+
+        # Start shortcut_listener, which catches all keystrokes and runs till BREAKOUT_KEY is released
         shortcut_listener = keyboard.Listener(suppress=True, on_press=lambda key: on_press_shortcut(key), on_release=lambda key: on_release_shortcut(key, shortcut_listener))
         shortcut_listener.start()
 
-        # Dont allow the "\" keypress to propagate down
+        # Dont allow the BREAKOUT_KEY keypress to propagate down
         listener.suppress_event()
 
 def on_press_bg(key, listener):
