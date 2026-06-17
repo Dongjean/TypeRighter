@@ -74,6 +74,7 @@ def on_release_shortcut(key, listener):
                 overlay_listener.start()
             elif keys == "alpha":
                 # Sample, remove this elif in the future
+                shortcuts_unicode.copy_to_clipboard("α")
                 threading.Thread(target=lambda: insert_char("α"), daemon=True).start()
                 overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
                 overlay_listener.start()
@@ -82,7 +83,10 @@ def on_release_shortcut(key, listener):
                 unicode_results = unicode_search.search(keys)
 
                 if unicode_results:
-                    threading.Thread(target=lambda: insert_char(unicode_results[0][0]), daemon=True).start()
+                    # Copy and insert the first unicode result
+                    first_result = unicode_results[0][0]
+                    shortcuts_unicode.copy_to_clipboard(first_result)
+                    threading.Thread(target=lambda: insert_char(first_result), daemon=True).start()
                 overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
                 overlay_listener.start()
             keys = ""
