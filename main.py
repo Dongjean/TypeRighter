@@ -49,8 +49,15 @@ keys = ""
 def on_press_shortcut(key):
     global keys
     try:
-        if key.char != BREAKOUT_KEY:
-            keys += key.char
+        if hasattr(key, 'char'):
+            if key.char != BREAKOUT_KEY:
+                keys += key.char
+                view_handler.gui_queue.put(f"append_textbox_{keys}")
+        elif key == keyboard.Key.backspace:
+            keys = keys[:-1]
+            view_handler.gui_queue.put(f"append_textbox_{keys}")
+        elif key == keyboard.Key.space:
+            keys += " "
             view_handler.gui_queue.put(f"append_textbox_{keys}")
     except:
         pass
