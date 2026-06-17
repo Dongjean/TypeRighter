@@ -124,6 +124,19 @@ def win32_keyboard_filter(msg, data, listener):
 
     # Filter JUST the BREAKOUT_KEY
     if data.vkCode == breakout_vk_code:
+
+        # Release all special keys so no rogue keypress changes occur
+        SPECIAL_KEYS = [
+            keyboard.Key.shift,
+            keyboard.Key.ctrl,
+            keyboard.Key.caps_lock,
+            keyboard.Key.alt,
+            keyboard.Key.tab,
+            keyboard.Key.cmd # Windows key
+        ]
+        for KEY in SPECIAL_KEYS:
+            keyboard.Controller().release(KEY)
+        
         # Once BREAKOUT_KEY is detected, stop overlay_listener
         listener.stop()
 
@@ -137,8 +150,8 @@ def win32_keyboard_filter(msg, data, listener):
         listener.suppress_event()
 
 def on_press_bg(key, listener):
+    canonical_key = listener.canonical(key)
     if not view_handler.is_control_panel_open:
-        canonical_key = listener.canonical(key)
         # If the overlay is on, means we are listening for a 2nd key input
         if canonical_key in map(listener.canonical, COMBINATION):
             current_keys.add(canonical_key)
@@ -159,6 +172,10 @@ def on_press_bg(key, listener):
                     stop_all_pynput_keyboard_listeners()
                     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
                     bg_listener.start()
+    
+    if canonical_key == keyboard.Key.shift:
+        global is_uppercase
+        is_uppercase = True
 
 def on_release_bg(key, listener):
     canonical_key = listener.canonical(key)
@@ -166,6 +183,10 @@ def on_release_bg(key, listener):
         current_keys.remove(canonical_key)
     except KeyError:
         pass
+
+    if canonical_key == keyboard.Key.shift:
+        global is_uppercase
+        is_uppercase = False
 
 # Tray icon
 def create_image():
