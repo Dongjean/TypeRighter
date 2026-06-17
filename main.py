@@ -174,6 +174,15 @@ COMBINATION = [
     keyboard.KeyCode.from_char('d'),
 ]
 border_thickness = 5
+
+# Override default Windows behaviour which makes window resolution bad
+try:
+    # Works on Windows 8.1 and 10+
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)
+except Exception:
+    # Fallback for older Windows versions like 7 or XP
+    ctypes.windll.user32.SetProcessDPIAware()
+
 if __name__ == "__main__":
     
     # The bg_listener which only listens for the COMBINATION
