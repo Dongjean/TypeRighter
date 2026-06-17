@@ -128,7 +128,8 @@ python main.py
 ```
 
 **bg-mode**
-* Pressing ```CTRL + D``` enters **overlay-mode**
+* Pressing ```CTRL + LEFT_ALT + SPACE``` enters **overlay-mode**
+    * Pressing it again exits **overlay-mode**
 * Otherwise, normal typing is permitted
 
 **overlay-mode**
