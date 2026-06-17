@@ -45,13 +45,18 @@ def insert_char(char):
     keyboard_controller.type(char)
 
 keys = ""
+is_uppercase = False
 
 def on_press_shortcut(key):
     global keys
+    global is_uppercase
     try:
         if hasattr(key, 'char'):
             if key.char != BREAKOUT_KEY:
-                keys += key.char
+                if is_uppercase:
+                    keys += key.char.upper()
+                else:
+                    keys += key.char.lower()
                 view_handler.gui_queue.put(f"append_textbox_{keys}")
         elif key == keyboard.Key.backspace:
             keys = keys[:-1]
@@ -59,43 +64,49 @@ def on_press_shortcut(key):
         elif key == keyboard.Key.space:
             keys += " "
             view_handler.gui_queue.put(f"append_textbox_{keys}")
+        elif key == keyboard.Key.shift:
+            is_uppercase = True
     except:
         pass
 
 def on_release_shortcut(key, listener):
     global keys
     try:
-        if key.char == BREAKOUT_KEY:
-            view_handler.gui_queue.put("destroy_textbox")
-            listener.stop()
-            if shortcuts_unicode.lookup(keys) == "Close Overlay":
-                hide_overlay()
-            elif shortcuts_unicode.lookup(keys) == "Control Panel":
-                control_panel_window()
-            elif shortcuts_unicode.lookup(keys) == "Exit App":
-                clean_exit()
-            elif unicode_symbol := shortcuts_unicode.copy_symbol(keys):
-                threading.Thread(target=lambda: insert_char(unicode_symbol), daemon=True).start()
-                overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
-                overlay_listener.start()
-            elif keys == "alpha":
-                # Sample, remove this elif in the future
-                shortcuts_unicode.copy_to_clipboard("α")
-                threading.Thread(target=lambda: insert_char("α"), daemon=True).start()
-                overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
-                overlay_listener.start()
-            else:
-                # Unicode searching feature
-                unicode_results = unicode_search.search(keys, limit=1)
+        if hasattr(key, 'char'):
+            if key.char == BREAKOUT_KEY:
+                view_handler.gui_queue.put("destroy_textbox")
+                listener.stop()
+                if shortcuts_unicode.lookup(keys) == "Close Overlay":
+                    hide_overlay()
+                elif shortcuts_unicode.lookup(keys) == "Control Panel":
+                    control_panel_window()
+                elif shortcuts_unicode.lookup(keys) == "Exit App":
+                    clean_exit()
+                elif unicode_symbol := shortcuts_unicode.copy_symbol(keys):
+                    threading.Thread(target=lambda: insert_char(unicode_symbol), daemon=True).start()
+                    overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
+                    overlay_listener.start()
+                elif keys == "alpha":
+                    # Sample, remove this elif in the future
+                    shortcuts_unicode.copy_to_clipboard("α")
+                    threading.Thread(target=lambda: insert_char("α"), daemon=True).start()
+                    overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
+                    overlay_listener.start()
+                else:
+                    # Unicode searching feature
+                    unicode_results = unicode_search.search(keys, limit=1)
 
-                if unicode_results:
-                    # Copy and insert the first unicode result
-                    first_result = unicode_results[0][0]
-                    shortcuts_unicode.copy_to_clipboard(first_result)
-                    threading.Thread(target=lambda: insert_char(first_result), daemon=True).start()
-                overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
-                overlay_listener.start()
-            keys = ""
+                    if unicode_results:
+                        # Copy and insert the first unicode result
+                        first_result = unicode_results[0][0]
+                        shortcuts_unicode.copy_to_clipboard(first_result)
+                        threading.Thread(target=lambda: insert_char(first_result), daemon=True).start()
+                    overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
+                    overlay_listener.start()
+                keys = ""
+        elif key == keyboard.Key.shift:
+            global is_uppercase
+            is_uppercase = False
     except:
         pass
 
