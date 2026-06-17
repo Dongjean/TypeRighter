@@ -214,7 +214,8 @@ shortcuts_unicode.load()
 BREAKOUT_KEY = shortcuts_unicode.get_key_from_value("Breakout Key") or "\\"
 COMBINATION = [
     keyboard.Key.ctrl_l,
-    keyboard.KeyCode.from_char('d'),
+    keyboard.Key.alt_l,
+    keyboard.Key.space
 ]
 border_thickness = 5
 
