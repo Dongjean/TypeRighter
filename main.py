@@ -80,7 +80,7 @@ def on_release_shortcut(key, listener):
                 overlay_listener.start()
             else:
                 # Unicode searching feature
-                unicode_results = unicode_search.search(keys)
+                unicode_results = unicode_search.search(keys, limit=1)
 
                 if unicode_results:
                     # Copy and insert the first unicode result
