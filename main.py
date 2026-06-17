@@ -44,6 +44,10 @@ def insert_char(char):
     keyboard_controller.release(BREAKOUT_KEY)
     keyboard_controller.type(char)
 
+def is_caps_lock_on():
+    # Return 1 if Caps Lock is active, 0 if inactive
+    return ctypes.windll.user32.GetKeyState(0x14) & 1
+
 keys = ""
 is_uppercase = False
 
@@ -53,7 +57,7 @@ def on_press_shortcut(key):
     try:
         if hasattr(key, 'char'):
             if key.char != BREAKOUT_KEY:
-                if is_uppercase:
+                if is_uppercase or is_caps_lock_on():
                     keys += key.char.upper()
                 else:
                     keys += key.char.lower()
