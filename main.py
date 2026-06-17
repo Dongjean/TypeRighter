@@ -50,7 +50,6 @@ def on_press_shortcut(key):
     global keys
     try:
         if key.char != BREAKOUT_KEY:
-            print(key.char)
             keys += key.char
             view_handler.gui_queue.put(f"append_textbox_{keys}")
     except:
