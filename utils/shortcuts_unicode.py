@@ -106,6 +106,24 @@ def remove_unicode_binding(key):
         _save()
     return binded
 
+def remove_latex_shortcut(key): 
+    if key == None:
+        key =""
+    key = key.lower()
+
+    with _lock:
+        latex_shortcuts = bindings.get("latex")
+        if key in latex_shortcuts: 
+            binded = True
+            del latex_shortcuts[key]
+
+        else: 
+            binded = False
+
+    if binded:
+        _save()
+    return binded
+
 #read symbol binded to key
 def lookup_unicode(key): 
     if key == None:
