@@ -87,6 +87,30 @@ def set_unicode_binding(key, symbol):
     else: 
         return False, f"Failed to bind '{symbol}' to '{key}'. Please try again."
 
+def set_latex_shortcut(latex_code, name):
+
+    # First generate a new unique key for this LaTeX Shortcut
+    key = 0 # key is 0 if there arent any shortcuts yet
+    curr_latex_shortcuts = all_latex_shortcuts()
+    if curr_latex_shortcuts:
+        # If there are existing shortcuts, just increment the highest key
+        key = max(map(int, curr_latex_shortcuts.keys())) + 1
+    
+    print(key)
+    
+    with _lock: 
+        latex_shortcuts = bindings.get("latex")
+        latex_shortcuts[key] = {
+            "name": name,
+            "code": latex_code,
+        }
+        ok = _save()
+
+    if ok: 
+        return True, f"Successfully bound '{latex_code}' with name '{name}'."
+    else: 
+        return False, f"Failed to bind '{latex_code}' with name '{name}'. Please try again."
+
 #unbind 
 def remove_unicode_binding(key): 
     if key == None:

@@ -7,6 +7,9 @@ def toggle_binds_expansion(binds_container, label):
     
     # Get the text property of the label, without the trailing ▲▼
     text = label["text"][:-1]
+    print(text)
+    print(binds_container)
+    print(label)
     # If the widget is already visible, turn it off
     if binds_container.winfo_ismapped():
         binds_container.pack_forget()
@@ -123,6 +126,25 @@ def _refresh_latex_shortcuts(latex_shortcuts_display_container, preferences_fram
 def _unbind_latex_shortcut(latex_shortcuts_display_container, preferences_frame, COLORS, FONTS, key):
     shortcuts_unicode.remove_latex_shortcut(key)
     _refresh_latex_shortcuts(latex_shortcuts_display_container, preferences_frame, COLORS, FONTS)
+
+def add_latex_shortcut(latex_shortcut_adder_name_entry, latex_shortcut_adder_code_entry, latex_shortcut_adder_error_msg, latex_shortcuts_display_container, preferences_frame, COLORS, FONTS):
+    
+    # Get all text minus the auto-added trailing newline
+    latex_name = latex_shortcut_adder_name_entry.get()
+    latex_code = latex_shortcut_adder_code_entry.get("1.0", "end-1c")
+
+    ok, message = shortcuts_unicode.set_latex_shortcut(latex_code, latex_name)
+    if ok:
+
+        # Clear the Entries
+        latex_shortcut_adder_name_entry.delete(0, 'end')
+        # Multi-line Code Entry
+        latex_shortcut_adder_code_entry.delete('1.0', 'end')
+
+        # Refresh the LaTeX Shortcuts Display
+        _refresh_latex_shortcuts(latex_shortcuts_display_container, preferences_frame, COLORS, FONTS)
+    else:
+        latex_shortcut_adder_error_msg.config(text=message, fg="#FF0000")
 
 def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     
@@ -256,6 +278,52 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
         latex_shortcut_unbinder.pack(side="right", padx=8)
     
     latex_shortcuts_label.bind("<Button-1>", lambda e: toggle_binds_expansion(latex_shortcuts_display_container, latex_shortcuts_label))
+
+    # New LaTeX Shortcut Adder
+
+    # LaTeX Shortcut Adder Container
+    latex_shortcut_adder_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="latex_shortcut_adder_container")
+    latex_shortcut_adder_container.pack()
+
+    latex_shortcuts_adder_label = tk.Label(latex_shortcut_adder_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Add a new LaTeX Shortcut ▼", name="latex_shortcuts_adder_label")
+    latex_shortcuts_adder_label.pack()
+
+    latex_shortcuts_adder_form_container = tk.Frame(latex_shortcut_adder_container, bg=COLORS["bg_input"], name="latex_shortcuts_adder_form_container")
+    # latex_shortcuts_adder_form_container.pack()
+
+    # Name Field Container
+    latex_shortcut_adder_name_container = tk.Frame(latex_shortcuts_adder_form_container, bg=COLORS["bg_input"], name="latex_shortcut_adder_name_container")
+    latex_shortcut_adder_name_container.pack()
+
+    # Name Field Label
+    latex_shortcut_adder_name_label = tk.Label(latex_shortcut_adder_name_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="LaTeX Shortcut Name: ", name="latex_shortcut_adder_name_label")
+    latex_shortcut_adder_name_label.pack(side="left")
+
+    # Name Field Entry
+    latex_shortcut_adder_name_entry = tk.Entry(latex_shortcut_adder_name_container, name="latex_shortcut_adder_name_entry")
+    latex_shortcut_adder_name_entry.pack(side="left")
+
+    # Code Field Container
+    latex_shortcut_adder_code_container = tk.Frame(latex_shortcuts_adder_form_container, bg=COLORS["bg_input"], name="latex_shortcut_adder_code_container")
+    latex_shortcut_adder_code_container.pack()
+
+    # Code Field Label
+    latex_shortcut_adder_code_label = tk.Label(latex_shortcut_adder_code_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="LaTeX Shortcut Code: ", name="latex_shortcut_adder_code_label")
+    latex_shortcut_adder_code_label.pack(side="left")
+
+    # Code Field Entry
+    latex_shortcut_adder_code_entry = tk.Text(latex_shortcut_adder_code_container, name="latex_shortcut_adder_code_entry")
+    latex_shortcut_adder_code_entry.pack(side="left")
+
+    # Error Message Display
+    latex_shortcut_adder_error_msg = tk.Label(latex_shortcuts_adder_form_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg="#FF0000", name="latex_shortcut_adder_error_msg")
+    latex_shortcut_adder_error_msg.pack()
+
+    # LaTeX New Shortcut Submit
+    latex_shortcut_adder_submit = tk.Button(latex_shortcuts_adder_form_container, text="Add LaTeX Shortcut", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda COLORS=COLORS, FONTS=FONTS: add_latex_shortcut(latex_shortcut_adder_name_entry, latex_shortcut_adder_code_entry, latex_shortcut_adder_error_msg, latex_shortcuts_display_container, preferences_frame, COLORS, FONTS)), name="latex_shortcut_adder_submit")
+    latex_shortcut_adder_submit.pack()
+    
+    latex_shortcuts_adder_label.bind("<Button-1>", lambda e: toggle_binds_expansion(latex_shortcuts_adder_form_container, latex_shortcuts_adder_label))
 
 def destroy_preferences_setting(settings_subwindow_container):
     for widget in settings_subwindow_container.winfo_children():
