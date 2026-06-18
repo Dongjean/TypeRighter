@@ -81,12 +81,12 @@ def build_latex_workspace(root, COLORS, FONTS):
     latex_output_container.pack_propagate(False)
 
     # LaTeX Image Output
-    preview_label = tk.Frame(latex_output_container, bg="white", name="preview_label")
+    preview_label = tk.Frame(latex_output_container, bg="orange", name="preview_label")
     preview_label.pack(fill="both", expand=True)
 
     # LaTeX download button
     download_button = tk.Button(preview_label, text="Download", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: download_latex(canvas)), name="download_button")
-    download_button.pack(side="bottom", anchor="e")
+    download_button.place(in_=preview_label, relx=1, rely=1, anchor="se")
 
     # Initialise the latex window the moment the output frame is mounted
     global canvas
