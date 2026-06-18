@@ -21,7 +21,7 @@ def toggle_binds_expansion(binds_container, label):
 def _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS):
     
     # Get the new keybinds
-    curr_keybinds = shortcuts_unicode.all_bindings()
+    curr_keybinds = shortcuts_unicode.all_unicode_bindings()
     print(curr_keybinds)
     # First Delete Existing Keybinds
     for widget in keybinds_display_container.winfo_children():
@@ -72,13 +72,13 @@ def _rebind_key(preferences_frame, keybinds_display_container, to_bind, old_key,
         if not event.char or not event.char.strip(): 
             return
         # Before we bind, unbind the existing keybind
-        ok = shortcuts_unicode.remove_binding(old_key)
+        ok = shortcuts_unicode.remove_unicode_binding(old_key)
         if not ok:
             popup.destroy()
             return
 
         # Call shortcut function
-        ok, message = shortcuts_unicode.set_binding(event.char, to_bind)
+        ok, message = shortcuts_unicode.set_unicode_binding(event.char, to_bind)
         if ok: 
             popup.destroy()
             _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS)
@@ -90,7 +90,7 @@ def _rebind_key(preferences_frame, keybinds_display_container, to_bind, old_key,
     popup.focus_force()
 
 def _unbind_key(keybinds_display_container, preferences_frame, COLORS, FONTS, key):
-    shortcuts_unicode.remove_binding(key)
+    shortcuts_unicode.remove_unicode_binding(key)
     _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS)
 
 def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
@@ -127,7 +127,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     keybinds_display_container = tk.Frame(keybinds_container, bg=COLORS["bg_input"], name="phrasebinds_display_container")
     
     # Get the Dictionary of Keybinds
-    curr_keybinds = shortcuts_unicode.all_bindings()
+    curr_keybinds = shortcuts_unicode.all_unicode_bindings()
 
     # Show Each Keybind
     for key, bind in curr_keybinds.items():
