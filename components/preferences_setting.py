@@ -289,7 +289,6 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     latex_shortcuts_adder_label.pack()
 
     latex_shortcuts_adder_form_container = tk.Frame(latex_shortcut_adder_container, bg=COLORS["bg_input"], name="latex_shortcuts_adder_form_container")
-    # latex_shortcuts_adder_form_container.pack()
 
     # Name Field Container
     latex_shortcut_adder_name_container = tk.Frame(latex_shortcuts_adder_form_container, bg=COLORS["bg_input"], name="latex_shortcut_adder_name_container")
@@ -312,7 +311,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     latex_shortcut_adder_code_label.pack(side="left")
 
     # Code Field Entry
-    latex_shortcut_adder_code_entry = tk.Text(latex_shortcut_adder_code_container, name="latex_shortcut_adder_code_entry")
+    latex_shortcut_adder_code_entry = tk.Text(latex_shortcut_adder_code_container, width=40, height=5, name="latex_shortcut_adder_code_entry")
     latex_shortcut_adder_code_entry.pack(side="left")
 
     # Error Message Display

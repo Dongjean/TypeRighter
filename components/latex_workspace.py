@@ -71,7 +71,7 @@ def build_latex_workspace(root, COLORS, FONTS):
         latex_shortcut = tk.Button(latex_shortcuts_container, text=shortcut["name"], relief="flat", activebackground=COLORS["accent_blue"], fg=COLORS["text_main"], bg=COLORS["border"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, font=FONTS["font_subtitle"], takefocus=False, command=lambda shortcut=shortcut: insert_latex_shortcut(editor_container, shortcut["code"]), name=f"{key}_latex_shortcut")
         latex_shortcut.pack(side="left", padx=5, pady=(0, 10))
 
-    text_editor = tk.Text(editor_container, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=1, highlightbackground=COLORS["border"], highlightthickness=1, font=FONTS["font_subtitle"], padx=15, pady=15, wrap="none", name="text_editor")
+    text_editor = tk.Text(editor_container, height=5, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=1, highlightbackground=COLORS["border"], highlightthickness=1, font=FONTS["font_subtitle"], padx=15, pady=15, wrap="none", name="text_editor")
     text_editor.pack(fill="both", expand=True)
 
     # LaTeX Output Container
