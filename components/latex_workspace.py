@@ -81,7 +81,7 @@ def build_latex_workspace(root, COLORS, FONTS):
     latex_output_container.pack_propagate(False)
 
     # LaTeX Image Output
-    preview_label = tk.Frame(latex_output_container, bg="orange", name="preview_label")
+    preview_label = tk.Frame(latex_output_container, bg="white", name="preview_label")
     preview_label.pack(fill="both", expand=True)
 
     # LaTeX download button
