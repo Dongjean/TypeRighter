@@ -127,6 +127,8 @@ In the root directory, run the script with:
 python main.py
 ```
 
+Run the Various builds for Milestone submissions by running main.exe in ```./MS_builds/MSx/```
+
 **bg-mode**
 * Pressing ```CTRL + LEFT_ALT + SPACE``` enters **overlay-mode**
     * Pressing it again exits **overlay-mode**
