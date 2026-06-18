@@ -23,8 +23,8 @@ DEFAULT_BINDINGS = {
         "\\": "Breakout Key",
     },
     "latex": {
-        "frac_shortcut": {"name": "Fraction", "code": r"\frac{a}{b}"},
-        "matrix_shortcut_1": {"name": "3x3 Identity Matrix", "code": r"\begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}"}
+        "0": {"name": "Fraction", "code": r"\frac{a}{b}"},
+        "1": {"name": "3x3 Identity Matrix", "code": r"\begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}"}
     }
 }
 _PATH = os.path.join(_data_dir(), "shortcuts.json")
