@@ -15,7 +15,7 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
     popuptitle =tk.Label(popup, text=f"Bind a key or phrase to {symbol} {name}", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_title"])
     popuptitle.pack(pady=(0, 10))
 
-    prompt = tk.Label(popup, text="Type an alias, then press enter...", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_subtitle"])
+    prompt = tk.Label(popup, text="Type an key/phrase, then press enter...", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_subtitle"])
     prompt.pack(pady=(0,8))
 
     alias = tk.StringVar()
@@ -27,7 +27,7 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
         if not alias.get().strip(): 
             return
         #call shortcut function
-        ok, message = shortcuts_unicode.set_unicode_binding(event.char, symbol)
+        ok, message = shortcuts_unicode.set_unicode_binding(alias.get(), symbol)
         if ok: 
             popup.destroy()
             on_select(message)
