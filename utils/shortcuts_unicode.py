@@ -183,7 +183,15 @@ def get_key_from_value(value):
 def all_unicode_bindings(): 
     with _lock: 
         return dict(bindings.get("unicode"))
- 
+    
+def all_key_bindings(): 
+    with _lock: 
+        return {k: v for k, v in (bindings.get("unicode") or {}).items() if len(k) == 1}
+    
+def all_phrase_bindings(): 
+    with _lock:
+        return {k: v for k, v in (bindings.get("unicode") or {}).items() if len(k) > 1}
+                
 def all_latex_shortcuts():
     with _lock:
         return dict(bindings.get("latex"))

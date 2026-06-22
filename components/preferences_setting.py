@@ -3,6 +3,8 @@ from tkinter import ttk
 
 import utils.shortcuts_unicode as shortcuts_unicode
 
+PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key"]
+
 def toggle_binds_expansion(binds_container, label):
     
     # Get the text property of the label, without the trailing ▲▼
@@ -70,31 +72,32 @@ def _rebind_key(preferences_frame, keybinds_display_container, to_bind, old_key,
     prompt = tk.Label(popup, text="Press any key ...", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_subtitle"])
     prompt.pack(pady=15)
 
-    # Capture keystroke to bind
-    def on_key_press(event):
-        if not event.char or not event.char.strip(): 
-            return
-        # Before we bind, unbind the existing keybind
-        ok = shortcuts_unicode.remove_unicode_binding(old_key)
-        if not ok:
-            popup.destroy()
-            return
+#rebind popup with "enter" as confirmation for phrases
+    alias= tk.StringVar(value=old_key)
+    entry = tk.Entry(popup, textvariable=alias, bg = COLORS["bg_input"], fg = COLORS["text_main"], insertbackground="white", bd = 1, highlightbackground = COLORS["border"], highlightthickness = 2, font = FONTS["font_subtitle"])
+    entry.pack (fill = "x", ipady = 6)
 
-        # Call shortcut function
-        ok, message = shortcuts_unicode.set_unicode_binding(event.char, to_bind)
-        if ok: 
-            popup.destroy()
-            _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS)
-        else:
-            prompt.config(text=message, font=FONTS["font_subtitle"], fg="#FF0000")
+    def on_enter(event=None): 
+        new_key = alias.get().strip()
 
-    popup.bind("<Key>", on_key_press)
-    popup.bind("<Escape>", lambda e: popup.destroy())
-    popup.focus_force()
+        ok, message = shortcuts_unicode.set_unicode_binding(new_key, to_bind)
+        if not ok: 
+            prompt.config(text=message, font=FONTS["font_subtitle"], fg = "#FF0000")
+            return
+        if new_key.lower() != old_key.lower(): 
+            shortcuts_unicode.remove_unicode_binding(old_key)
+
+        popup.destroy()
+    
+    entry.bind("<Return>", on_enter)
+    popup.bind ("<Escape>", lambda e: popup.destroy())
+    entry.focus_set()
+    entry.icursor("end")
 
 def _unbind_key(keybinds_display_container, preferences_frame, COLORS, FONTS, key):
-    shortcuts_unicode.remove_unicode_binding(key)
-    _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS)
+            shortcuts_unicode.remove_unicode_binding(key)
+            
+            _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS)
 
 def _refresh_latex_shortcuts(latex_shortcuts_display_container, preferences_frame, COLORS, FONTS):
     
