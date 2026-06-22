@@ -32,7 +32,13 @@ _lock = threading.Lock()
 
 bindings = {}
 
-RESERVED_KEYS ={"a", "\\", "`"}
+def _norm(key): 
+    if key is None: 
+        key = ""
+    key = key.strip().lower()
+    return key 
+
+RESERVED_KEYS ={"a", "s", "\\", "`"}
 
 #load from file 
 def load(): 
@@ -70,8 +76,12 @@ def set_unicode_binding(key, symbol):
         key =""
     key = key.lower()
 
-    if len(key) != 1:
-        return False, "Please enter a single character key." 
+    if not key: 
+        return False, "Please enter a key or phrase"
+    
+    if "\\" in key:
+        return False, "Invalid key. Please enter a valid key."
+    
     if key in RESERVED_KEYS: 
         return False, f"'{key}' is reserved and cannot be used as a shortcut key."
     if not symbol: 

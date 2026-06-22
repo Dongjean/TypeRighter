@@ -6,21 +6,25 @@ import utils.shortcuts_unicode as shortcuts_unicode
 #keybind popup
 def _bind_key(parent, symbol, name, COLORS, FONTS, on_select): 
     popup = tk.Toplevel(parent, bg = COLORS["bg_main"]) 
-    popup.title("Bind symbol to key")
+    popup.title("Bind symbol to key or phrase")
     popup.configure(padx=20, pady=20)
     popup.transient(parent)
     popup.grab_set()
     popup.resizable(False, False)
 
-    popuptitle =tk.Label(popup, text=f"Bind a key to {symbol} {name}", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_title"])
+    popuptitle =tk.Label(popup, text=f"Bind a key or phrase to {symbol} {name}", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_title"])
     popuptitle.pack(pady=(0, 10))
 
-    prompt = tk.Label(popup, text="Press any key ...", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_subtitle"])
-    prompt.pack(pady=15)
+    prompt = tk.Label(popup, text="Type an alias, then press enter...", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_subtitle"])
+    prompt.pack(pady=(0,8))
+
+    alias = tk.StringVar()
+    entry = tk.Entry(popup, textvariable=alias, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=1, highlightbackground=COLORS["border"], highlightthickness=1, font=FONTS["font_subtitle"])
+    entry.pack(fill ="x", ipady=6)
 
     #capture keystroke to bind
-    def on_key_press(event):
-        if not event.char or not event.char.strip(): 
+    def on_key_press(alias):
+        if not alias.get().strip(): 
             return
         #call shortcut function
         ok, message = shortcuts_unicode.set_unicode_binding(event.char, symbol)
@@ -30,9 +34,9 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
         else:
             prompt.config(text=message, font=FONTS["font_subtitle"], fg="#FF0000")
 
-    popup.bind("<Key>", on_key_press)
+    entry.bind("<Return>", lambda e: on_key_press(alias))
     popup.bind("<Escape>", lambda e: popup.destroy())
-    popup.focus_force()
+    entry.focus_force()
 
 def _do_search(query, results_frame, COLORS, FONTS):
     #clear previous results
