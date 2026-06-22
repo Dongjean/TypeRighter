@@ -127,19 +127,25 @@ In the root directory, run the script with:
 python main.py
 ```
 
+Run the Various builds for Milestone submissions by running main.exe in ```./MS_builds/MSx/```
+
 **bg-mode**
-* Pressing ```CTRL + D``` enters **overlay-mode**
+* Pressing ```CTRL + LEFT_ALT + SPACE``` enters **overlay-mode**
+    * Pressing it again exits **overlay-mode**
 * Otherwise, normal typing is permitted
 
 **overlay-mode**
 * Green overlay indicates **overlay-mode**
 * Typing ```\``` is blocked
-* Press and hold ```\``` to insert a new command:
+* Press and hold ```\``` to insert a new command, and a preview can be seen in a popup on the screen:
     * ```a``` - Exit **overlay-mode**, into **bg-mode**
     * ```s``` - Exit **overlay-mode**, into **cp-mode**
     * ``` ` ``` - Exit the app entirely
     * Any other single character inserts its preset shortcut unicode
-    * Otherwise, if the typed character matches a unicode character name, insert it *(incomplete)*
+    * If there is no preset shortcut unicode, insert its preset unicode phrase
+    * Otherwise, if the typed character matches a unicode character name, insert it
+
+_All of the above shortcuts, including ```\```, ```a```, ```s``` and ``` ` ```, can be changed via Preferences Settings in **cp-mode**_
 
 **cp-mode**
 1. LaTeX editor:
@@ -155,5 +161,14 @@ python main.py
     * Search Unicode using unicode codepoint or name
     * Bind keys to unicode by press the bind button
     * While overlay is active, press shortcut key followed by Ctrl + V to insert symbol 
+
+4. Settings:
+    * Preferences Setting
+        * Select the template you wish to edit
+        * Rebind or Unbind the Shortcuts from that template
+        * Rebind or Unbind the Phrase Shortcuts from that template
+        * Add new or Unbind LaTeX Shortcuts from that template
+    * Control Panel Setting (not implemented)
+        * Edit the size and popup location of the control panel
 
 _All of the above in **cp-mode** are accessible via the right Navigation Bar_

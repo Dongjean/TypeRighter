@@ -1,6 +1,9 @@
 import tkinter as tk
 import sys
 
+import utils.shortcuts_unicode as shortcuts_unicode
+import utils.unicode_search as unicode_search
+
 def overlay_init(root):
     border_thickness = 5
 
@@ -36,10 +39,57 @@ def overlay_init(root):
         canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="", tags="overlay")
     else:
         canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
+
+    textbox = tk.Toplevel(root, bg="black", name="textbox") 
+    textbox.configure(padx=20, pady=20)
+    textbox.transient(root)
+    textbox.resizable(False, False)
+    textbox.overrideredirect(True) # No title bar, no borders
+    textbox.attributes("-topmost", True) # Always on top
+    typed = tk.Label(textbox, bg = "black", fg = "white", name="typed")
+    typed.pack(pady=5)
+    typed.grab_set()
+    preview = tk.Label(textbox, bg="black", fg="white", name="preview")
+    preview.pack()
+
+    textbox.withdraw()
+
     # Make sure all of the above tasks of drawing out the overlay view's root window is updated before withdrawing
     # This is because the OS doesnt update anything while the root window is withdrawn
     root.update_idletasks()
     root.withdraw() # Hides the window and canvas first
+
+def trigger_textbox(root):
+    toplevel = root.nametowidget("textbox")
+    toplevel.lift()
+    toplevel.deiconify()
+
+def destroy_textbox(root):
+    toplevel = root.nametowidget("textbox")
+    prompt = toplevel.nametowidget("typed")
+    preview = toplevel.nametowidget("preview")
+    preview.configure(text="")
+    prompt.configure(text="")
+    toplevel.withdraw()
+
+def append_textbox(root, new_keys):
+    toplevel = root.nametowidget("textbox")
+    prompt = toplevel.nametowidget("typed")
+    preview = toplevel.nametowidget("preview")
+    curr_symbol = shortcuts_unicode.lookup_unicode(new_keys)
+    if curr_symbol:
+        preview.configure(text=curr_symbol)
+        prompt.configure(text=new_keys, fg="white")
+    else:
+
+        unicode_results = unicode_search.search(new_keys)
+
+        if unicode_results:
+            preview.configure(text=unicode_results[0][0])
+            prompt.configure(text=new_keys, fg="white")
+        else:
+            preview.configure(text="")
+            prompt.configure(text=new_keys, fg="#FF0000")
 
 def trigger_overlay(root):
     global jobId

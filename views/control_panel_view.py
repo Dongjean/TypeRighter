@@ -4,6 +4,9 @@ import sys
 import components.navbar as navbar
 
 def control_panel_init(root):
+    
+    textbox = root.nametowidget("textbox")
+    textbox.destroy()
     root.title("TypeRighter - Control Panel")
 
     # Manually reset all of the settings from root_init()
@@ -54,7 +57,11 @@ def control_panel_init(root):
         "unicode-search": { 
             "name": "Unicode\nSearch",
             "icon": "",
-        }
+        },
+        "settings-window": {
+            "name": "Settings",
+            "icon": "",
+        },
     }
 
     # Build the navbar and initialise the first window

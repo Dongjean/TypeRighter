@@ -1,6 +1,7 @@
 import tkinter as tk
 
 import utils.latex as latex
+import utils.shortcuts_unicode as shortcuts_unicode
 
 canvas = None
 
@@ -28,6 +29,13 @@ def download_latex(canvas):
 
     latex_img.save(save_path)
 
+def insert_latex_shortcut(editor_container, latex_code):
+    text_editor = editor_container.nametowidget("text_editor")
+
+    if text_editor:
+        text_editor.focus_set()
+        text_editor.insert(tk.INSERT, latex_code)
+
 def build_latex_workspace(root, COLORS, FONTS):
 
     # Frame for LaTeX workspace
@@ -43,10 +51,27 @@ def build_latex_workspace(root, COLORS, FONTS):
     subtitle_label.pack(fill="x", pady=(0, 15))
 
     # Editor Container (LaTeX input text)
-    editor_container = tk.Frame(latex_frame, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, name="editor_container")
+    editor_container = tk.Frame(latex_frame, bg=COLORS["bg_main"], bd=0, name="editor_container")
     editor_container.pack(fill="both", expand=True)
 
-    text_editor = tk.Text(editor_container, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=0, font=FONTS["font_subtitle"], padx=15, pady=15, wrap="none", name="text_editor")
+    # LaTeX Shortcuts Container
+    latex_shortcuts_container = tk.Frame(editor_container, bg=COLORS["bg_main"], name="latex_shortcuts_container")
+    latex_shortcuts_container.pack()
+
+    # # Fake list of LaTeX Shortcuts
+    # LATEX_SHORTCUTS = {
+    #     "frac_shortcut": {"name": "Fraction", "code": r"\frac{a}{b}"},
+    #     "matrix_shortcut_1": {"name": "3x3 Identity Matrix", "code": r"\begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}"},
+    # }
+
+    LATEX_SHORTCUTS = shortcuts_unicode.all_latex_shortcuts()
+
+    # Buttons for inserting LaTeX Shortcuts
+    for key, shortcut in LATEX_SHORTCUTS.items():
+        latex_shortcut = tk.Button(latex_shortcuts_container, text=shortcut["name"], relief="flat", activebackground=COLORS["accent_blue"], fg=COLORS["text_main"], bg=COLORS["border"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, font=FONTS["font_subtitle"], takefocus=False, command=lambda shortcut=shortcut: insert_latex_shortcut(editor_container, shortcut["code"]), name=f"{key}_latex_shortcut")
+        latex_shortcut.pack(side="left", padx=5, pady=(0, 10))
+
+    text_editor = tk.Text(editor_container, height=5, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=1, highlightbackground=COLORS["border"], highlightthickness=1, font=FONTS["font_subtitle"], padx=15, pady=15, wrap="none", name="text_editor")
     text_editor.pack(fill="both", expand=True)
 
     # LaTeX Output Container
@@ -61,7 +86,7 @@ def build_latex_workspace(root, COLORS, FONTS):
 
     # LaTeX download button
     download_button = tk.Button(preview_label, text="Download", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: download_latex(canvas)), name="download_button")
-    download_button.pack(side="bottom", anchor="e")
+    download_button.place(in_=preview_label, relx=1, rely=1, anchor="se")
 
     # Initialise the latex window the moment the output frame is mounted
     global canvas

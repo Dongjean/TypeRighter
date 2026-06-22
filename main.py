@@ -7,6 +7,9 @@ import sys
 import time
 import views.view_handler as view_handler
 import utils.shortcuts_unicode as shortcuts_unicode
+import ctypes
+
+import utils.unicode_search as unicode_search
 
 # For debugging
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
@@ -38,65 +41,117 @@ def control_panel_window():
 
 def insert_char(char):
 
-    keyboard_controller.release("\\")
+    keyboard_controller.release(BREAKOUT_KEY)
     keyboard_controller.type(char)
 
+def is_caps_lock_on():
+    # Return 1 if Caps Lock is active, 0 if inactive
+    return ctypes.windll.user32.GetKeyState(0x14) & 1
+
 keys = ""
+is_uppercase = False
 
 def on_press_shortcut(key):
     global keys
+    global is_uppercase
     try:
-        if key.char != "\\":
-            keys += key.char
+        if hasattr(key, 'char'):
+            if key.char != BREAKOUT_KEY:
+                if is_uppercase or is_caps_lock_on():
+                    keys += key.char.upper()
+                else:
+                    keys += key.char.lower()
+                view_handler.gui_queue.put(f"append_textbox_{keys}")
+        elif key == keyboard.Key.backspace:
+            keys = keys[:-1]
+            view_handler.gui_queue.put(f"append_textbox_{keys}")
+        elif key == keyboard.Key.space:
+            keys += " "
+            view_handler.gui_queue.put(f"append_textbox_{keys}")
+        elif key == keyboard.Key.shift:
+            is_uppercase = True
     except:
         pass
 
 def on_release_shortcut(key, listener):
     global keys
     try:
-        if key.char == "\\":
-            print(keys)
-            listener.stop()
-            if keys == "a":
-                hide_overlay()
-            elif keys == "s":
-                control_panel_window()
-            elif keys == "`":
-                clean_exit()
-            elif unicode_symbol := shortcuts_unicode.copy_symbol(keys):
-                threading.Thread(target=lambda: insert_char(unicode_symbol), daemon=True).start()
-                overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
-                overlay_listener.start()
+        if hasattr(key, 'char'):
+            if key.char == BREAKOUT_KEY:
+                view_handler.gui_queue.put("destroy_textbox")
+                listener.stop()
+                if shortcuts_unicode.lookup_unicode(keys) == "Close Overlay":
+                    hide_overlay()
+                elif shortcuts_unicode.lookup_unicode(keys) == "Control Panel":
+                    control_panel_window()
+                elif shortcuts_unicode.lookup_unicode(keys) == "Exit App":
+                    clean_exit()
+                elif unicode_symbol := shortcuts_unicode.copy_symbol(keys):
+                    threading.Thread(target=lambda: insert_char(unicode_symbol), daemon=True).start()
+                    overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
+                    overlay_listener.start()
+                elif keys == "alpha":
+                    # Sample, remove this elif in the future
+                    shortcuts_unicode.copy_to_clipboard("α")
+                    threading.Thread(target=lambda: insert_char("α"), daemon=True).start()
+                    overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
+                    overlay_listener.start()
+                else:
+                    # Unicode searching feature
+                    unicode_results = unicode_search.search(keys, limit=1)
 
-            else:
-                # Future unicode searching feature
-                overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
-                overlay_listener.start()
-            keys = ""
+                    if unicode_results:
+                        # Copy and insert the first unicode result
+                        first_result = unicode_results[0][0]
+                        shortcuts_unicode.copy_to_clipboard(first_result)
+                        threading.Thread(target=lambda: insert_char(first_result), daemon=True).start()
+                    overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
+                    overlay_listener.start()
+                keys = ""
+        elif key == keyboard.Key.shift:
+            global is_uppercase
+            is_uppercase = False
     except:
-        listener.stop()
-        overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
-        overlay_listener.start()
-        keys = ""
+        pass
 
-# Filter for overlay_listener that filters out "\""
+# Filter for overlay_listener that filters out BREAKOUT_KEY
 def win32_keyboard_filter(msg, data, listener):
     
-    # 220 is the windows virtual key code for "\"
-    if data.vkCode == 220:
-        # Once "\" is detected, stop overlay_listener
+    # Get the windows virtual key code for BREAKOUT_KEY
+    user32 = ctypes.windll.user32
+    result = user32.VkKeyScanW(BREAKOUT_KEY)
+    breakout_vk_code = result & 0xFF
+
+    # Filter JUST the BREAKOUT_KEY
+    if data.vkCode == breakout_vk_code:
+
+        # Release all special keys so no rogue keypress changes occur
+        SPECIAL_KEYS = [
+            keyboard.Key.shift,
+            keyboard.Key.ctrl,
+            keyboard.Key.caps_lock,
+            keyboard.Key.alt,
+            keyboard.Key.tab,
+            keyboard.Key.cmd # Windows key
+        ]
+        for KEY in SPECIAL_KEYS:
+            keyboard.Controller().release(KEY)
+        
+        # Once BREAKOUT_KEY is detected, stop overlay_listener
         listener.stop()
 
-        # Start shortcut_listener, which catches all keystrokes and runs till "\" is released
+        view_handler.gui_queue.put("trigger_textbox")
+
+        # Start shortcut_listener, which catches all keystrokes and runs till BREAKOUT_KEY is released
         shortcut_listener = keyboard.Listener(suppress=True, on_press=lambda key: on_press_shortcut(key), on_release=lambda key: on_release_shortcut(key, shortcut_listener))
         shortcut_listener.start()
 
-        # Dont allow the "\" keypress to propagate down
+        # Dont allow the BREAKOUT_KEY keypress to propagate down
         listener.suppress_event()
 
 def on_press_bg(key, listener):
+    canonical_key = listener.canonical(key)
     if not view_handler.is_control_panel_open:
-        canonical_key = listener.canonical(key)
         # If the overlay is on, means we are listening for a 2nd key input
         if canonical_key in map(listener.canonical, COMBINATION):
             current_keys.add(canonical_key)
@@ -117,6 +172,10 @@ def on_press_bg(key, listener):
                     stop_all_pynput_keyboard_listeners()
                     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
                     bg_listener.start()
+    
+    if canonical_key == keyboard.Key.shift:
+        global is_uppercase
+        is_uppercase = True
 
 def on_release_bg(key, listener):
     canonical_key = listener.canonical(key)
@@ -124,6 +183,10 @@ def on_release_bg(key, listener):
         current_keys.remove(canonical_key)
     except KeyError:
         pass
+
+    if canonical_key == keyboard.Key.shift:
+        global is_uppercase
+        is_uppercase = False
 
 # Tray icon
 def create_image():
@@ -148,11 +211,22 @@ def clean_exit():
 
 #load saved unicode shortcuts 
 shortcuts_unicode.load()
+BREAKOUT_KEY = shortcuts_unicode.get_key_from_value("Breakout Key") or "\\"
 COMBINATION = [
     keyboard.Key.ctrl_l,
-    keyboard.KeyCode.from_char('d'),
+    keyboard.Key.alt_l,
+    keyboard.Key.space
 ]
 border_thickness = 5
+
+# Override default Windows behaviour which makes window resolution bad
+try:
+    # Works on Windows 8.1 and 10+
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)
+except Exception:
+    # Fallback for older Windows versions like 7 or XP
+    ctypes.windll.user32.SetProcessDPIAware()
+
 if __name__ == "__main__":
     
     # The bg_listener which only listens for the COMBINATION
