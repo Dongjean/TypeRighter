@@ -76,7 +76,7 @@ def append_textbox(root, new_keys):
     toplevel = root.nametowidget("textbox")
     prompt = toplevel.nametowidget("typed")
     preview = toplevel.nametowidget("preview")
-    curr_symbol = shortcuts_unicode.lookup(new_keys)
+    curr_symbol = shortcuts_unicode.lookup_unicode(new_keys)
     if curr_symbol:
         preview.configure(text=curr_symbol)
         prompt.configure(text=new_keys, fg="white")

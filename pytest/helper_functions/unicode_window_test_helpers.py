@@ -220,23 +220,23 @@ def helper_test_unicode_search_function(subtests):
     is_result_limit_cap = len(result_limit_cap) <= 5
 
     #check binding to symbols
-    check_bind, _ = shortcuts_unicode.set_binding("p", "Ω")
-    is_bind_sucessful = check_bind and shortcuts_unicode.lookup("p") == "Ω"
+    check_bind, _ = shortcuts_unicode.set_unicode_binding("p", "Ω")
+    is_bind_sucessful = check_bind and shortcuts_unicode.lookup_unicode("p") == "Ω"
 
-    is_check_caps_insensitive_lookup = shortcuts_unicode.lookup("P") == "Ω"
+    is_check_caps_insensitive_lookup = shortcuts_unicode.lookup_unicode("P") == "Ω"
 
-    check_reserved, _ = shortcuts_unicode.set_binding("a", "Ω")
-    is_reserved_key_blocked_successful = (not check_reserved) and (shortcuts_unicode.lookup("a") is None )
+    check_reserved, _ = shortcuts_unicode.set_unicode_binding("a", "Ω")
+    is_reserved_key_blocked_successful = (not check_reserved) and (shortcuts_unicode.lookup_unicode("a") is None )
 
-    check_empty , _ = shortcuts_unicode.set_binding("e", "")
-    is_empty_blocked_successful = (not check_empty) and (shortcuts_unicode.lookup("e") is None)
+    check_empty , _ = shortcuts_unicode.set_unicode_binding("e", "")
+    is_empty_blocked_successful = (not check_empty) and (shortcuts_unicode.lookup_unicode("e") is None)
 
     #check if bindings are stored 
-    all_bindings_saved = shortcuts_unicode.all_bindings()
+    all_bindings_saved = shortcuts_unicode.all_unicode_bindings()
     is_all_bindings_correct = (all_bindings_saved.get("p") == "Ω" and "a" not in all_bindings_saved)
 
-    is_remove = shortcuts_unicode.remove_binding("p") is True 
-    is_remove_successful = shortcuts_unicode.lookup("p") is None 
+    is_remove = shortcuts_unicode.remove_unicode_binding("p") is True 
+    is_remove_successful = shortcuts_unicode.lookup_unicode("p") is None 
 
     shortcuts_unicode.bindings.clear()
 
@@ -278,7 +278,7 @@ def helper_test_unicode_copy_paste (subtests):
     is_empty_rejected = shortcuts_unicode.copy_to_clipboard("") is False
 
     #check copied symbol is the same as the symbol in cliperboard
-    shortcuts_unicode.set_binding("s", "Ω")
+    shortcuts_unicode.set_unicode_binding("s", "Ω")
     returned = shortcuts_unicode.copy_symbol("s")
     is_copied_symbol = returned == "Ω"
     is_match_copied_symbol_clipboard = pyperclip.paste() == "Ω"
@@ -309,7 +309,7 @@ def helper_test_unicode_copy_via_overlay(test_env, subtests):
     root, sw, sh, FONTS, COLORS, WINDOWS = test_env
 
     shortcuts_unicode.bindings.clear()
-    shortcuts_unicode.set_binding("q", "Ω")
+    shortcuts_unicode.set_unicode_binding("q", "Ω")
 
     # The control panel is still open. 
     # Close it with Alt+F4 to return to overlay state.

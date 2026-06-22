@@ -127,6 +127,8 @@ In the root directory, run the script with:
 python main.py
 ```
 
+Run the Various builds for Milestone submissions by running main.exe in ```./MS_builds/MSx/```
+
 **bg-mode**
 * Pressing ```CTRL + LEFT_ALT + SPACE``` enters **overlay-mode**
     * Pressing it again exits **overlay-mode**
@@ -163,7 +165,9 @@ _All of the above shortcuts, including ```\```, ```a```, ```s``` and ``` ` ```, 
 4. Settings:
     * Preferences Setting
         * Select the template you wish to edit
-        * Rebind or Unbind the shortcuts from that template
+        * Rebind or Unbind the Shortcuts from that template
+        * Rebind or Unbind the Phrase Shortcuts from that template
+        * Add new or Unbind LaTeX Shortcuts from that template
     * Control Panel Setting (not implemented)
         * Edit the size and popup location of the control panel
 
