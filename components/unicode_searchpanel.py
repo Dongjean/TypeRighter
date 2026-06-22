@@ -23,7 +23,7 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
         if not event.char or not event.char.strip(): 
             return
         #call shortcut function
-        ok, message = shortcuts_unicode.set_binding(event.char, symbol)
+        ok, message = shortcuts_unicode.set_unicode_binding(event.char, symbol)
         if ok: 
             popup.destroy()
             on_select(message)

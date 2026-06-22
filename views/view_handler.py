@@ -3,7 +3,7 @@ import queue
 import sys
 
 from views.control_panel_view import control_panel_init
-from views.overlay_view import trigger_overlay, hide_overlay, flash_red_overlay, overlay_init
+from views.overlay_view import trigger_overlay, hide_overlay, flash_red_overlay, overlay_init, trigger_textbox, destroy_textbox, append_textbox
 
 # This is the entry point to our GUI window from the main python script
 
@@ -33,13 +33,19 @@ def check_queue(root):
             control_panel_init(root)
             is_overlay_triggered = False
             is_control_panel_open = True
+        elif msg == "trigger_textbox":
+            trigger_textbox(root)
+        elif msg == "destroy_textbox":
+            destroy_textbox(root)
+        elif msg.startswith("append_textbox_"):
+            append_textbox(root, msg.removeprefix("append_textbox_"))
         elif msg == "destroy_root":
             root.destroy()
     except queue.Empty:
         pass
 
-    # Poll every 100 ms
-    root.after(100, lambda: check_queue(root))
+    # Poll every 10 ms
+    root.after(10, lambda: check_queue(root))
 
 def root_init():
 
