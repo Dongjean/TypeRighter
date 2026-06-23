@@ -50,15 +50,52 @@ def login(username_editor, password_editor, login_error_label):
         login_error_label.configure(text="Please Try Again")
         print(f"error while logging into Firebase: {e}")
 
-def signup(username_editor, password_editor):
+def signup(username_editor, password_editor, signup_error_label):
     username = username_editor.get()
     password = password_editor.get()
 
     # Signup on firebase
     try:
         fb.auth.create_user_with_email_and_password(username, password)
+    except HTTPError as e:
+        json_error = json.loads(e.strerror)["error"]
+        error_code = json_error["code"]
+        error_message = json_error["message"]
+
+        print(error_code)
+        print(error_message)
+
+        # For Regular Signup Problems
+        if error_code == 400:
+            
+            # Bad Email
+            if error_message == "INVALID_EMAIL":
+                signup_error_label.configure(text="Bad Email")
+            
+            elif error_message == "EMAIL_EXISTS":
+                signup_error_label.configure(text="This Email Already Exists")
+
+            # Good Email, but Weak Password
+            elif error_message == "WEAK_PASSWORD : Password should be at least 6 characters":
+                signup_error_label.configure(text="Password must be at least 6 characters")
+        
+        # Catch any stray errors
+        else:
+            signup_error_label.configure(text="Please Try Again")
+            print(f"error while signing up for Firebase: {e}")
+
+    except ConnectionError as e:
+        signup_error_label.configure(text="Please Check Your Connection")
+        print(f"error while signing up for Firebase: {e}")
+    except Timeout as e:
+        signup_error_label.configure(text="Timeout, Please Try Again")
+        print(f"error while signing up for Firebase: {e}")
+    except RequestException as e:
+        signup_error_label.configure(text="Please Try Again")
+        print(f"error while signing up for Firebase: {e}")
     except Exception as e:
-        fb.parse_firebase_error(e)
+        signup_error_label.configure(text="Please Try Again")
+        print(f"error while signing up for Firebase: {e}")
 
 def build_user_auth(root, COLORS, FONTS):
     
@@ -171,6 +208,10 @@ def build_signup_frame(root, auth_frame, COLORS, FONTS):
     # Signup Hub Container
     signup_hub_container = tk.Frame(auth_frame, bg=COLORS["bg_main"], bd=0, name="signup_hub_container")
     signup_hub_container.pack(expand=True)
+    
+    # Error Message
+    signup_error_label = tk.Label(signup_hub_container, text="", bg=COLORS["bg_main"], fg=COLORS["error_red"], bd=0, font=FONTS["font_subtitle"], name="signup_error_label")
+    signup_error_label.pack()
 
     # Username Frame
     username_frame = tk.Frame(signup_hub_container, bg=COLORS["bg_main"], bd=0, name="username_frame")
@@ -189,10 +230,10 @@ def build_signup_frame(root, auth_frame, COLORS, FONTS):
     password_editor.pack(side="right")
 
     # Signup Button
-    signup_button = tk.Button(signup_hub_container, text="Signup", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: signup(username_editor, password_editor)), name="signup_button")
+    signup_button = tk.Button(signup_hub_container, text="Signup", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: signup(username_editor, password_editor, signup_error_label)), name="signup_button")
     signup_button.pack(side="bottom")
     # Enter keybind to signup
-    root.bind("<Return>", lambda event: signup(username_editor, password_editor))
+    root.bind("<Return>", lambda event: signup(username_editor, password_editor, signup_error_label))
 
     # Change to Login Button
     change_frame = tk.Frame(signup_hub_container, bg=COLORS["bg_main"], bd=0, name="change_frame")
@@ -201,6 +242,7 @@ def build_signup_frame(root, auth_frame, COLORS, FONTS):
     change_text.pack(side="left")
     change_button = tk.Label(change_frame, text="Login Now", bg=COLORS["bg_main"], fg=COLORS["hyperlink_blue"], bd=0, font=FONTS["font_hyperlink"], cursor="hand2", name="change_button")
     change_button.pack(side="left")
+    
     # Click bind to change signup --> login
     change_button.bind("<Button-1>", lambda event: change_login_signup(root, auth_frame, COLORS, FONTS, signup_hub_container, "signup", "login"))
 
