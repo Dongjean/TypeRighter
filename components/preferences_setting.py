@@ -88,6 +88,7 @@ def _rebind_key(preferences_frame, keybinds_display_container, to_bind, old_key,
             shortcuts_unicode.remove_unicode_binding(old_key)
 
         popup.destroy()
+        _refresh_both(preferences_frame, COLORS, FONTS)
     
     entry.bind("<Return>", on_enter)
     popup.bind ("<Escape>", lambda e: popup.destroy())
@@ -96,7 +97,7 @@ def _rebind_key(preferences_frame, keybinds_display_container, to_bind, old_key,
 
 def _unbind_key(keybinds_display_container, preferences_frame, COLORS, FONTS, key):
     shortcuts_unicode.remove_unicode_binding(key)
-    _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS)
+    _refresh_both(preferences_frame, COLORS, FONTS)
 
 def _refresh_phrasebinds(phrasebind_display_container, preferences_frame,COLORS, FONTS):
 
@@ -218,7 +219,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     keybinds_label = tk.Label(keybinds_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Current Keybinds ▼", name="keybinds_label")
     keybinds_label.pack()
             
-    keybinds_display_container = tk.Frame(keybinds_container, bg=COLORS["bg_input"], name="phrasebinds_display_container")
+    keybinds_display_container = tk.Frame(keybinds_container, bg=COLORS["bg_input"], name="keybinds_display_container")
 
     preferences_frame.keybinds_display_container = keybinds_display_container
 
@@ -239,7 +240,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     #populate the phrase binding lists 
     _refresh_phrasebinds(phrasebinds_display_container, preferences_frame, COLORS, FONTS)
 
-    phrasebinds_label.bind("<Button-1>", lambda e: toggle_binds_expansion(phrasebinds_display_contianer, phrasebinds_label))
+    phrasebinds_label.bind("<Button-1>", lambda e: toggle_binds_expansion(phrasebinds_display_container, phrasebinds_label))
 
     latex_shortcuts_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="latex_shortcuts_container")
     latex_shortcuts_container.pack()
