@@ -99,6 +99,44 @@ def _unbind_key(keybinds_display_container, preferences_frame, COLORS, FONTS, ke
             
             _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS)
 
+def _refresh_phrasebinds(phrasebind_display_container, preferences_frame,COLORS, FONTS):
+
+    #get current phrase binds 
+    curr_phrase_shortcuts = shortcuts_unicode.all_phrase_bindings()
+
+    for widget in phrasebind_display_container.winfo_children(): 
+        widget.destroy()
+
+    #show each phrase binds 
+    for phrase, bind in curr_phrase_shortcuts.items(): 
+
+        phrasebind_container = tk.Frame(phrasebind_display_container, bg = COLORS["bg_input"], name = f"{phrase}_phrasebind_container")
+        phrasebind_container.pack(pady=2, anchor ="w")
+
+        phrase_label = tk.Label(phrasebind_container, bg = COLORS["bg_input"], font = FONTS["font_subtitle"], highlightbackground = "white", highlightthickness = 1, fg = COLORS["text_main"], text = phrase, name =f"{phrase}_phrase_label")
+        phrase_label.pack(side ="left")
+
+        bind_label = tk.Label(phrasebind_container, bg = COLORS["bg_input"], font = FONTS["bg_input"], fg = COLORS["text_main"], text = bind, name =f"{phrase}_bind_label")
+        bind_label.pack(side ="left")
+
+                # This Keybind's Unbinder
+        # Display this iff it isnt one of the protected keys
+        if bind not in PROTECTED_BINDS:
+            phrasebind_unbinder = tk.Button(phrasebind_container, text="Unbind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command=lambda phrase = phrase: _unbind_phrase(phrasebind_display_container, preferences_frame, COLORS, FONTS, phrase), name=f"{phrase}_phrasebind_unbinder")
+            phrasebind_unbinder.pack(side="right", padx=8)
+            
+        phrasebind_rebinder = tk.Button(phrasebind_container, text="Rebind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font = FONTS["font_subtitle"], bd = 0, command = lambda to_bind=bind, old_key=phrase: _rebind_key(preferences_frame, phrasebind_display_container, to_bind, old_key, COLORS, FONTS), name = f"{phrase}_phrasebind_rebinder")
+        phrasebind_rebinder.pack(side ="right")
+
+    def _unbind_phrase(phrasebind_display_container, preference_frame, COLORS, FONTS, phrase): 
+        shortcuts_unicode.remove_unicode_binding(phrase)
+        _refresh_both(preference_frame, COLORS, FONTS)
+    
+    def _refresh_both(preference_frame, COLORS, FONTS): 
+        _refresh_keybinds(preference_frame.keybind_display_container, preferences_frame, COLORS, FONTS)
+        _refresh_phrasebinds(preferences_frame.phrasebind_display_container, preferences_frame, COLORS, FONTS):
+
+        
 def _refresh_latex_shortcuts(latex_shortcuts_display_container, preferences_frame, COLORS, FONTS):
     
     # Get the new keybinds
