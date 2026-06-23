@@ -6,13 +6,21 @@ import json
 
 import utils.firebase_app as fb
 
-def login(username_editor, password_editor, login_error_label):
+def login(username_editor, password_editor, login_error_label, COLORS):
     username = username_editor.get()
     password = password_editor.get()
 
     # Login on firebase
     try:
         fb.auth.sign_in_with_email_and_password(username, password)
+
+        # If Signup is successful
+        login_error_label.configure(text="Successfully Logged In", fg=COLORS["action_green"])
+        
+        # Clear the username and password entries
+        username_editor.delete(0, "end")
+        password_editor.delete(0, "end")
+
     except HTTPError as e:
         json_error = json.loads(e.strerror)["error"]
         error_code = json_error["code"]
@@ -50,13 +58,21 @@ def login(username_editor, password_editor, login_error_label):
         login_error_label.configure(text="Please Try Again")
         print(f"error while logging into Firebase: {e}")
 
-def signup(username_editor, password_editor, signup_error_label):
+def signup(username_editor, password_editor, signup_error_label, COLORS):
     username = username_editor.get()
     password = password_editor.get()
 
     # Signup on firebase
     try:
         fb.auth.create_user_with_email_and_password(username, password)
+
+        # If Signup is successful
+        signup_error_label.configure(text="Successfully Created Account, You May Login Now", fg=COLORS["action_green"])
+        
+        # Clear the username and password entries
+        username_editor.delete(0, "end")
+        password_editor.delete(0, "end")
+
     except HTTPError as e:
         json_error = json.loads(e.strerror)["error"]
         error_code = json_error["code"]
@@ -171,13 +187,13 @@ def build_login_frame(root, auth_frame, COLORS, FONTS):
     password_editor.pack(side="right")
 
     # Login Button
-    login_button = tk.Button(login_hub_container, text="Login", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: login(username_editor, password_editor, login_error_label)), name="login_button")
+    login_button = tk.Button(login_hub_container, text="Login", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: login(username_editor, password_editor, login_error_label, COLORS)), name="login_button")
     login_button.pack(side="bottom")
 
     # Clicking anywhere outside the text editor frame makes us lose active focus
     root.bind("<Button-1>", lambda event: event.widget.focus_set())
     # Enter keybind to login
-    root.bind("<Return>", lambda event: login(username_editor, password_editor, login_error_label))
+    root.bind("<Return>", lambda event: login(username_editor, password_editor, login_error_label, COLORS))
 
     # Change to Signup Button
     change_frame = tk.Frame(login_hub_container, bg=COLORS["bg_main"], bd=0, name="change_frame")
@@ -230,10 +246,10 @@ def build_signup_frame(root, auth_frame, COLORS, FONTS):
     password_editor.pack(side="right")
 
     # Signup Button
-    signup_button = tk.Button(signup_hub_container, text="Signup", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: signup(username_editor, password_editor, signup_error_label)), name="signup_button")
+    signup_button = tk.Button(signup_hub_container, text="Signup", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: signup(username_editor, password_editor, signup_error_label, COLORS)), name="signup_button")
     signup_button.pack(side="bottom")
     # Enter keybind to signup
-    root.bind("<Return>", lambda event: signup(username_editor, password_editor, signup_error_label))
+    root.bind("<Return>", lambda event: signup(username_editor, password_editor, signup_error_label, COLORS))
 
     # Change to Login Button
     change_frame = tk.Frame(signup_hub_container, bg=COLORS["bg_main"], bd=0, name="change_frame")
