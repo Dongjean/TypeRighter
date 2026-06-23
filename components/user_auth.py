@@ -5,6 +5,7 @@ from requests.exceptions import HTTPError, ConnectionError, Timeout, RequestExce
 import json
 
 import utils.firebase_app as fb
+import utils.auth as auth
 
 def login(username_editor, password_editor, login_error_label, COLORS):
     username = username_editor.get()
@@ -12,14 +13,25 @@ def login(username_editor, password_editor, login_error_label, COLORS):
 
     # Login on firebase
     try:
-        fb.auth.sign_in_with_email_and_password(username, password)
+        user = fb.auth.sign_in_with_email_and_password(username, password)
+        print(user)
+        refresh_token = user["refreshToken"]
+        id_token = user["idToken"]
+        user_email = user["email"]
+        # user_id = user["userId"]
 
-        # If Signup is successful
-        login_error_label.configure(text="Successfully Logged In", fg=COLORS["action_green"])
-        
-        # Clear the username and password entries
-        username_editor.delete(0, "end")
-        password_editor.delete(0, "end")
+        status, e = auth.login(id_token, refresh_token, user_email, None)
+        if status:
+            # If Login is successful
+            login_error_label.configure(text=f"Successfully Logged In As: {user_email}", fg=COLORS["action_green"])
+            
+            # Clear the username and password entries
+            username_editor.delete(0, "end")
+            password_editor.delete(0, "end")
+        else:
+            # If Login is not successful
+            print(e)
+            login_error_label.configure(text="Please Try Again")
 
     except HTTPError as e:
         json_error = json.loads(e.strerror)["error"]
@@ -220,6 +232,9 @@ def destroy_login_frame(root, login_hub_container):
 
 # Signup frame init and destroyer
 def build_signup_frame(root, auth_frame, COLORS, FONTS):
+
+    print(auth.get_id_token())
+    print(auth._get_new_token())
 
     # Signup Hub Container
     signup_hub_container = tk.Frame(auth_frame, bg=COLORS["bg_main"], bd=0, name="signup_hub_container")

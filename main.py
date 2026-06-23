@@ -10,6 +10,7 @@ import utils.shortcuts_unicode as shortcuts_unicode
 import ctypes
 
 import utils.unicode_search as unicode_search
+import utils.auth as auth
 
 # For debugging
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
@@ -228,7 +229,14 @@ except Exception:
     ctypes.windll.user32.SetProcessDPIAware()
 
 if __name__ == "__main__":
-    
+
+    # Login, if its still valid
+    email, e = auth.get_email()
+    if email:
+        print(f"logged in as: {email}")
+    else:
+        print(f"error initialising login state: {e}")
+
     # The bg_listener which only listens for the COMBINATION
     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
     # Start Listener
