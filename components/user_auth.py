@@ -7,7 +7,11 @@ import json
 import utils.firebase_app as fb
 import utils.auth as auth
 
-def login(username_editor, password_editor, login_error_label, COLORS):
+user_info = {
+    "email": None
+}
+
+def login(root, username_editor, password_editor, login_error_label, login_hub_container, auth_frame, COLORS, FONTS):
     username = username_editor.get()
     password = password_editor.get()
 
@@ -18,7 +22,8 @@ def login(username_editor, password_editor, login_error_label, COLORS):
         refresh_token = user["refreshToken"]
         id_token = user["idToken"]
         user_email = user["email"]
-        # user_id = user["userId"]
+
+        user_info["email"] = user_email
 
         status, e = auth.login(id_token, refresh_token, user_email, None)
         if status:
@@ -28,6 +33,13 @@ def login(username_editor, password_editor, login_error_label, COLORS):
             # Clear the username and password entries
             username_editor.delete(0, "end")
             password_editor.delete(0, "end")
+            
+            # Destroy the login frame
+            destroy_login_frame(root, login_hub_container)
+
+            # Build the user_info frame
+            build_user_info_frame(root, auth_frame, COLORS, FONTS)
+
         else:
             # If Login is not successful
             print(e)
@@ -125,6 +137,21 @@ def signup(username_editor, password_editor, signup_error_label, COLORS):
         signup_error_label.configure(text="Please Try Again")
         print(f"error while signing up for Firebase: {e}")
 
+def logout(root, user_info_container, auth_frame, COLORS, FONTS):
+    global user_info
+
+    user_info = {
+        "email": None
+    }
+
+    auth.logout()
+
+    # Destroy the user_info frame
+    destroy_user_info_frame(root, user_info_container)
+
+    # Build the login frame
+    build_login_frame(root, auth_frame, COLORS, FONTS)
+
 def build_user_auth(root, COLORS, FONTS):
     
     # Frame for user login page
@@ -136,9 +163,15 @@ def build_user_auth(root, COLORS, FONTS):
     title_label = tk.Label(auth_frame, text="Login", fg=COLORS["text_main"], bg=COLORS["bg_main"], font=FONTS["font_title"], name="title_label")
     title_label.pack(fill="x", pady=0)
 
-    # Start with the login frame
-    build_login_frame(root, auth_frame, COLORS, FONTS)
-
+    # Start with the login frame, iff we are NOT logged in already
+    email, e = auth.get_email()
+    if not email:
+        build_login_frame(root, auth_frame, COLORS, FONTS)
+    # If we are logged in, display the logged in user and logout button
+    else:
+        global user_info
+        user_info["email"] = email
+        build_user_info_frame(root, auth_frame, COLORS, FONTS)
 
 # Destroy function to tear down user auth page
 def destroy_user_auth(root):
@@ -171,6 +204,28 @@ def change_login_signup(root, auth_frame, COLORS, FONTS, to_destroy, FROM, TO):
     return "break"
 
 
+# User info init and destroyer
+def build_user_info_frame(root, auth_frame, COLORS, FONTS):
+
+    email = user_info["email"]
+    
+    # User Info Container
+    user_info_container = tk.Frame(auth_frame, bg=COLORS["bg_main"], bd=0, name="user_info_container")
+    user_info_container.pack(expand=True)
+    
+    # Email Label
+    email_label = tk.Label(user_info_container, text=email, bg=COLORS["bg_main"], fg=COLORS["text_main"], bd=0, font=FONTS["font_subtitle"], name="email_label")
+    email_label.pack()
+
+    # Logout Button
+    logout_button = tk.Button(user_info_container, text="Logout", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: logout(root, user_info_container, auth_frame, COLORS, FONTS)), name="logout_button")
+    logout_button.pack(side="bottom")
+
+def destroy_user_info_frame(root, user_info_container):
+
+    # Destroy the user info container
+    user_info_container.destroy()
+
 # Login frame init and destroyer
 def build_login_frame(root, auth_frame, COLORS, FONTS):
     
@@ -199,13 +254,13 @@ def build_login_frame(root, auth_frame, COLORS, FONTS):
     password_editor.pack(side="right")
 
     # Login Button
-    login_button = tk.Button(login_hub_container, text="Login", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: login(username_editor, password_editor, login_error_label, COLORS)), name="login_button")
+    login_button = tk.Button(login_hub_container, text="Login", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: login(root, username_editor, password_editor, login_error_label, login_hub_container, auth_frame, COLORS, FONTS)), name="login_button")
     login_button.pack(side="bottom")
 
     # Clicking anywhere outside the text editor frame makes us lose active focus
     root.bind("<Button-1>", lambda event: event.widget.focus_set())
     # Enter keybind to login
-    root.bind("<Return>", lambda event: login(username_editor, password_editor, login_error_label, COLORS))
+    root.bind("<Return>", lambda event: login(root, username_editor, password_editor, login_error_label, login_hub_container, auth_frame, COLORS, FONTS))
 
     # Change to Signup Button
     change_frame = tk.Frame(login_hub_container, bg=COLORS["bg_main"], bd=0, name="change_frame")
@@ -232,9 +287,6 @@ def destroy_login_frame(root, login_hub_container):
 
 # Signup frame init and destroyer
 def build_signup_frame(root, auth_frame, COLORS, FONTS):
-
-    print(auth.get_id_token())
-    print(auth._get_new_token())
 
     # Signup Hub Container
     signup_hub_container = tk.Frame(auth_frame, bg=COLORS["bg_main"], bd=0, name="signup_hub_container")
@@ -275,7 +327,12 @@ def build_signup_frame(root, auth_frame, COLORS, FONTS):
     change_button.pack(side="left")
     
     # Click bind to change signup --> login
-    change_button.bind("<Button-1>", lambda event: change_login_signup(root, auth_frame, COLORS, FONTS, signup_hub_container, "signup", "login"))
+    if not user_info["email"]:
+        change_button.bind("<Button-1>", lambda event: change_login_signup(root, auth_frame, COLORS, FONTS, signup_hub_container, "signup", "login"))
+    
+    # Click bidn to change signup --> user_info
+    else:
+        change_button.bind("<Button-1>", lambda event: change_login_signup(root, auth_frame, COLORS, FONTS, signup_hub_container, "signup", "user_info"))
 
 def destroy_signup_frame(root, signup_hub_container):
 
