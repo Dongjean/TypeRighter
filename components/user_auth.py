@@ -214,7 +214,7 @@ def build_user_info_frame(root, auth_frame, COLORS, FONTS):
     user_info_container.pack(expand=True)
     
     # Email Label
-    email_label = tk.Label(user_info_container, text=email, bg=COLORS["bg_main"], fg=COLORS["text_main"], bd=0, font=FONTS["font_subtitle"], name="email_label")
+    email_label = tk.Label(user_info_container, text=f"Current Logged Email: {email}", bg=COLORS["bg_main"], fg=COLORS["text_main"], bd=0, font=FONTS["font_subtitle"], name="email_label")
     email_label.pack()
 
     # Logout Button
