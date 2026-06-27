@@ -95,26 +95,26 @@ def check_binding(key, symbol):
     key = key.lower()
 
     if not key: 
-        return "Error. Please enter a key or phrase"
+        return "error. Please enter a key or phrase"
     if "\\" in key: 
-        return "Error. Invalid Key. Please try again."
+        return "error. Invalid Key. Please try again."
     if key in RESERVED_KEYS: 
-        return "Error", f"'{key}' is reserved and cannot be used as a shortcut key."
+        return "error", f"'{key}' is reserved and cannot be used as a shortcut key."
     if not symbol: 
-        return "Error. Invalid Symbol for Binding"
+        return "error. Invalid Symbol for Binding"
         
     with _lock: 
         existing = (bindings.get("unicode") or {}).get(key)
 
         #if different symbol
         if existing is not None and existing != symbol: 
-            return "Conflict", f"'{key}' is already bound to '{existing}'"
+            return "conflict", f"'{key}' is already bound to '{existing}'"
         
         #if completely free and safe to bind 
         return "ok",""
 
 #binds key to symbol (note: upper & lower treated same)
-def set_unicode_binding(key, symbol):
+def set_unicode_binding(key, symbol, overwrite = True):
     if key is None: 
         key =""
     key = key.lower()
@@ -132,6 +132,14 @@ def set_unicode_binding(key, symbol):
     
     with _lock: 
         unicode_shortcuts = bindings.get("unicode")
+
+        if unicode_shortcuts is None: 
+            unicode_shortcuts = bindings["unicode"] = {}
+        
+        existing = unicode_shortcuts.get(key)
+        if existing is not None and existing != symbol and not overwrite: 
+            return False, f"'{key}' is already bound to '{existing}'."
+        
         unicode_shortcuts[key] = symbol 
         ok = _save()
 
