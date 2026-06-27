@@ -92,7 +92,7 @@ def _notify():
 def check_binding(key, symbol): 
     if key is None: 
         key = ""
-        key = key.lower()
+    key = key.lower()
 
     if not key: 
         return "Error. Please enter a key or phrase"
@@ -111,7 +111,7 @@ def check_binding(key, symbol):
             return "Conflict", f"'{key}' is already bound to '{existing}'"
         
         #if completely free and safe to bind 
-        return "ok,"""
+        return "ok",""
 
 #binds key to symbol (note: upper & lower treated same)
 def set_unicode_binding(key, symbol):
