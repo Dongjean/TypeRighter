@@ -68,7 +68,50 @@ def _save():
         os.replace(temp, _PATH)
         return True #saved successfully
     except IOError:
-        return False 
+        return False
+    
+# for UI to refresh live
+_refresh_list = []
+
+def refresh(callback): 
+    if callback not in _refresh_list: 
+        _refresh_list.append(callback)
+
+def unlist(callback): 
+    if callback in _refresh_list: 
+        _refresh_list.remove(callback)
+
+#lets listeners re-render
+def _notify():
+    for callback in list(_refresh_list): 
+        try: 
+            callback()
+        except Exception: 
+            pass
+
+def check_binding(key, symbol): 
+    if key is None: 
+        key = ""
+        key = key.lower()
+
+    if not key: 
+        return "Error. Please enter a key or phrase"
+    if "\\" in key: 
+        return "Error. Invalid Key. Please try again."
+    if key in RESERVED_KEYS: 
+        return "Error", f"'{key}' is reserved and cannot be used as a shortcut key."
+    if not symbol: 
+        return "Error. Invalid Symbol for Binding"
+        
+    with _lock: 
+        existing = (bindings.get("unicode") or {}).get(key)
+
+        #if different symbol
+        if existing is not None and existing != symbol: 
+            return "Conflict", f"'{key}' is already bound to '{existing}'"
+        
+        #if completely free and safe to bind 
+        return "ok,"""
 
 #binds key to symbol (note: upper & lower treated same)
 def set_unicode_binding(key, symbol):
