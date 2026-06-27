@@ -22,18 +22,45 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
     entry = tk.Entry(popup, textvariable=alias, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=1, highlightbackground=COLORS["border"], highlightthickness=1, font=FONTS["font_subtitle"])
     entry.pack(fill ="x", ipady=6)
 
+    #tracks previous user input for confirmation (prevent overwrite)
+    pending = {"input": None}
+
     #capture keystroke to bind
     def on_key_press(alias):
-        if not alias.get().strip(): 
-            return
-        #call shortcut function
-        ok, message = shortcuts_unicode.set_unicode_binding(alias.get(), symbol)
+        raw_input = alias.get()
+        if not raw_input.strip(): 
+            return 
+        
+        #check input previous binds
+        status, message = shortcuts_unicode.check_binding(raw_input, symbol)
+
+        #invalid keys/reserved binds 
+        if status == "error": 
+            pending["input"] = None
+            prompt.config(text = message, font=FONTS["font_subtitle"], fg = "#FF0000")
+            return 
+
+        #warning for matched binds 
+        if status == "conflict" and pending["input"] != raw_input: 
+            #update the input after first enter
+            pending["input"] = raw_input 
+            prompt.config(text =f"{message} Press Enter again to overwrite. Esc to Cancel bind.", font = FONTS["font_subtitle"], fg = "#FFA500")
+            return 
+        
+        #if users continues to overwrite/status is non-error 
+        if status == "conflict": 
+            overwrite = True 
+        else: 
+            overwrite = False
+        
+        ok,result = shortcuts_unicode.set_unicode_binding(raw_input, symbol, overwrite = overwrite)
         if ok: 
             popup.destroy()
-            on_select(message)
-        else:
-            prompt.config(text=message, font=FONTS["font_subtitle"], fg="#FF0000")
-
+            on_select(result)
+        else: 
+            pending["input"] = None 
+            prompt.config(text = result, font = FONTS["font_subtitle"], fg ="#FF0000")
+        
     entry.bind("<Return>", lambda e: on_key_press(alias))
     popup.bind("<Escape>", lambda e: popup.destroy())
     entry.focus_force()
