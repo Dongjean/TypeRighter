@@ -32,7 +32,13 @@ _lock = threading.Lock()
 
 bindings = {}
 
-RESERVED_KEYS ={"a", "\\", "`"}
+def _norm(key): 
+    if key is None: 
+        key = ""
+    key = key.strip().lower()
+    return key 
+
+RESERVED_KEYS ={"a", "s", "\\", "`"}
 
 #load from file 
 def load(): 
@@ -62,16 +68,63 @@ def _save():
         os.replace(temp, _PATH)
         return True #saved successfully
     except IOError:
-        return False 
+        return False
+    
+# for UI to refresh live
+_refresh_list = []
+
+def refresh(callback): 
+    if callback not in _refresh_list: 
+        _refresh_list.append(callback)
+
+def unlist(callback): 
+    if callback in _refresh_list: 
+        _refresh_list.remove(callback)
+
+#lets listeners re-render
+def _notify():
+    for callback in list(_refresh_list): 
+        try: 
+            callback()
+        except Exception: 
+            pass
+
+def check_binding(key, symbol): 
+    if key is None: 
+        key = ""
+    key = key.lower()
+
+    if not key: 
+        return "error. Please enter a key or phrase"
+    if "\\" in key: 
+        return "error. Invalid Key. Please try again."
+    if key in RESERVED_KEYS: 
+        return "error", f"'{key}' is reserved and cannot be used as a shortcut key."
+    if not symbol: 
+        return "error. Invalid Symbol for Binding"
+        
+    with _lock: 
+        existing = (bindings.get("unicode") or {}).get(key)
+
+        #if different symbol
+        if existing is not None and existing != symbol: 
+            return "conflict", f"'{key}' is already bound to '{existing}'"
+        
+        #if completely free and safe to bind 
+        return "ok",""
 
 #binds key to symbol (note: upper & lower treated same)
-def set_unicode_binding(key, symbol):
+def set_unicode_binding(key, symbol, overwrite = True):
     if key is None: 
         key =""
     key = key.lower()
 
-    if len(key) != 1:
-        return False, "Please enter a single character key." 
+    if not key: 
+        return False, "Please enter a key or phrase"
+    
+    if "\\" in key:
+        return False, "Invalid key. Please enter a valid key."
+    
     if key in RESERVED_KEYS: 
         return False, f"'{key}' is reserved and cannot be used as a shortcut key."
     if not symbol: 
@@ -79,6 +132,14 @@ def set_unicode_binding(key, symbol):
     
     with _lock: 
         unicode_shortcuts = bindings.get("unicode")
+
+        if unicode_shortcuts is None: 
+            unicode_shortcuts = bindings["unicode"] = {}
+        
+        existing = unicode_shortcuts.get(key)
+        if existing is not None and existing != symbol and not overwrite: 
+            return False, f"'{key}' is already bound to '{existing}'."
+        
         unicode_shortcuts[key] = symbol 
         ok = _save()
 
@@ -173,7 +234,15 @@ def get_key_from_value(value):
 def all_unicode_bindings(): 
     with _lock: 
         return dict(bindings.get("unicode"))
- 
+    
+def all_key_bindings(): 
+    with _lock: 
+        return {k: v for k, v in (bindings.get("unicode") or {}).items() if len(k) == 1}
+    
+def all_phrase_bindings(): 
+    with _lock:
+        return {k: v for k, v in (bindings.get("unicode") or {}).items() if len(k) > 1}
+                
 def all_latex_shortcuts():
     with _lock:
         return dict(bindings.get("latex"))

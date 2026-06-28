@@ -3,6 +3,8 @@ from tkinter import ttk
 
 import utils.shortcuts_unicode as shortcuts_unicode
 
+PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key"]
+
 def toggle_binds_expansion(binds_container, label):
     
     # Get the text property of the label, without the trailing ▲▼
@@ -70,32 +72,72 @@ def _rebind_key(preferences_frame, keybinds_display_container, to_bind, old_key,
     prompt = tk.Label(popup, text="Press any key ...", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_subtitle"])
     prompt.pack(pady=15)
 
-    # Capture keystroke to bind
-    def on_key_press(event):
-        if not event.char or not event.char.strip(): 
-            return
-        # Before we bind, unbind the existing keybind
-        ok = shortcuts_unicode.remove_unicode_binding(old_key)
-        if not ok:
-            popup.destroy()
-            return
+#rebind popup with "enter" as confirmation for phrases/key
+    alias= tk.StringVar(value=old_key)
+    entry = tk.Entry(popup, textvariable=alias, bg = COLORS["bg_input"], fg = COLORS["text_main"], insertbackground="white", bd = 1, highlightbackground = COLORS["border"], highlightthickness = 2, font = FONTS["font_subtitle"])
+    entry.pack (fill = "x", ipady = 6)
 
-        # Call shortcut function
-        ok, message = shortcuts_unicode.set_unicode_binding(event.char, to_bind)
-        if ok: 
-            popup.destroy()
-            _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS)
-        else:
-            prompt.config(text=message, font=FONTS["font_subtitle"], fg="#FF0000")
+    def on_enter(event=None): 
+        new_key = alias.get().strip()
 
-    popup.bind("<Key>", on_key_press)
-    popup.bind("<Escape>", lambda e: popup.destroy())
-    popup.focus_force()
+        ok, message = shortcuts_unicode.set_unicode_binding(new_key, to_bind)
+        if not ok: 
+            prompt.config(text=message, font=FONTS["font_subtitle"], fg = "#FF0000")
+            return
+        if new_key.lower() != old_key.lower(): 
+            shortcuts_unicode.remove_unicode_binding(old_key)
+
+        popup.destroy()
+        _refresh_both(preferences_frame, COLORS, FONTS)
+    
+    entry.bind("<Return>", on_enter)
+    popup.bind ("<Escape>", lambda e: popup.destroy())
+    entry.focus_set()
+    entry.icursor("end")
 
 def _unbind_key(keybinds_display_container, preferences_frame, COLORS, FONTS, key):
     shortcuts_unicode.remove_unicode_binding(key)
-    _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS)
+    _refresh_both(preferences_frame, COLORS, FONTS)
 
+def _refresh_phrasebinds(phrasebind_display_container, preferences_frame,COLORS, FONTS):
+
+    #get current phrase binds 
+    curr_phrase_shortcuts = shortcuts_unicode.all_phrase_bindings()
+
+    for widget in phrasebind_display_container.winfo_children(): 
+        widget.destroy()
+
+    #show each phrase binds 
+    for phrase, bind in curr_phrase_shortcuts.items(): 
+
+        phrasebind_container = tk.Frame(phrasebind_display_container, bg = COLORS["bg_input"], name = f"{phrase}_phrasebind_container")
+        phrasebind_container.pack(pady=2, anchor ="w")
+
+        phrase_label = tk.Label(phrasebind_container, bg = COLORS["bg_input"], font = FONTS["font_subtitle"], highlightbackground = "white", highlightthickness = 1, fg = COLORS["text_main"], text = phrase, name =f"{phrase}_phrase_label")
+        phrase_label.pack(side ="left")
+
+        bind_label = tk.Label(phrasebind_container, bg = COLORS["bg_input"], font = FONTS["font_subtitle"], fg = COLORS["text_main"], text = bind, name =f"{phrase}_bind_label")
+        bind_label.pack(side ="left")
+
+                # This Keybind's Unbinder
+        # Display this iff it isnt one of the protected keys
+        if bind not in PROTECTED_BINDS:
+            phrasebind_unbinder = tk.Button(phrasebind_container, text="Unbind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command=lambda phrase = phrase: _unbind_phrase(phrasebind_display_container, preferences_frame, COLORS, FONTS, phrase), name=f"{phrase}_phrasebind_unbinder")
+            phrasebind_unbinder.pack(side="right", padx=8)
+            
+        phrasebind_rebinder = tk.Button(phrasebind_container, text="Rebind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font = FONTS["font_subtitle"], bd = 0, command = lambda to_bind=bind, old_key=phrase: _rebind_key(preferences_frame, phrasebind_display_container, to_bind, old_key, COLORS, FONTS), name = f"{phrase}_phrasebind_rebinder")
+        phrasebind_rebinder.pack(side ="right")
+
+def _unbind_phrase(phrasebind_display_container, preference_frame, COLORS, FONTS, phrase): 
+    shortcuts_unicode.remove_unicode_binding(phrase)
+    _refresh_both(preference_frame, COLORS, FONTS)
+    
+def _refresh_both(preferences_frame, COLORS, FONTS): 
+    _refresh_keybinds(preferences_frame.keybinds_display_container, preferences_frame, COLORS, FONTS)
+    _refresh_phrasebinds(preferences_frame.phrasebinds_display_container, preferences_frame, COLORS, FONTS)
+
+
+        
 def _refresh_latex_shortcuts(latex_shortcuts_display_container, preferences_frame, COLORS, FONTS):
     
     # Get the new keybinds
@@ -177,75 +219,29 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     keybinds_label = tk.Label(keybinds_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Current Keybinds ▼", name="keybinds_label")
     keybinds_label.pack()
             
-    keybinds_display_container = tk.Frame(keybinds_container, bg=COLORS["bg_input"], name="phrasebinds_display_container")
-    
-    # Get the Dictionary of Keybinds
-    curr_keybinds = shortcuts_unicode.all_unicode_bindings()
+    keybinds_display_container = tk.Frame(keybinds_container, bg=COLORS["bg_input"], name="keybinds_display_container")
 
-    # Show Each Keybind
-    for key, bind in curr_keybinds.items():
-        
-        # This Keybind's Container
-        keybind_container = tk.Frame(keybinds_display_container, bg=COLORS["bg_input"], name=f"{key}_keybind_container")
-        keybind_container.pack(pady=2, anchor="w")
+    preferences_frame.keybinds_display_container = keybinds_display_container
 
-        # The Key Label
-        key_label = tk.Label(keybind_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], highlightbackground="white", highlightthickness=1, fg=COLORS["text_main"], text=key, name=f"{key}_key_label")
-        key_label.pack(side="left")
+    _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS)
 
-        # The Corresponding Bind Label
-        bind_label = tk.Label(keybind_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text=bind, name=f"{key}_bind_label")
-        bind_label.pack(side="left")
+    keybinds_label.bind("<Button-1>", lambda e: toggle_binds_expansion(keybinds_display_container,keybinds_label))
 
-        # This Keybind's Unbinder
-        # Display this iff it isnt one of the protected keys
-        if bind not in ["Exit App", "Close Overlay", "Control Panel", "Breakout Key"]:
-            keybind_unbinder = tk.Button(keybind_container, text="Unbind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command=lambda COLORS=COLORS, FONTS=FONTS, key=key: _unbind_key(keybinds_display_container, preferences_frame, COLORS, FONTS, key), name=f"{key}_keybind_unbinder")
-            keybind_unbinder.pack(side="right", padx=8)
-
-        # This Keybind's Rebinder
-        keybind_rebinder = tk.Button(keybind_container, text="Rebind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command = lambda to_bind=bind, old_key=key: _rebind_key(preferences_frame, keybinds_display_container, to_bind, old_key, COLORS, FONTS), name=f"{key}_keybind_rebinder")
-        keybind_rebinder.pack(side="right")
-    
-    keybinds_label.bind("<Button-1>", lambda e: toggle_binds_expansion(keybinds_display_container, keybinds_label))
-
-    # Current Phrase Bindings Container
-    phrasebinds_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="phrasebinds_container")
+    phrasebinds_container = tk.Frame(preferences_frame, bg= COLORS["bg_input"], name ="phrasebinds_container")
     phrasebinds_container.pack()
 
-    # Phrase Bindings Label
-    phrasebinds_label = tk.Label(phrasebinds_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Current Phrase Bindings ▼", name="phrasebinds_label")
+    phrasebinds_label = tk.Label(phrasebinds_container, bg= COLORS["bg_input"], font= FONTS ["font_subtitle"], fg= COLORS["text_main"], text = "Current Phrase Bindings  ▼", name ="phrasebinds_label")
     phrasebinds_label.pack()
 
-    # Fake list of Phrase Bindings
-    curr_phrasebinds = {
-        "alpha": "α",
-    }
+    phrasebinds_display_container = tk.Frame(phrasebinds_container, bg = COLORS["bg_input"], name = "phrasebinds_display_container")
 
-    phrasebinds_display_container = tk.Frame(phrasebinds_container, bg=COLORS["bg_input"], name="phrasebinds_display_container")
+    preferences_frame.phrasebinds_display_container = phrasebinds_display_container
 
-    # Show Each Phrase Binding
-    for phrase, bind in curr_phrasebinds.items():
-        
-        # This Phrase Binding's Container
-        phrasebind_container = tk.Frame(phrasebinds_display_container, bg=COLORS["bg_input"], name=f"{phrase}_phrasebind_container")
-        phrasebind_container.pack()
+    #populate the phrase binding lists 
+    _refresh_phrasebinds(phrasebinds_display_container, preferences_frame, COLORS, FONTS)
 
-        # The Phrase Label
-        phrase_label = tk.Label(phrasebind_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], highlightbackground="white", highlightthickness=1, fg=COLORS["text_main"], text=phrase, name=f"{phrase}_phrase_label")
-        phrase_label.pack(side="left")
-
-        # The Corresponding Bind Label
-        bind_label = tk.Label(phrasebind_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text=bind, name=f"{phrase}_bind_label")
-        bind_label.pack(side="left")
-
-        # This Phrase Binding's Unbinder
-        phrasebind_unbinder =tk.Button(phrasebind_container, text="Unbind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command=None, name=f"{phrase}_phrasebind_unbinder")
-        phrasebind_unbinder.pack(side="right", padx=8)
-    
     phrasebinds_label.bind("<Button-1>", lambda e: toggle_binds_expansion(phrasebinds_display_container, phrasebinds_label))
-    
-    # Current LaTeX Shortcut Container
+
     latex_shortcuts_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="latex_shortcuts_container")
     latex_shortcuts_container.pack()
 
