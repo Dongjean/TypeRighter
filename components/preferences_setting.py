@@ -26,7 +26,7 @@ def toggle_binds_expansion(binds_container, label):
 def _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FONTS):
     
     # Get the new keybinds
-    curr_keybinds = shortcuts_unicode.all_unicode_bindings()
+    curr_keybinds = shortcuts_unicode.all_key_bindings()
     print(curr_keybinds)
     # First Delete Existing Keybinds
     for widget in keybinds_display_container.winfo_children():
@@ -34,7 +34,7 @@ def _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FON
 
     # Then Create the new Keybinds
     for key, bind in curr_keybinds.items():
-        
+
         # This Keybind's Container
         keybind_container = tk.Frame(keybinds_display_container, bg=COLORS["bg_input"], name=f"{key}_keybind_container")
         keybind_container.pack(pady=2, anchor="w")
