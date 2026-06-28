@@ -158,9 +158,10 @@ _All of the above shortcuts, including ```\```, ```a```, ```s``` and ``` ` ```, 
     * Can Login or Signup through this page
 
 3. Unicode Menu: 
-    * Search Unicode using unicode codepoint or name
-    * Bind keys to unicode by press the bind button
-    * While overlay is active, press shortcut key followed by Ctrl + V to insert symbol 
+    * Search Unicode using unicode codepoint or name.
+    * Bind keys to unicode by press the bind button. 
+    * Overwrite existing bindings by pressing enter again to confirm overwrite.
+    * While overlay is active, hold "\", type the assigned keystroke/phrase, and release "\" to insert unicode characters.
 
 4. Settings:
     * Preferences Setting
