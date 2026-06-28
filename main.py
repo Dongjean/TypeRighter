@@ -91,12 +91,6 @@ def on_release_shortcut(key, listener):
                     threading.Thread(target=lambda: insert_char(unicode_symbol), daemon=True).start()
                     overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
                     overlay_listener.start()
-                elif keys == "alpha":
-                    # Sample, remove this elif in the future
-                    shortcuts_unicode.copy_to_clipboard("α")
-                    threading.Thread(target=lambda: insert_char("α"), daemon=True).start()
-                    overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
-                    overlay_listener.start()
                 else:
                     # Unicode searching feature
                     unicode_results = unicode_search.search(keys, limit=1)
