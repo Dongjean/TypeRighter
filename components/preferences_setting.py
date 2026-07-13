@@ -56,49 +56,76 @@ def _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FON
             keybind_unbinder.pack(side="right", padx=8)
 
         # This Keybind's Rebinder
-        keybind_rebinder = tk.Button(keybind_container, text="Rebind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command = lambda to_bind=bind, old_key=key: _rebind_key(preferences_frame, keybinds_display_container, to_bind, old_key, COLORS, FONTS), name=f"{key}_keybind_rebinder")
+        keybind_rebinder = tk.Button(keybind_container, text="Rebind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command = lambda to_bind=bind, old_key=key: _rebind_key(preferences_frame, to_bind, old_key, COLORS, FONTS), name=f"{key}_keybind_rebinder")
         keybind_rebinder.pack(side="right")
 
 # Keybind popup
-def _rebind_key(preferences_frame, keybinds_display_container, to_bind, old_key, COLORS, FONTS): 
-    popup = tk.Toplevel(preferences_frame, bg = COLORS["bg_main"]) 
-    popup.title("Re-bind symbol to key")
+def _rebind_key(parent, to_bind, old_key, COLORS, FONTS): 
+    popup = tk.Toplevel(parent, bg = COLORS["bg_main"]) 
+    popup.title("Bind symbol to key or phrase")
     popup.configure(padx=20, pady=20)
-    popup.transient(preferences_frame)
+    popup.transient(parent)
     popup.grab_set()
     popup.resizable(False, False)
 
     popuptitle = tk.Label(popup, text=f"Re-bind a key to {to_bind}", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_title"])
     popuptitle.pack(pady=(0, 10))
 
-    prompt = tk.Label(popup, text="Press any key ...", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_subtitle"])
-    prompt.pack(pady=15)
+    prompt = tk.Label(popup, text="Type an key/phrase, then press enter...", bg = COLORS["bg_main"], fg = COLORS["text_main"], font=FONTS["font_subtitle"])
+    prompt.pack(pady=(0,8))
 
-#rebind popup with "enter" as confirmation for phrases/key
-    alias= tk.StringVar(value=old_key)
-    entry = tk.Entry(popup, textvariable=alias, bg = COLORS["bg_input"], fg = COLORS["text_main"], insertbackground="white", bd = 1, highlightbackground = COLORS["border"], highlightthickness = 2, font = FONTS["font_subtitle"])
-    entry.pack (fill = "x", ipady = 6)
+    alias = tk.StringVar()
+    entry = tk.Entry(popup, textvariable=alias, bg=COLORS["bg_input"], fg=COLORS["text_main"], insertbackground="white", bd=1, highlightbackground=COLORS["border"], highlightthickness=1, font=FONTS["font_subtitle"])
+    entry.pack(fill ="x", ipady=6)
 
-    def on_enter(event=None): 
-        new_key = alias.get().strip()
+    #tracks previous user input for confirmation (prevent overwrite)
+    pending = {"input": None}
 
-        ok, message = shortcuts_unicode.set_unicode_binding(new_key, to_bind)
-        if not ok: 
-            prompt.config(text=message, font=FONTS["font_subtitle"], fg = "#FF0000")
-            return
-        if new_key.lower() != old_key.lower(): 
+    #capture keystroke to bind
+    def on_key_press(alias):
+        new_key = alias.get()
+        if not new_key.strip(): 
+            return 
+        
+        #check input previous binds
+        status, message = shortcuts_unicode.check_binding(new_key, to_bind)
+
+        #invalid keys/reserved binds 
+        if status == "error" or status == "protected": 
+            pending["input"] = None
+            prompt.config(text = message, font=FONTS["font_subtitle"], fg = "#FF0000")
+            return 
+
+        #warning for matched binds 
+        if status == "conflict" and pending["input"] != new_key: 
+            #update the input after first enter
+            pending["input"] = new_key 
+            prompt.config(text =f"{message} Press Enter again to overwrite. Esc to Cancel bind.", font = FONTS["font_subtitle"], fg = "#FFA500")
+            return 
+        
+        #if users continues to overwrite/status is non-error 
+        if status == "conflict": 
+            overwrite = True 
+        else: 
+            overwrite = False
+        
+        ok,result = shortcuts_unicode.set_unicode_binding(new_key, to_bind, overwrite = overwrite)
+        if ok: 
+            popup.destroy()
             shortcuts_unicode.remove_unicode_binding(old_key)
-
-        popup.destroy()
-        _refresh_both(preferences_frame, COLORS, FONTS)
-        if to_bind == "Breakout Key":
-            print("updating")
-            view_handler.update_breakout_key()
-    
-    entry.bind("<Return>", on_enter)
-    popup.bind ("<Escape>", lambda e: popup.destroy())
-    entry.focus_set()
-    entry.icursor("end")
+            _refresh_both(parent, COLORS, FONTS)
+            if new_key.lower() != old_key.lower(): 
+                shortcuts_unicode.remove_unicode_binding(old_key)
+            if to_bind == "Breakout Key":
+                print("updating")
+                main.update_breakout_key()
+        else: 
+            pending["input"] = None 
+            prompt.config(text = result, font = FONTS["font_subtitle"], fg ="#FF0000")
+        
+    entry.bind("<Return>", lambda e: on_key_press(alias))
+    popup.bind("<Escape>", lambda e: popup.destroy())
+    entry.focus_force()
 
 def _unbind_key(keybinds_display_container, preferences_frame, COLORS, FONTS, key):
     shortcuts_unicode.remove_unicode_binding(key)
@@ -130,7 +157,7 @@ def _refresh_phrasebinds(phrasebind_display_container, preferences_frame,COLORS,
             phrasebind_unbinder = tk.Button(phrasebind_container, text="Unbind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command=lambda phrase = phrase: _unbind_phrase(phrasebind_display_container, preferences_frame, COLORS, FONTS, phrase), name=f"{phrase}_phrasebind_unbinder")
             phrasebind_unbinder.pack(side="right", padx=8)
             
-        phrasebind_rebinder = tk.Button(phrasebind_container, text="Rebind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font = FONTS["font_subtitle"], bd = 0, command = lambda to_bind=bind, old_key=phrase: _rebind_key(preferences_frame, phrasebind_display_container, to_bind, old_key, COLORS, FONTS), name = f"{phrase}_phrasebind_rebinder")
+        phrasebind_rebinder = tk.Button(phrasebind_container, text="Rebind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font = FONTS["font_subtitle"], bd = 0, command = lambda to_bind=bind, old_key=phrase: _rebind_key(preferences_frame, to_bind, old_key, COLORS, FONTS), name = f"{phrase}_phrasebind_rebinder")
         phrasebind_rebinder.pack(side ="right")
 
 def _unbind_phrase(phrasebind_display_container, preference_frame, COLORS, FONTS, phrase): 

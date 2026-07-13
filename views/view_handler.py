@@ -77,3 +77,7 @@ def delete_control_panel_handler(root):
     # Start a new overlay_listener which listens and catches just "\"
     overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: main.win32_keyboard_filter(msg, data, overlay_listener))
     overlay_listener.start()
+
+    # Starts a new bg_listener to listen for COMBINATION too
+    bg_listener = keyboard.Listener(on_press=lambda key: main.on_press_bg(key, bg_listener), on_release=lambda key: main.on_release_bg(key, bg_listener))
+    bg_listener.start()

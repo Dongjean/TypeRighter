@@ -96,8 +96,6 @@ def check_binding(key, symbol):
 
     if not key: 
         return "error", "Please enter a key or phrase"
-    if "\\" in key: 
-        return "error", "Invalid Key. Please try again."
     if not symbol: 
         return "error", "Invalid Symbol for Binding"
         
@@ -122,9 +120,6 @@ def set_unicode_binding(key, symbol, overwrite = True):
 
     if not key: 
         return False, "Please enter a key or phrase"
-    
-    if "\\" in key:
-        return False, "Invalid key. Please enter a valid key."
     
     if not symbol: 
         return False, "Invalid symbol for binding."

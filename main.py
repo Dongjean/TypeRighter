@@ -85,6 +85,7 @@ def on_release_shortcut(key, listener):
                     hide_overlay()
                 elif shortcuts_unicode.lookup_unicode(keys) == "Control Panel":
                     control_panel_window()
+                    stop_all_pynput_keyboard_listeners()
                 elif shortcuts_unicode.lookup_unicode(keys) == "Exit App":
                     clean_exit()
                 elif unicode_symbol := shortcuts_unicode.copy_symbol(keys):
@@ -199,10 +200,10 @@ def stop_all_pynput_keyboard_listeners():
 def clean_exit():
     print("\nShutting down cleanly...")
     print("___")
-    view_handler.icon.stop() # Stop the tray icon
+    icon.stop() # Stop the tray icon
     stop_all_pynput_keyboard_listeners() # Stop the keyboard listener
     view_handler.gui_queue.put("destroy_root") # Stop the root window
-    view_handler.os._exit(0) # Hard exit to kill all threads instantly
+    os._exit(0) # Hard exit to kill all threads instantly
 
 #load saved unicode shortcuts 
 shortcuts_unicode.load()
@@ -247,15 +248,6 @@ if __name__ == "__main__":
     )
     # .run_detached() starts a non-blocking non-daemon thread
     icon.run_detached()
-    
-    # Save a reference to update_breakout_key from within this "main" namespace
-    # So we can update the BREAKOUT_KEY used in our logic
-    view_handler.update_breakout_key = update_breakout_key
-    
-    # Same thing with icon and os
-    # So we can run icon.stop() and os._exit(0) properly
-    view_handler.icon = icon
-    view_handler.os = os
 
     # Initialise and run main_view.root
     root = view_handler.root_init()
