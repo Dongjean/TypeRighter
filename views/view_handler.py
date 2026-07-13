@@ -1,9 +1,11 @@
 import tkinter as tk
 import queue
 import sys
+from pynput import keyboard
 
 from views.control_panel_view import control_panel_init
 from views.overlay_view import trigger_overlay, hide_overlay, flash_red_overlay, overlay_init, trigger_textbox, destroy_textbox, append_textbox
+import main as main
 
 # This is the entry point to our GUI window from the main python script
 
@@ -65,6 +67,13 @@ def root_init():
     return root
 
 def delete_control_panel_handler(root):
-    global is_control_panel_open
+    global is_control_panel_open, is_overlay_triggered
+
+    # Close the Control Panel and switch on the Overlay
     overlay_init(root)
     is_control_panel_open = False
+    is_overlay_triggered = True
+    trigger_overlay(root)
+    # Start a new overlay_listener which listens and catches just "\"
+    overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: main.win32_keyboard_filter(msg, data, overlay_listener))
+    overlay_listener.start()

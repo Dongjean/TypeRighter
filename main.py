@@ -17,16 +17,16 @@ log_path = os.path.join(os.getcwd(), "debug_log.txt")
 sys.stdout = open(log_path, "a", encoding="utf-8", errors="replace", buffering=1) 
 sys.stderr = open(log_path, "a", encoding="utf-8", errors="replace", buffering=1)
 
-# Silence terminal for .exe mode
-if getattr(sys, 'frozen', False):
-    sys.stdout = open(os.devnull, 'w')
-    sys.stderr = open(os.devnull, 'w')
-
 # Key listener
 keyboard_controller = keyboard.Controller()
 
 # Use canonical keys to account for certain combinations becoming Control Codes
 current_keys = set()
+
+# Update BREAKOUT_KEY when it gets changed in the user flow
+def update_breakout_key():
+    global BREAKOUT_KEY
+    BREAKOUT_KEY = shortcuts_unicode.get_key_from_value("Breakout Key") or "\\"
 
 def hide_overlay():
     view_handler.gui_queue.put("hide_overlay")
@@ -199,10 +199,10 @@ def stop_all_pynput_keyboard_listeners():
 def clean_exit():
     print("\nShutting down cleanly...")
     print("___")
-    icon.stop() # Stop the tray icon
+    view_handler.icon.stop() # Stop the tray icon
     stop_all_pynput_keyboard_listeners() # Stop the keyboard listener
     view_handler.gui_queue.put("destroy_root") # Stop the root window
-    os._exit(0) # Hard exit to kill all threads instantly
+    view_handler.os._exit(0) # Hard exit to kill all threads instantly
 
 #load saved unicode shortcuts 
 shortcuts_unicode.load()
@@ -231,6 +231,7 @@ if __name__ == "__main__":
     else:
         print(f"error initialising login state: {e}")
 
+
     # The bg_listener which only listens for the COMBINATION
     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
     # Start Listener
@@ -246,6 +247,15 @@ if __name__ == "__main__":
     )
     # .run_detached() starts a non-blocking non-daemon thread
     icon.run_detached()
+    
+    # Save a reference to update_breakout_key from within this "main" namespace
+    # So we can update the BREAKOUT_KEY used in our logic
+    view_handler.update_breakout_key = update_breakout_key
+    
+    # Same thing with icon and os
+    # So we can run icon.stop() and os._exit(0) properly
+    view_handler.icon = icon
+    view_handler.os = os
 
     # Initialise and run main_view.root
     root = view_handler.root_init()

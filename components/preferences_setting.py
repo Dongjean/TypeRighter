@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 
 import utils.shortcuts_unicode as shortcuts_unicode
+import main as main
+import views.view_handler as view_handler
 
 PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key"]
 
@@ -89,6 +91,9 @@ def _rebind_key(preferences_frame, keybinds_display_container, to_bind, old_key,
 
         popup.destroy()
         _refresh_both(preferences_frame, COLORS, FONTS)
+        if to_bind == "Breakout Key":
+            print("updating")
+            view_handler.update_breakout_key()
     
     entry.bind("<Return>", on_enter)
     popup.bind ("<Escape>", lambda e: popup.destroy())
