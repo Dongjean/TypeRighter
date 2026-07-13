@@ -35,7 +35,7 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
         status, message = shortcuts_unicode.check_binding(raw_input, symbol)
 
         #invalid keys/reserved binds 
-        if status == "error": 
+        if status == "error" or status == "protected": 
             pending["input"] = None
             prompt.config(text = message, font=FONTS["font_subtitle"], fg = "#FF0000")
             return 

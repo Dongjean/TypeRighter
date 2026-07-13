@@ -32,13 +32,13 @@ _lock = threading.Lock()
 
 bindings = {}
 
+PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key"]
+
 def _norm(key): 
     if key is None: 
         key = ""
     key = key.strip().lower()
     return key 
-
-RESERVED_KEYS ={"a", "s", "\\", "`"}
 
 #load from file 
 def load(): 
@@ -98,8 +98,6 @@ def check_binding(key, symbol):
         return "error", "Please enter a key or phrase"
     if "\\" in key: 
         return "error", "Invalid Key. Please try again."
-    if key in RESERVED_KEYS: 
-        return "error", f"'{key}' is reserved and cannot be used as a shortcut key."
     if not symbol: 
         return "error", "Invalid Symbol for Binding"
         
@@ -107,6 +105,9 @@ def check_binding(key, symbol):
         existing = (bindings.get("unicode") or {}).get(key)
 
         #if different symbol
+        if existing is not None and existing in PROTECTED_BINDS:
+            return "protected", f"'{key}' is bound to the protected command '{existing}'"
+
         if existing is not None and existing != symbol: 
             return "conflict", f"'{key}' is already bound to '{existing}'"
         
@@ -125,8 +126,6 @@ def set_unicode_binding(key, symbol, overwrite = True):
     if "\\" in key:
         return False, "Invalid key. Please enter a valid key."
     
-    if key in RESERVED_KEYS: 
-        return False, f"'{key}' is reserved and cannot be used as a shortcut key."
     if not symbol: 
         return False, "Invalid symbol for binding."
     
