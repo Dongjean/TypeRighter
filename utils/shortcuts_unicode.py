@@ -95,13 +95,13 @@ def check_binding(key, symbol):
     key = key.lower()
 
     if not key: 
-        return "error. Please enter a key or phrase"
+        return "error", "Please enter a key or phrase"
     if "\\" in key: 
-        return "error. Invalid Key. Please try again."
+        return "error", "Invalid Key. Please try again."
     if key in RESERVED_KEYS: 
         return "error", f"'{key}' is reserved and cannot be used as a shortcut key."
     if not symbol: 
-        return "error. Invalid Symbol for Binding"
+        return "error", "Invalid Symbol for Binding"
         
     with _lock: 
         existing = (bindings.get("unicode") or {}).get(key)
@@ -221,14 +221,15 @@ def lookup_unicode(key):
 
 def get_key_from_value(value):
 
-    unicode_shortcuts = bindings.get("unicode")
-    # Assume each value only has one unique key
-    key = next((k for k, v in unicode_shortcuts.items() if v == value), None)
+    with _lock:
+        unicode_shortcuts = bindings.get("unicode")
+        # Assume each value only has one unique key
+        key = next((k for k, v in unicode_shortcuts.items() if v == value), None)
 
-    if not key:
-        return None
-    else:
-        return key
+        if not key:
+            return None
+        else:
+            return key
     
 #shows all bindings 
 def all_unicode_bindings(): 
