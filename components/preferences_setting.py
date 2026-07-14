@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 import utils.shortcuts_unicode as shortcuts_unicode
+import utils.settings as settings
 import main as main
 import views.view_handler as view_handler
 import utils.auth as auth
@@ -110,13 +111,15 @@ def _rebind_key(parent, to_bind, old_key, COLORS, FONTS):
         else: 
             overwrite = False
         
-        ok,result = shortcuts_unicode.set_unicode_binding(new_key, to_bind, overwrite = overwrite)
+        template_name = settings.lookup_setting("curr_template")
+        email, e = auth.get_email()
+        ok,result = shortcuts_unicode.set_unicode_binding(new_key, to_bind, email, template_name, overwrite = overwrite)
         if ok: 
             popup.destroy()
-            shortcuts_unicode.remove_unicode_binding(old_key)
+            shortcuts_unicode.remove_unicode_binding(old_key, email, template_name)
             _refresh_both(parent, COLORS, FONTS)
             if new_key.lower() != old_key.lower(): 
-                shortcuts_unicode.remove_unicode_binding(old_key)
+                shortcuts_unicode.remove_unicode_binding(old_key, email, template_name)
             if to_bind == "Breakout Key":
                 print("updating")
                 main.update_breakout_key()
@@ -129,7 +132,10 @@ def _rebind_key(parent, to_bind, old_key, COLORS, FONTS):
     entry.focus_force()
 
 def _unbind_key(keybinds_display_container, preferences_frame, COLORS, FONTS, key):
-    shortcuts_unicode.remove_unicode_binding(key)
+    
+    template_name = settings.lookup_setting("curr_template")
+    email, e = auth.get_email()
+    shortcuts_unicode.remove_unicode_binding(key, email, template_name)
     _refresh_both(preferences_frame, COLORS, FONTS)
 
 def _refresh_phrasebinds(phrasebind_display_container, preferences_frame,COLORS, FONTS):
@@ -162,7 +168,10 @@ def _refresh_phrasebinds(phrasebind_display_container, preferences_frame,COLORS,
         phrasebind_rebinder.pack(side ="right")
 
 def _unbind_phrase(phrasebind_display_container, preference_frame, COLORS, FONTS, phrase): 
-    shortcuts_unicode.remove_unicode_binding(phrase)
+    
+    template_name = settings.lookup_setting("curr_template")
+    email, e = auth.get_email()
+    shortcuts_unicode.remove_unicode_binding(phrase, email, template_name)
     _refresh_both(preference_frame, COLORS, FONTS)
     
 def _refresh_both(preferences_frame, COLORS, FONTS): 
@@ -199,7 +208,10 @@ def _refresh_latex_shortcuts(latex_shortcuts_display_container, preferences_fram
         latex_shortcut_unbinder.pack(side="right", padx=8)
 
 def _unbind_latex_shortcut(latex_shortcuts_display_container, preferences_frame, COLORS, FONTS, key):
-    shortcuts_unicode.remove_latex_shortcut(key)
+    
+    template_name = settings.lookup_setting("curr_template")
+    email, e = auth.get_email()
+    shortcuts_unicode.remove_latex_shortcut(key, email, template_name)
     _refresh_latex_shortcuts(latex_shortcuts_display_container, preferences_frame, COLORS, FONTS)
 
 def add_latex_shortcut(latex_shortcut_adder_name_entry, latex_shortcut_adder_code_entry, latex_shortcut_adder_error_msg, latex_shortcuts_display_container, preferences_frame, COLORS, FONTS):
@@ -208,7 +220,9 @@ def add_latex_shortcut(latex_shortcut_adder_name_entry, latex_shortcut_adder_cod
     latex_name = latex_shortcut_adder_name_entry.get()
     latex_code = latex_shortcut_adder_code_entry.get("1.0", "end-1c")
 
-    ok, message = shortcuts_unicode.set_latex_shortcut(latex_code, latex_name)
+    template_name = settings.lookup_setting("curr_template")
+    email, e = auth.get_email()
+    ok, message = shortcuts_unicode.set_latex_shortcut(latex_code, latex_name, email, template_name)
     if ok:
 
         # Clear the Entries
