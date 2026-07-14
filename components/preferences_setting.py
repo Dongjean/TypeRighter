@@ -4,6 +4,7 @@ from tkinter import ttk
 import utils.shortcuts_unicode as shortcuts_unicode
 import main as main
 import views.view_handler as view_handler
+import utils.auth as auth
 
 PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key"]
 
@@ -225,21 +226,28 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     # Preferences Frame
     preferences_frame = tk.Frame(settings_subwindow_container, bg=COLORS["bg_input"], takefocus=True, name="preferences_frame")
     preferences_frame.pack(expand=True)
-
-    # Templates Selector Container
-    template_selector_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="template_selector_container")
-    template_selector_container.pack(fill="x", anchor="center")
-
-    # Templates Selector Label
-    template_selector_label = tk.Label(template_selector_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Selected Template", name="template_selector_label")
-    template_selector_label.pack()
     
-    # Fake list of templates
-    curr_templates = ["default", "CS1231", "MA1508E"]
-    # Template Selector Dropdown Menu
-    template_selector = ttk.Combobox(template_selector_container, values=curr_templates, state="readonly")
-    template_selector.set(curr_templates[0])
-    template_selector.pack()
+    # Check if the user is logged in
+    email, e = auth.get_email()
+    if email:
+        print(f"Displaying templates for user: {email}")
+        # Fake list of templates
+        curr_templates = ["default", "CS1231", "MA1508E"]
+
+        # Templates Selector Container
+        template_selector_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="template_selector_container")
+        template_selector_container.pack(fill="x", anchor="center")
+
+        # Templates Selector Label
+        template_selector_label = tk.Label(template_selector_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Selected Template", name="template_selector_label")
+        template_selector_label.pack()
+
+        # Template Selector Dropdown Menu
+        template_selector = ttk.Combobox(template_selector_container, values=curr_templates, state="readonly")
+        template_selector.set(curr_templates[0])
+        template_selector.pack()
+    else:
+        print(f"error initialising login state: {e}")
 
     # Display the Keybinds Under the Selected Template
     
