@@ -200,10 +200,14 @@ def stop_all_pynput_keyboard_listeners():
 def clean_exit():
     print("\nShutting down cleanly...")
     print("___")
-    icon.stop() # Stop the tray icon
-    stop_all_pynput_keyboard_listeners() # Stop the keyboard listener
-    view_handler.gui_queue.put("destroy_root") # Stop the root window
-    os._exit(0) # Hard exit to kill all threads instantly
+    try:
+        view_handler.icon.stop() # Stop the tray icon
+        stop_all_pynput_keyboard_listeners() # Stop the keyboard listener
+        view_handler.gui_queue.put("destroy_root") # Stop the root window
+    except Exception as e:
+        print(e)
+    finally:
+        os._exit(0) # Hard exit to kill all threads instantly
 
 #load saved unicode shortcuts 
 shortcuts_unicode.load()
@@ -248,6 +252,9 @@ if __name__ == "__main__":
     )
     # .run_detached() starts a non-blocking non-daemon thread
     icon.run_detached()
+
+    # Save a reference to icon attached to view_handler so it can be accessed from other threads
+    view_handler.icon = icon
 
     # Initialise and run main_view.root
     root = view_handler.root_init()
