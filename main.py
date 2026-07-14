@@ -11,6 +11,8 @@ import ctypes
 
 import utils.unicode_search as unicode_search
 import utils.auth as auth
+import utils.settings as settings
+import utils.templates as templates
 
 # For debugging
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
@@ -209,8 +211,24 @@ def clean_exit():
     finally:
         os._exit(0) # Hard exit to kill all threads instantly
 
-#load saved unicode shortcuts 
+# Login, if its still valid
+email, e = auth.get_email()
+if email:
+    print(f"logged in as: {email}")
+    # Load the settings
+    curr_settings = settings.load(email)
+
+    # Load the current template
+    templates.load(email)
+    templates.use_template(curr_settings["curr_template"])
+else:
+    print(f"error initialising login state: {e}")
+
+# Load saved unicode shortcuts
+# If logged in properly, the saved one will be loaded
+# If not logged in, the default shortcuts will be loaded
 shortcuts_unicode.load()
+
 BREAKOUT_KEY = shortcuts_unicode.get_key_from_value("Breakout Key") or "\\"
 COMBINATION = [
     keyboard.Key.ctrl_l,
@@ -228,14 +246,6 @@ except Exception:
     ctypes.windll.user32.SetProcessDPIAware()
 
 if __name__ == "__main__":
-
-    # Login, if its still valid
-    email, e = auth.get_email()
-    if email:
-        print(f"logged in as: {email}")
-    else:
-        print(f"error initialising login state: {e}")
-
 
     # The bg_listener which only listens for the COMBINATION
     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
