@@ -4,8 +4,12 @@ from tkinter import font as tkfont
 from requests.exceptions import HTTPError, ConnectionError, Timeout, RequestException
 import json
 
+import main as main
 import utils.firebase_app as fb
 import utils.auth as auth
+import utils.settings as settings
+import utils.templates as templates
+import utils.shortcuts_unicode as shortcuts_unicode
 
 user_info = {
     "email": None
@@ -34,6 +38,16 @@ def login(root, username_editor, password_editor, login_error_label, login_hub_c
             username_editor.delete(0, "end")
             password_editor.delete(0, "end")
             
+            # Load the settings
+            curr_settings = settings.load(username)
+
+            # Load the current template
+            templates.load(username)
+            templates.use_template(curr_settings["curr_template"])
+            shortcuts_unicode.load()
+
+            main.update_breakout_key()
+
             # Destroy the login frame
             destroy_login_frame(root, login_hub_container)
 
