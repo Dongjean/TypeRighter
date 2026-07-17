@@ -6,6 +6,7 @@ import utils.settings as settings
 import main as main
 import views.view_handler as view_handler
 import utils.auth as auth
+import utils.templates as templates
 
 PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key"]
 
@@ -113,13 +114,22 @@ def _rebind_key(parent, to_bind, old_key, COLORS, FONTS):
         
         template_name = settings.lookup_setting("curr_template")
         email, e = auth.get_email()
-        ok,result = shortcuts_unicode.set_unicode_binding(new_key, to_bind, email, template_name, overwrite = overwrite)
-        if ok: 
+        ok_shortcut,result = shortcuts_unicode.set_unicode_binding(new_key, to_bind, overwrite = overwrite)
+        if email:
+            bindings = shortcuts_unicode.all_bindings()
+            ok_template,result = templates.update_template(email, template_name, bindings)
+        else:
+            ok_template = True
+        if ok_shortcut and ok_template: 
             popup.destroy()
-            shortcuts_unicode.remove_unicode_binding(old_key, email, template_name)
+            shortcuts_unicode.remove_unicode_binding(old_key)
+            if email:
+                templates.update_template(email, template_name, bindings)
             _refresh_both(parent, COLORS, FONTS)
             if new_key.lower() != old_key.lower(): 
-                shortcuts_unicode.remove_unicode_binding(old_key, email, template_name)
+                shortcuts_unicode.remove_unicode_binding(old_key)
+                if email:
+                    templates.update_template(email, template_name, bindings)
             if to_bind == "Breakout Key":
                 print("updating")
                 main.update_breakout_key()
@@ -135,7 +145,10 @@ def _unbind_key(keybinds_display_container, preferences_frame, COLORS, FONTS, ke
     
     template_name = settings.lookup_setting("curr_template")
     email, e = auth.get_email()
-    shortcuts_unicode.remove_unicode_binding(key, email, template_name)
+    shortcuts_unicode.remove_unicode_binding(key)
+    if email:
+        bindings = shortcuts_unicode.all_bindings()
+        templates.update_template(email, template_name, bindings)
     _refresh_both(preferences_frame, COLORS, FONTS)
 
 def _refresh_phrasebinds(phrasebind_display_container, preferences_frame,COLORS, FONTS):
@@ -171,7 +184,10 @@ def _unbind_phrase(phrasebind_display_container, preference_frame, COLORS, FONTS
     
     template_name = settings.lookup_setting("curr_template")
     email, e = auth.get_email()
-    shortcuts_unicode.remove_unicode_binding(phrase, email, template_name)
+    shortcuts_unicode.remove_unicode_binding(phrase)
+    if email:
+        bindings = shortcuts_unicode.all_bindings()
+        templates.update_template(email, template_name, bindings)
     _refresh_both(preference_frame, COLORS, FONTS)
     
 def _refresh_both(preferences_frame, COLORS, FONTS): 
@@ -211,7 +227,10 @@ def _unbind_latex_shortcut(latex_shortcuts_display_container, preferences_frame,
     
     template_name = settings.lookup_setting("curr_template")
     email, e = auth.get_email()
-    shortcuts_unicode.remove_latex_shortcut(key, email, template_name)
+    shortcuts_unicode.remove_latex_shortcut(key)
+    if email:
+        bindings = shortcuts_unicode.all_bindings()
+        templates.update_template(email, template_name, bindings)
     _refresh_latex_shortcuts(latex_shortcuts_display_container, preferences_frame, COLORS, FONTS)
 
 def add_latex_shortcut(latex_shortcut_adder_name_entry, latex_shortcut_adder_code_entry, latex_shortcut_adder_error_msg, latex_shortcuts_display_container, preferences_frame, COLORS, FONTS):
@@ -222,8 +241,13 @@ def add_latex_shortcut(latex_shortcut_adder_name_entry, latex_shortcut_adder_cod
 
     template_name = settings.lookup_setting("curr_template")
     email, e = auth.get_email()
-    ok, message = shortcuts_unicode.set_latex_shortcut(latex_code, latex_name, email, template_name)
-    if ok:
+    ok_shortcut, message = shortcuts_unicode.set_latex_shortcut(latex_code, latex_name)
+    if email:
+        bindings = shortcuts_unicode.all_bindings()
+        ok_template,result = templates.update_template(email, template_name, bindings)
+    else:
+        ok_template = True
+    if ok_shortcut and ok_template:
 
         # Clear the Entries
         latex_shortcut_adder_name_entry.delete(0, 'end')

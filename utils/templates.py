@@ -71,50 +71,38 @@ def load(curr_user):
             os.replace(temp, _PATH)
 
 #save to file
-def _save(curr_user, template_id, new_template):
+def _save(curr_user, template_name, new_template):
     try:
+        if template_name and curr_user:
+            _TEMPLATE_PATH = os.path.join(_templates_dir(curr_user), "user_templates.json")
+            temp = _TEMPLATE_PATH + ".tmp"
 
-        template_number_int = int(template_id.split("_")[1])
-        base_dir = _templates_dir(curr_user)
+            # Read the existing file and change our current new_template
+            with open(_TEMPLATE_PATH, "r", encoding="utf-8") as f:
+                try:
+                    all_templates = json.load(f)
+                    all_templates[template_name] = new_template
+                except Exception as e:
+                    print(e)
+                    return False
 
-        # First find if this template_id already exists, and if it doesnt, find the next available number
-        is_new = True
-        counter = 1
-        while True and is_new:
-            filename = f"template_{counter}.json"
-            _PATH = os.path.join(base_dir, filename)
-            
-            # If template_no already exists, then update this template
-            if os.path.exists(_PATH) and (template_number_int == counter):
-                is_new = False
-                break
-
-            # If this specific template doesn't exist, we can use f"template_{counter}.json"
-            if not os.path.exists(_PATH):
-                break
-
-            counter += 1
-        
-        template_filename = f"template_{counter}.json"
-        
-        _PATH = os.path.join(_templates_dir(curr_user), template_filename)
-        temp = _PATH + ".tmp" 
-        with open(temp, "w", encoding="utf-8") as f:
-            json.dump(new_template, f, ensure_ascii=False, indent=4)
-        os.replace(temp, _PATH)
-        return True #saved successfully
+            # Replace the old file with the new template objects
+            with open(temp, "w", encoding="utf-8") as f:
+                json.dump(all_templates, f, ensure_ascii=False, indent=4)
+            os.replace(temp, _TEMPLATE_PATH)
+        return True
     except IOError:
-        return False 
+        return False
 
-#sets or updates a template
-def set_template(curr_user, template_id, new_template):
+# Updates a template
+def update_template(curr_user, template_name, new_template):
     
-    ok = _save(curr_user, template_id, new_template)
+    ok = _save(curr_user, template_name, new_template)
 
     if ok: 
-        return True, f"Successfully set '{template_id}' to '{new_template}' for user '{curr_user}'."
+        return True, f"Successfully set '{template_name}' to '{new_template}' for user '{curr_user}'."
     else: 
-        return False, f"Failed to set '{template_id}' to '{new_template}' for user '{curr_user}. Please try again."
+        return False, f"Failed to set '{template_name}' to '{new_template}' for user '{curr_user}. Please try again."
 
 #shows all templates
 def all_templates(curr_user):
@@ -153,3 +141,10 @@ def use_template(template_name):
             return True
         except IOError:
             return False
+
+# def new_template(curr_user, template_name, template):
+#     global templates
+
+#     _CURR_TEMPLATES_PATH = os.path.join(_templates_dir(curr_user), "user_template.json")
+#     with _lock:
+#         try:

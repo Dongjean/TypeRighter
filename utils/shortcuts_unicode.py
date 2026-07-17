@@ -72,28 +72,12 @@ def load():
         return dict(bindings) #copy of bindings
 
 #save to file
-def _save(curr_user, template_name): 
+def _save(): 
     try: 
         temp = _PATH + ".tmp" 
         with open(temp, "w", encoding="utf-8") as f:
             json.dump(bindings, f, ensure_ascii=False, indent=4)
         os.replace(temp, _PATH)
-
-        if template_name and curr_user:
-            _TEMPLATE_PATH = os.path.join(_templates_dir(curr_user), "user_templates.json")
-            temp = _TEMPLATE_PATH + ".tmp"
-
-            with open(_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-                try:
-                    all_templates = json.load(f)
-                    all_templates[template_name] = bindings
-                except Exception as e:
-                    print(e)
-                    return False
-
-            with open(temp, "w", encoding="utf-8") as f:
-                json.dump(all_templates, f, ensure_ascii=False, indent=4)
-            os.replace(temp, _TEMPLATE_PATH)
         return True #saved successfully
     except IOError:
         return False
@@ -141,7 +125,7 @@ def check_binding(key, symbol):
         return "ok",""
 
 #binds key to symbol (note: upper & lower treated same)
-def set_unicode_binding(key, symbol, curr_user, template_name, overwrite = True):
+def set_unicode_binding(key, symbol, overwrite = True):
     if key is None: 
         key =""
     key = key.lower()
@@ -163,14 +147,14 @@ def set_unicode_binding(key, symbol, curr_user, template_name, overwrite = True)
             return False, f"'{key}' is already bound to '{existing}'."
         
         unicode_shortcuts[key] = symbol 
-        ok = _save(curr_user, template_name)
+        ok = _save()
 
     if ok: 
         return True, f"Successfully bound '{symbol}' to '{key}'."
     else: 
         return False, f"Failed to bind '{symbol}' to '{key}'. Please try again."
 
-def set_latex_shortcut(latex_code, name, curr_user, template_name):
+def set_latex_shortcut(latex_code, name):
 
     # First generate a new unique key for this LaTeX Shortcut
     key = 0 # key is 0 if there arent any shortcuts yet
@@ -187,7 +171,7 @@ def set_latex_shortcut(latex_code, name, curr_user, template_name):
             "name": name,
             "code": latex_code,
         }
-        ok = _save(curr_user, template_name)
+        ok = _save()
 
     if ok: 
         return True, f"Successfully bound '{latex_code}' with name '{name}'."
@@ -195,7 +179,7 @@ def set_latex_shortcut(latex_code, name, curr_user, template_name):
         return False, f"Failed to bind '{latex_code}' with name '{name}'. Please try again."
 
 #unbind 
-def remove_unicode_binding(key, curr_user, template_name): 
+def remove_unicode_binding(key): 
     if key == None:
         key =""
     key = key.lower()
@@ -210,10 +194,10 @@ def remove_unicode_binding(key, curr_user, template_name):
             binded = False
 
     if binded:
-        _save(curr_user, template_name)
+        _save()
     return binded
 
-def remove_latex_shortcut(key, curr_user, template_name): 
+def remove_latex_shortcut(key): 
     if key == None:
         key =""
     key = key.lower()
@@ -228,7 +212,7 @@ def remove_latex_shortcut(key, curr_user, template_name):
             binded = False
 
     if binded:
-        _save(curr_user, template_name)
+        _save()
     return binded
 
 #read symbol binded to key
@@ -254,6 +238,10 @@ def get_key_from_value(value):
             return key
     
 #shows all bindings 
+def all_bindings():
+    with _lock:
+        return dict(bindings)
+
 def all_unicode_bindings(): 
     with _lock: 
         return dict(bindings.get("unicode"))
