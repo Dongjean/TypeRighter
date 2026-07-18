@@ -10,3 +10,4 @@ pytest-subtests==0.15.0
 pyperclip==1.11.0
 pywin32==311
 keyring==25.7.0
+empyrebase==2.5.0

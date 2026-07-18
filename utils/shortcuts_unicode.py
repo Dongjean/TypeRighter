@@ -162,9 +162,7 @@ def set_latex_shortcut(latex_code, name):
     curr_latex_shortcuts = all_latex_shortcuts()
     if curr_latex_shortcuts:
         # If there are existing shortcuts, just increment the highest key
-        key = max(map(int, curr_latex_shortcuts.keys())) + 1
-    
-    print(key)
+        key = str(max(map(int, curr_latex_shortcuts.keys())) + 1)
     
     with _lock: 
         latex_shortcuts = bindings.get("latex")

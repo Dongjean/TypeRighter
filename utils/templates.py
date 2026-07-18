@@ -4,6 +4,10 @@ import sys
 import threading 
 import shutil
 
+import utils.firebase_app as fb
+
+db = fb.db
+
 def _data_dir(): 
     app = "TypeRighter"
     if sys.platform !="win32":
@@ -102,6 +106,19 @@ def _save(curr_user, template_name, new_template):
             with open(temp, "w", encoding="utf-8") as f:
                 json.dump(all_templates, f, ensure_ascii=False, indent=4)
             os.replace(temp, _TEMPLATE_PATH)
+
+        print(all_templates)
+        unicode_data = all_templates[template_name]["unicode"]
+        print(unicode_data)
+        unicode_ref = db.collection("templates").document(curr_user).collection(template_name).document("unicode")
+        unicode_ref.update_document(data=unicode_data)
+
+        latex_shortcuts = all_templates[template_name]["latex"]
+        for latex_id, latex_data in latex_shortcuts.items():
+            latex_ref = db.collection("templates").document(curr_user).collection(template_name).document("latex").collection(latex_id).document("latex_data")
+
+            latex_ref.update_document(data=latex_data)
+
         return all_templates
     except IOError:
         return False
