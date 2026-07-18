@@ -154,11 +154,17 @@ def signup(username_editor, password_editor, signup_error_label, COLORS):
 def logout(root, user_info_container, auth_frame, COLORS, FONTS):
     global user_info
 
+    # Delete the folder for this user's user data
+    templates.delete_user_data(user_info["email"])
+
     user_info = {
         "email": None
     }
 
     auth.logout()
+
+    # Maintain the current template, but change the current name to 'default'
+    settings.set_setting("curr_template", "default")
 
     # Destroy the user_info frame
     destroy_user_info_frame(root, user_info_container)

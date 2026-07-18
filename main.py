@@ -85,17 +85,27 @@ def on_press_shortcut(key):
 def on_press_template_change(key, listener):
     try:
         # Exit template change mode
-        if key == keyboard.Key.esc:
+        if key == keyboard.Key.esc or key == keyboard.Key.enter:
             destroy_change_template()
+            shortcuts_unicode.load()
+            update_breakout_key()
             overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
             overlay_listener.start()
             listener.stop()
 
         # Change keys for selecting templates
         elif key == keyboard.Key.left or key == keyboard.Key.up:
-            pass
+            curr_template_name = settings.lookup_setting("curr_template")
+            prev_template_name = templates.get_prev_template_name(curr_template_name)
+            templates.use_template(prev_template_name)
+            settings.set_setting("curr_template", prev_template_name)
+            view_handler.gui_queue.put(f"change_template_display_{prev_template_name}")
         elif key == keyboard.Key.right or key == keyboard.Key.down:
-            pass
+            curr_template_name = settings.lookup_setting("curr_template")
+            next_template_name = templates.get_next_template_name(curr_template_name)
+            templates.use_template(next_template_name)
+            settings.set_setting("curr_template", next_template_name)
+            view_handler.gui_queue.put(f"change_template_display_{next_template_name}")
     except:
         pass
 
@@ -112,9 +122,13 @@ def on_release_shortcut(key, listener):
                     control_panel_window()
                     stop_all_pynput_keyboard_listeners()
                 elif shortcuts_unicode.lookup_unicode(keys) == "Change Template":
-                    trigger_change_template()
-                    template_change_listener = keyboard.Listener(suppress=True, on_press=lambda key: on_press_template_change(key, template_change_listener))
-                    template_change_listener.start()
+                    if auth.get_email()[0]:
+                        trigger_change_template()
+                        template_change_listener = keyboard.Listener(suppress=True, on_press=lambda key: on_press_template_change(key, template_change_listener))
+                        template_change_listener.start()
+                    else:
+                        overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
+                        overlay_listener.start()
                 elif shortcuts_unicode.lookup_unicode(keys) == "Exit App":
                     clean_exit()
                 elif unicode_symbol := shortcuts_unicode.copy_symbol(keys):

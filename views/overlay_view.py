@@ -3,6 +3,7 @@ import sys
 
 import utils.shortcuts_unicode as shortcuts_unicode
 import utils.unicode_search as unicode_search
+import utils.settings as settings
 
 def overlay_init(root):
     border_thickness = 5
@@ -62,7 +63,7 @@ def overlay_init(root):
     change_template.resizable(False, False)
     change_template.overrideredirect(True) # No title bar, no borders
     change_template.attributes("-topmost", True) # Always on top
-    curr_template = tk.Label(change_template, bg="black", fg="white", name="curr_template")
+    curr_template = tk.Label(change_template, text="", bg="black", fg="white", name="curr_template")
     curr_template.pack(pady=5)
     typed.grab_set()
     instructions = tk.Label(change_template, text="Press ESC to exit, arrow keys to change templates", bg="black", fg="white", name="instructions")
@@ -136,9 +137,18 @@ def flash_red_overlay(root):
 
 def trigger_change_template(root):
     toplevel = root.nametowidget("change_template")
+    curr_template = toplevel.nametowidget("curr_template")
+
+    curr_template_name = settings.lookup_setting("curr_template")
+    curr_template.configure(text=curr_template_name)
     toplevel.lift()
     toplevel.deiconify()
 
 def destroy_change_template(root):
     toplevel = root.nametowidget("change_template")
     toplevel.withdraw()
+
+def change_template_display(root, new_template):
+    toplevel = root.nametowidget("change_template")
+    curr_template = toplevel.nametowidget("curr_template")
+    curr_template.configure(text=new_template)

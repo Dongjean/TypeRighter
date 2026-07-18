@@ -4,7 +4,7 @@ import sys
 from pynput import keyboard
 
 from views.control_panel_view import control_panel_init
-from views.overlay_view import trigger_overlay, hide_overlay, flash_red_overlay, overlay_init, trigger_textbox, destroy_textbox, append_textbox, trigger_change_template, destroy_change_template
+from views.overlay_view import trigger_overlay, hide_overlay, flash_red_overlay, overlay_init, trigger_textbox, destroy_textbox, append_textbox, trigger_change_template, destroy_change_template, change_template_display
 import main as main
 
 # This is the entry point to our GUI window from the main python script
@@ -51,6 +51,8 @@ def check_queue(root):
             trigger_change_template(root)
         elif msg == "destroy_change_template":
             destroy_change_template(root)
+        elif msg.startswith("change_template_display_"):
+            change_template_display(root, msg.removeprefix("change_template_display_"))
         
         # Command Textbox Commands
         elif msg == "trigger_textbox":

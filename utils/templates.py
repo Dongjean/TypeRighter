@@ -27,6 +27,17 @@ def _templates_dir(curr_user):
     os.makedirs(folder, exist_ok=True)
     return folder
 
+def _user_dir(curr_user): 
+    app = "TypeRighter"
+    user_folder = curr_user
+    if sys.platform !="win32":
+        raise NotImplementedError("This function is currently only implemented for Windows.")
+    
+    base = os.environ.get("APPDATA", os.path.expanduser("~"))
+    folder = os.path.join(base, app, user_folder)
+    os.makedirs(folder, exist_ok=True)
+    return folder
+
 DEFAULT_BINDINGS = {
     "unicode": {
         "`": "Exit App",
@@ -91,16 +102,25 @@ def _save(curr_user, template_name, new_template):
             with open(temp, "w", encoding="utf-8") as f:
                 json.dump(all_templates, f, ensure_ascii=False, indent=4)
             os.replace(temp, _TEMPLATE_PATH)
-        return True
+        return all_templates
     except IOError:
+        return False
+
+def _delete_templates_folder(curr_user):
+    try:
+        _USER_DIR = _user_dir(curr_user)
+        shutil.rmtree(_USER_DIR)
+    except:
         return False
 
 # Updates a template
 def update_template(curr_user, template_name, new_template):
     
-    ok = _save(curr_user, template_name, new_template)
+    new_templates = _save(curr_user, template_name, new_template)
 
-    if ok: 
+    if new_templates:
+        global templates
+        templates = new_templates
         return True, f"Successfully set '{template_name}' to '{new_template}' for user '{curr_user}'."
     else: 
         return False, f"Failed to set '{template_name}' to '{new_template}' for user '{curr_user}. Please try again."
@@ -142,6 +162,46 @@ def use_template(template_name):
             return True
         except IOError:
             return False
+
+def get_prev_template_name(curr_template):
+
+    with _lock:
+        try:
+            templates_keys = list(templates.keys())
+        except:
+            return False
+    
+    current_index = templates_keys.index(curr_template)
+
+    prev_index = (current_index - 1) % len(templates_keys)
+
+    return templates_keys[prev_index]
+    
+def get_next_template_name(curr_template):
+
+    with _lock:
+        try:
+            templates_keys = list(templates.keys())
+        except:
+            return False
+    
+    current_index = templates_keys.index(curr_template)
+
+    next_index = (current_index + 1) % len(templates_keys)
+
+    return templates_keys[next_index]
+
+def delete_user_data(curr_user):    
+    global templates
+
+    templates = {"default": DEFAULT_BINDINGS}
+
+    ok = _delete_templates_folder(curr_user)
+
+    if ok:
+        return True
+    else:
+        return False
 
 # def new_template(curr_user, template_name, template):
 #     global templates
