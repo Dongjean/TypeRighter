@@ -107,17 +107,9 @@ def _save(curr_user, template_name, new_template):
                 json.dump(all_templates, f, ensure_ascii=False, indent=4)
             os.replace(temp, _TEMPLATE_PATH)
 
-        print(all_templates)
-        unicode_data = all_templates[template_name]["unicode"]
-        print(unicode_data)
-        unicode_ref = db.collection("templates").document(curr_user).collection(template_name).document("unicode")
-        unicode_ref.update_document(data=unicode_data)
-
-        latex_shortcuts = all_templates[template_name]["latex"]
-        for latex_id, latex_data in latex_shortcuts.items():
-            latex_ref = db.collection("templates").document(curr_user).collection(template_name).document("latex").collection(latex_id).document("latex_data")
-
-            latex_ref.update_document(data=latex_data)
+        # Add a template_names list so we can dynamically call all the templates later
+        user_templates_ref = db.collection("templates").document(curr_user)
+        user_templates_ref.update_document(data=all_templates)
 
         return all_templates
     except IOError:
