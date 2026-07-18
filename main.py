@@ -42,6 +42,12 @@ def flash_red_overlay():
 def control_panel_window():
     view_handler.gui_queue.put("control_panel_window")
 
+def trigger_change_template():
+    view_handler.gui_queue.put("trigger_change_template")
+
+def destroy_change_template():
+    view_handler.gui_queue.put("destroy_change_template")
+
 def insert_char(char):
 
     keyboard_controller.release(BREAKOUT_KEY)
@@ -76,6 +82,23 @@ def on_press_shortcut(key):
     except:
         pass
 
+def on_press_template_change(key, listener):
+    try:
+        # Exit template change mode
+        if key == keyboard.Key.esc:
+            destroy_change_template()
+            overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
+            overlay_listener.start()
+            listener.stop()
+
+        # Change keys for selecting templates
+        elif key == keyboard.Key.left or key == keyboard.Key.up:
+            pass
+        elif key == keyboard.Key.right or key == keyboard.Key.down:
+            pass
+    except:
+        pass
+
 def on_release_shortcut(key, listener):
     global keys
     try:
@@ -88,6 +111,10 @@ def on_release_shortcut(key, listener):
                 elif shortcuts_unicode.lookup_unicode(keys) == "Control Panel":
                     control_panel_window()
                     stop_all_pynput_keyboard_listeners()
+                elif shortcuts_unicode.lookup_unicode(keys) == "Change Template":
+                    trigger_change_template()
+                    template_change_listener = keyboard.Listener(suppress=True, on_press=lambda key: on_press_template_change(key, template_change_listener))
+                    template_change_listener.start()
                 elif shortcuts_unicode.lookup_unicode(keys) == "Exit App":
                     clean_exit()
                 elif unicode_symbol := shortcuts_unicode.copy_symbol(keys):

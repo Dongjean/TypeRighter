@@ -40,6 +40,7 @@ def overlay_init(root):
     else:
         canvas.create_rectangle(border_thickness//2, border_thickness//2, sw - border_thickness//2, sh - border_thickness//2, outline="green", width=border_thickness, fill="white", tags="overlay")
 
+    # The command textbox
     textbox = tk.Toplevel(root, bg="black", name="textbox") 
     textbox.configure(padx=20, pady=20)
     textbox.transient(root)
@@ -51,6 +52,21 @@ def overlay_init(root):
     typed.grab_set()
     preview = tk.Label(textbox, bg="black", fg="white", name="preview")
     preview.pack()
+
+    textbox.withdraw()
+
+    # The change template display
+    change_template = tk.Toplevel(root, bg="black", name="change_template") 
+    change_template.configure(padx=20, pady=20)
+    change_template.transient(root)
+    change_template.resizable(False, False)
+    change_template.overrideredirect(True) # No title bar, no borders
+    change_template.attributes("-topmost", True) # Always on top
+    curr_template = tk.Label(change_template, bg="black", fg="white", name="curr_template")
+    curr_template.pack(pady=5)
+    typed.grab_set()
+    instructions = tk.Label(change_template, text="Press ESC to exit, arrow keys to change templates", bg="black", fg="white", name="instructions")
+    instructions.pack()
 
     textbox.withdraw()
 
@@ -117,3 +133,12 @@ def flash_red_overlay(root):
 
     global jobId
     jobId = root.after(1000, lambda: revert_and_withdraw(root))
+
+def trigger_change_template(root):
+    toplevel = root.nametowidget("change_template")
+    toplevel.lift()
+    toplevel.deiconify()
+
+def destroy_change_template(root):
+    toplevel = root.nametowidget("change_template")
+    toplevel.withdraw()

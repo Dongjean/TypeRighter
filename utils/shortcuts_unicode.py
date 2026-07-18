@@ -33,6 +33,7 @@ DEFAULT_BINDINGS = {
         "a": "Close Overlay",
         "s": "Control Panel",
         "\\": "Breakout Key",
+        "=": "Change Template",
     },
     "latex": {
         "0": {"name": "Fraction", "code": r"\frac{a}{b}"},

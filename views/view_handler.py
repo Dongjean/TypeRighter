@@ -4,7 +4,7 @@ import sys
 from pynput import keyboard
 
 from views.control_panel_view import control_panel_init
-from views.overlay_view import trigger_overlay, hide_overlay, flash_red_overlay, overlay_init, trigger_textbox, destroy_textbox, append_textbox
+from views.overlay_view import trigger_overlay, hide_overlay, flash_red_overlay, overlay_init, trigger_textbox, destroy_textbox, append_textbox, trigger_change_template, destroy_change_template
 import main as main
 
 # This is the entry point to our GUI window from the main python script
@@ -14,33 +14,53 @@ gui_queue = queue.Queue()
 
 is_overlay_triggered = False
 is_control_panel_open = False
+is_changing_template = False
 
 # Poll for changes to root window state from other threads
 def check_queue(root):
     global is_overlay_triggered
     global is_control_panel_open
+    global is_changing_template
     try:
         # Check if there's a message in the queue
         msg = gui_queue.get(block=False)
+
+        # Trigger the Overlay
         if msg == "trigger_overlay":
             trigger_overlay(root)
             is_overlay_triggered = True
+        
+        # Hide the Overlay
         elif msg == "hide_overlay":
             hide_overlay(root)
             is_overlay_triggered = False
+
+        # Flash the Overlay Red (unused currently)
         elif msg == "flash_red_overlay":
             flash_red_overlay(root)
             is_overlay_triggered = False
+        
+        # Open the Control Panel
         elif msg == "control_panel_window":
             control_panel_init(root)
             is_overlay_triggered = False
             is_control_panel_open = True
+        
+        # Template Changing Commands
+        elif msg == "trigger_change_template":
+            trigger_change_template(root)
+        elif msg == "destroy_change_template":
+            destroy_change_template(root)
+        
+        # Command Textbox Commands
         elif msg == "trigger_textbox":
             trigger_textbox(root)
         elif msg == "destroy_textbox":
             destroy_textbox(root)
         elif msg.startswith("append_textbox_"):
             append_textbox(root, msg.removeprefix("append_textbox_"))
+        
+        # For Exiting the App
         elif msg == "destroy_root":
             root.destroy()
     except queue.Empty:
