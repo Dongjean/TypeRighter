@@ -39,7 +39,7 @@ def login(root, username_editor, password_editor, login_error_label, login_hub_c
             password_editor.delete(0, "end")
             
             # Load the settings
-            curr_settings = settings.load(username)
+            curr_settings = settings.load(username, pull_fb=True)
 
             # Load the current template
             templates.load(username, pull_fb=True)
@@ -164,7 +164,7 @@ def logout(root, user_info_container, auth_frame, COLORS, FONTS):
     auth.logout()
 
     # Maintain the current template, but change the current name to 'default'
-    settings.set_setting("curr_template", "default")
+    settings.set_setting("curr_template", "default", curr_user=None)
 
     # Destroy the user_info frame
     destroy_user_info_frame(root, user_info_container)

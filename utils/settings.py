@@ -5,6 +5,9 @@ import threading
 import pyperclip
 
 import utils.templates as templates
+import utils.firebase_app as fb
+
+db = fb.db
 
 #creates local file (windows)
 def _data_dir(): 
@@ -39,51 +42,67 @@ DEFAULT_SETTINGS = {
 settings = DEFAULT_SETTINGS
 
 #load from file
-def load(curr_user): 
+def load(curr_user, pull_fb=False): 
     global settings
+
+    if pull_fb:
+        try:
+            user_settings_ref = db.collection("settings")
+            all_settings = user_settings_ref.get_document(curr_user)
+        except:
+            pass
+    print(all_settings)
     with _lock:
 
-
-        # If we are logged in, pull the latest settings of the curr_user
-        if curr_user:
-            if os.path.exists(_PATH):
-                try: 
-                    with open(_PATH, "r", encoding="utf-8") as f:
-                        settings = json.load(f)
-                except (json.JSONDecodeError, IOError):
-                    settings = {}
-            else:
-                # Create a new file, and add in the default settings
-                settings = DEFAULT_SETTINGS
-                temp = _PATH + ".tmp" 
-                with open(temp, "w", encoding="utf-8") as f:
-                    json.dump(settings, f, ensure_ascii=False, indent=4)
-                os.replace(temp, _PATH)
-            
-        temp = _PATH + ".tmp"
-        with open(temp, "w", encoding="utf-8") as f:
-            json.dump(settings, f, ensure_ascii=False, indent=4)
-        os.replace(temp, _PATH)
+        # If we successfully pulled settings data from firebase, write to file
+        if pull_fb and all_settings:
+            settings = all_settings
+            temp = _PATH + ".tmp" 
+            with open(temp, "w", encoding="utf-8") as f:
+                json.dump(settings, f, ensure_ascii=False, indent=4)
+            os.replace(temp, _PATH)
         
-        return dict(settings) #copy of settings
+        # If firebase has no valid settings data, use the default settings
+        elif pull_fb and not all_settings:
+            # Create a new file, and add in the default settings
+            settings = DEFAULT_SETTINGS
+            temp = _PATH + ".tmp" 
+            with open(temp, "w", encoding="utf-8") as f:
+                json.dump(settings, f, ensure_ascii=False, indent=4)
+            os.replace(temp, _PATH)
+        
+        # If we didnt pull from firebase, then pull from local db
+        elif not pull_fb:
+            try: 
+                with open(_PATH, "r", encoding="utf-8") as f:
+                    settings = json.load(f)
+            except (json.JSONDecodeError, IOError):
+                settings = DEFAULT_SETTINGS
+
+    return dict(settings)
 
 #save to file
-def _save(): 
+def _save(curr_user): 
     try: 
         temp = _PATH + ".tmp" 
         with open(temp, "w", encoding="utf-8") as f:
             json.dump(settings, f, ensure_ascii=False, indent=4)
         os.replace(temp, _PATH)
+
+        if curr_user:
+            user_settings_ref = db.collection("settings").document(curr_user)
+            user_settings_ref.update_document(data=settings)
+
         return True #saved successfully
     except IOError:
         return False 
 
 #sets a new setting
-def set_setting(setting_id, new_setting):
+def set_setting(setting_id, new_setting, curr_user):
     
     with _lock: 
         settings[setting_id] = new_setting 
-        ok = _save()
+        ok = _save(curr_user)
 
     if ok: 
         return True, f"Successfully set '{setting_id}' to '{new_setting}'."

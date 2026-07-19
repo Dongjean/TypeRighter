@@ -98,13 +98,15 @@ def on_press_template_change(key, listener):
             curr_template_name = settings.lookup_setting("curr_template")
             prev_template_name = templates.get_prev_template_name(curr_template_name)
             templates.use_template(prev_template_name)
-            settings.set_setting("curr_template", prev_template_name)
+            curr_user, e = auth.get_email()
+            settings.set_setting("curr_template", prev_template_name, curr_user)
             view_handler.gui_queue.put(f"change_template_display_{prev_template_name}")
         elif key == keyboard.Key.right or key == keyboard.Key.down:
             curr_template_name = settings.lookup_setting("curr_template")
             next_template_name = templates.get_next_template_name(curr_template_name)
             templates.use_template(next_template_name)
-            settings.set_setting("curr_template", next_template_name)
+            curr_user, e = auth.get_email()
+            settings.set_setting("curr_template", next_template_name, curr_user)
             view_handler.gui_queue.put(f"change_template_display_{next_template_name}")
     except:
         pass
@@ -257,7 +259,7 @@ email, e = auth.get_email()
 if email:
     print(f"logged in as: {email}")
     # Load the settings
-    curr_settings = settings.load(email)
+    curr_settings = settings.load(email, pull_fb=True)
 
     # Load the current template
     templates.load(email, pull_fb=False)
