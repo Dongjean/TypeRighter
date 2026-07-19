@@ -58,9 +58,12 @@ def load(curr_user, pull_fb=False):
         if pull_fb and all_settings:
             settings = all_settings
             temp = _PATH + ".tmp" 
-            with open(temp, "w", encoding="utf-8") as f:
-                json.dump(settings, f, ensure_ascii=False, indent=4)
-            os.replace(temp, _PATH)
+            try:
+                with open(temp, "w", encoding="utf-8") as f:
+                    json.dump(settings, f, ensure_ascii=False, indent=4)
+                os.replace(temp, _PATH)
+            except:
+                return False
         
         # If firebase has no valid settings data, use the default settings and push to firebase
         elif pull_fb and not all_settings:
