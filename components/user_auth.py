@@ -42,7 +42,7 @@ def login(root, username_editor, password_editor, login_error_label, login_hub_c
             curr_settings = settings.load(username)
 
             # Load the current template
-            templates.load(username)
+            templates.load(username, pull_fb=True)
             templates.use_template(curr_settings["curr_template"])
             shortcuts_unicode.load()
 

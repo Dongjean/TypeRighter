@@ -260,7 +260,7 @@ if email:
     curr_settings = settings.load(email)
 
     # Load the current template
-    templates.load(email)
+    templates.load(email, pull_fb=False)
     templates.use_template(curr_settings["curr_template"])
 else:
     print(f"error initialising login state: {e}")

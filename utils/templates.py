@@ -63,28 +63,53 @@ templates = {
 }
 
 #load the templates for the current user.
-def load(curr_user):
+def load(curr_user, pull_fb=False):
     global templates
     # Get the path for the current user
     _PATH = os.path.join(_templates_dir(curr_user), "user_templates.json")
+
+    # Pull the templates data from firebase if required
+    if pull_fb:
+        try:
+            user_templates_ref = db.collection("templates")
+            all_templates = user_templates_ref.get_document(curr_user)
+        except:
+            pass
+
     with _lock:
-        # Create the new folder for this user's templates if it doesnt already exist
-        # Otherwise read it
-        if os.path.exists(_PATH):
+
+        # If we successfully pulled templates data from firebase, write to file
+        if pull_fb and all_templates:
+            templates = all_templates
+            temp = _PATH + ".tmp"
             try:
-                with open(_PATH, "r", encoding="utf-8") as f:
-                    templates = json.load(f)
-            except (json.JSONDecodeError, IOError):
-                templates = { "default": {} }
-        if not os.path.exists(_PATH):
+                with open(temp, "w", encoding="utf-8") as f:
+                    json.dump(all_templates, f, ensure_ascii=False, indent=4)
+                os.replace(temp, _PATH)
+            except:
+                return False
+        
+        # If firebase has no valid templates data, use the default templates
+        elif pull_fb and not all_templates:
             # Create a new default templates file and add in the default template
             templates = {
                 "default": DEFAULT_BINDINGS
             }
             temp = _PATH + ".tmp"
-            with open(temp, "w", encoding="utf-8") as f:
-                json.dump(templates, f, ensure_ascii=False, indent=4)
-            os.replace(temp, _PATH)
+            try:
+                with open(temp, "w", encoding="utf-8") as f:
+                    json.dump(templates, f, ensure_ascii=False, indent=4)
+                os.replace(temp, _PATH)
+            except:
+                return False
+        
+        # If we didnt pull from firebase, then pull from local db
+        elif not pull_fb:
+            try:
+                with open(_PATH, "r", encoding="utf-8") as f:
+                    templates = json.load(f)
+            except (json.JSONDecodeError, IOError):
+                templates = { "default": {} }
 
 #save to file
 def _save(curr_user, template_name, new_template):
