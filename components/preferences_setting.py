@@ -282,7 +282,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     email, e = auth.get_email()
     if email:
         print(f"Displaying templates for user: {email}")
-        # Fake list of templates
+        # List of templates
         curr_templates = templates.all_templates(email)
         curr_template_names = list(curr_templates)
 
