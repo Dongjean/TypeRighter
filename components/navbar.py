@@ -86,14 +86,8 @@ def on_template_selection(event, template_selector, root, COLORS, FONTS):
 def build_navbar(root, COLORS, FONTS, WINDOWS, start_window):
 
     # Frame for navbar
-    navbar_frame = tk.Frame(root, bg=COLORS["bg_main"], takefocus=True, name="navbar_frame")
-    navbar_frame.pack(side="right", fill="both")
-
-    # Display each window as a custom button
-    navbar_frame.selected_window = tk.StringVar(value=start_window)
-    for key, value in WINDOWS.items():
-        btn = tk.Radiobutton(navbar_frame, text=value["name"], variable=navbar_frame.selected_window, value=key, bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", width=10, height=3, font=FONTS["font_subtitle"], selectcolor=COLORS["accent_blue"], activebackground=COLORS["accent_blue"], indicatoron=False, command=(lambda: change_window(navbar_frame.selected_window.get(), root, COLORS, FONTS)), name=key)
-        btn.pack(side="top")
+    navbar_frame = tk.Frame(root, bg=COLORS["bg_main"], width=10, takefocus=True, name="navbar_frame")
+    navbar_frame.pack(side="right", fill="y")
     
     email, e = auth.get_email()
     if email:
@@ -102,14 +96,20 @@ def build_navbar(root, COLORS, FONTS, WINDOWS, start_window):
         curr_template_names = list(curr_templates)
         
         # Template Selector Dropdown Menu
-        template_selector = ttk.Combobox(navbar_frame, values=curr_template_names, state="readonly")
+        template_selector = ttk.Combobox(navbar_frame, values=curr_template_names, width=10, state="readonly")
         curr_selected_template = settings.lookup_setting("curr_template")
         template_selector.set(curr_selected_template)
-        template_selector.pack()
+        template_selector.pack(fill="x")
         template_selector.bind("<<ComboboxSelected>>", lambda event: on_template_selection(event, template_selector, root, COLORS, FONTS))
 
+    # Display each window as a custom button
+    navbar_frame.selected_window = tk.StringVar(value=start_window)
+    for key, value in WINDOWS.items():
+        btn = tk.Radiobutton(navbar_frame, text=value["name"], variable=navbar_frame.selected_window, value=key, bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", height=3, font=FONTS["font_subtitle"], selectcolor=COLORS["accent_blue"], activebackground=COLORS["accent_blue"], indicatoron=False, command=(lambda: change_window(navbar_frame.selected_window.get(), root, COLORS, FONTS)), name=key)
+        btn.pack(side="top", fill="x")
+    
     # Manually initialise the first window
-    # Clear curr_window first jic we exited control panel view and re-entere
+    # Clear curr_window first jic we exited control panel view and re-entered
     global curr_window
     curr_window = ""
     change_window(start_window, root, COLORS, FONTS)
