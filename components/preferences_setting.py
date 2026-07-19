@@ -259,6 +259,19 @@ def add_latex_shortcut(latex_shortcut_adder_name_entry, latex_shortcut_adder_cod
     else:
         latex_shortcut_adder_error_msg.config(text=message, fg="#FF0000")
 
+def on_template_selection(event, template_selector, preferences_frame, COLORS, FONTS):
+    
+    # Get the current value from the combobox
+    selected_template = template_selector.get()
+    
+    if selected_template:
+        templates.use_template(selected_template)
+        curr_user, e = auth.get_email()
+        settings.set_setting("curr_template", selected_template, curr_user)
+        shortcuts_unicode.load()
+        main.update_breakout_key()
+        _refresh_both(preferences_frame, COLORS, FONTS)
+
 def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     
     # Preferences Frame
@@ -270,7 +283,8 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     if email:
         print(f"Displaying templates for user: {email}")
         # Fake list of templates
-        curr_templates = ["default", "CS1231", "MA1508E"]
+        curr_templates = templates.all_templates(email)
+        curr_template_names = list(curr_templates)
 
         # Templates Selector Container
         template_selector_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="template_selector_container")
@@ -281,8 +295,10 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
         template_selector_label.pack()
 
         # Template Selector Dropdown Menu
-        template_selector = ttk.Combobox(template_selector_container, values=curr_templates, state="readonly")
-        template_selector.set(curr_templates[0])
+        template_selector = ttk.Combobox(template_selector_container, values=curr_template_names, state="readonly")
+        curr_selected_template = settings.lookup_setting("curr_template")
+        template_selector.set(curr_selected_template)
+        template_selector.bind("<<ComboboxSelected>>", lambda event: on_template_selection(event, template_selector, preferences_frame, COLORS, FONTS))
         template_selector.pack()
     else:
         print(f"error initialising login state: {e}")

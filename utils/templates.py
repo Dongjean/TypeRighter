@@ -164,22 +164,24 @@ def update_template(curr_user, template_name, new_template):
 
 #shows all templates
 def all_templates(curr_user):
-    
-    templates = {}
-    _PATH = _templates_dir(curr_user)
+    global templates
 
-    for template_filename in os.listdir(_PATH):
-        curr_path = os.path.join(_PATH, template_filename)
+    if templates:
+        return dict(templates)
+    else:
+        _PATH = _templates_dir(curr_user)
 
-        if os.path.exists(curr_path):
+        _TEMPLATES_PATH = os.path.join(_PATH, "user_templates.json")
+
+        if os.path.exists(_TEMPLATES_PATH):
             try:
-                with open(curr_path, "r", encoding="utf-8") as f:
+                with open(_TEMPLATES_PATH, "r", encoding="utf-8") as f:
                     curr_template = json.load(f)
-                    templates[template_filename] = curr_template
+                    templates = curr_template
             except (json.JSONDecodeError, IOError):
                 pass
-    
-    return dict(templates)
+        
+        return dict(templates)
 
 def use_template(template_name):
 
