@@ -62,14 +62,22 @@ def load(curr_user, pull_fb=False):
                 json.dump(settings, f, ensure_ascii=False, indent=4)
             os.replace(temp, _PATH)
         
-        # If firebase has no valid settings data, use the default settings
+        # If firebase has no valid settings data, use the default settings and push to firebase
         elif pull_fb and not all_settings:
             # Create a new file, and add in the default settings
             settings = DEFAULT_SETTINGS
-            temp = _PATH + ".tmp" 
-            with open(temp, "w", encoding="utf-8") as f:
-                json.dump(settings, f, ensure_ascii=False, indent=4)
-            os.replace(temp, _PATH)
+            temp = _PATH + ".tmp"
+            try:
+                with open(temp, "w", encoding="utf-8") as f:
+                    json.dump(settings, f, ensure_ascii=False, indent=4)
+                os.replace(temp, _PATH)
+
+                user_settings_ref = db.collection("settings").document(curr_user)
+                user_settings_ref.update_document(data=settings)
+            except:
+                return False
+            
+            
         
         # If we didnt pull from firebase, then pull from local db
         elif not pull_fb:

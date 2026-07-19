@@ -100,6 +100,9 @@ def load(curr_user, pull_fb=False):
                 with open(temp, "w", encoding="utf-8") as f:
                     json.dump(templates, f, ensure_ascii=False, indent=4)
                 os.replace(temp, _PATH)
+
+                user_templates_ref = db.collection("templates").document(curr_user)
+                user_templates_ref.update_document(data=templates)
             except:
                 return False
         
