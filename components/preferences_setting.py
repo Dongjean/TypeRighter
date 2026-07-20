@@ -318,6 +318,21 @@ def commit_template_name(template_selector_hub, template_editor_hub, template_na
     navbar_template_selector.configure(values=curr_template_names)
     navbar_template_selector.set(new_template_name)
 
+def add_new_template(template_selector_hub, template_editor_hub):
+
+    email, e = auth.get_email()
+    new_template_name = templates.add_new_template(email)
+    templates.use_template(new_template_name)
+    settings.set_setting("curr_template", new_template_name, email)
+    shortcuts_unicode.load()
+    main.update_breakout_key()
+
+    template_selector = template_selector_hub.nametowidget("template_selector")
+    template_selector.set(new_template_name)
+
+    # Automatically Enter Edit Template Name Mode
+    edit_template_name(template_selector_hub, template_editor_hub)
+
 def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     
     # Preferences Frame
@@ -335,10 +350,6 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
         # Templates Selector Container
         template_selector_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="template_selector_container")
         template_selector_container.pack(fill="x", anchor="center")
-
-        # # Templates Selector Editor Hub
-        # template_selector_editor_hub = tk.Frame(template_selector_container, bg=COLORS["bg_input"], name="template_selector_editor_hub")
-        # template_selector_editor_hub.pack(fill="x", anchor="center")
 
         # Templates Selector Hub
         template_selector_hub = tk.Frame(template_selector_container, bg=COLORS["bg_input"], name="template_selector_hub")
@@ -362,7 +373,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
 
         # Add New Template Button
         new_template_button = tk.Label(template_selector_hub, text="+", bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["action_green"], name="new_template_button")
-        new_template_button.bind("<Button-1>", lambda e: toggle_binds_expansion(keybinds_display_container,keybinds_label))
+        new_template_button.bind("<Button-1>", lambda e: add_new_template(template_selector_hub, template_editor_hub))
         new_template_button.pack(side="left")
 
         # Templates Editor Hub

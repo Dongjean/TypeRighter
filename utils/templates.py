@@ -5,6 +5,7 @@ import threading
 import shutil
 
 import utils.firebase_app as fb
+import utils.settings as settings
 
 db = fb.db
 
@@ -254,3 +255,32 @@ def delete_user_data(curr_user):
 #     _CURR_TEMPLATES_PATH = os.path.join(_templates_dir(curr_user), "user_template.json")
 #     with _lock:
 #         try:
+
+BASE_TEMPLATE_NAME = "New_Template"
+def add_new_template(email):
+    global templates
+
+    with _lock:
+        template_names = list(templates)
+
+        if BASE_TEMPLATE_NAME not in template_names:
+            new_template_name = BASE_TEMPLATE_NAME
+            templates[new_template_name] = DEFAULT_BINDINGS
+
+            ok = _save(email)
+
+        else:
+            counter = 1
+            new_template_name = BASE_TEMPLATE_NAME + "_" + str(counter)
+            while new_template_name in template_names:
+                counter += 1
+                new_template_name = new_template_name[:-1] + str(counter)
+
+            templates[new_template_name] = DEFAULT_BINDINGS
+
+            ok = _save(email)
+    
+    if ok:
+        return new_template_name
+    else:
+        return False
