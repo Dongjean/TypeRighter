@@ -169,6 +169,19 @@ def rename_template(curr_user, old_template_name, new_template_name):
     else: 
         return False, f"Failed to Rename Template '{old_template_name}' to '{new_template_name}' for user '{curr_user}. Please try again."
 
+def delete_template(curr_user, template_name):
+    global templates
+
+    with _lock:
+        templates.pop(template_name)
+
+        ok = _save(curr_user)
+
+    if ok:
+        return True, f"Successfully Deleted Template '{template_name}' for user '{curr_user}'."
+    else: 
+        return False, f"Failed to Delete Template '{template_name}' for user '{curr_user}. Please try again."
+
 #shows all templates
 def all_templates(curr_user):
     global templates

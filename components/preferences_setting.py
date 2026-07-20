@@ -274,16 +274,24 @@ def on_template_selection(event, template_selector, preferences_frame, COLORS, F
         main.update_breakout_key()
         _refresh_both(preferences_frame, COLORS, FONTS)
 
-def edit_template_name(template_selector_hub, template_editor_hub):
+        root = template_selector.winfo_toplevel()
+        navbar_frame = root.nametowidget("navbar_frame")
+        navbar_template_selector = navbar_frame.nametowidget("template_selector")
+        navbar_template_selector.set(selected_template)
+
+def edit_template(template_selector_hub, template_editor_hub):
         
     template_selector = template_selector_hub.nametowidget("template_selector")
     selected_template = template_selector.get()
-    template_selector_hub.pack_forget()
 
-    template_editor_hub.pack(fill="x", anchor="center")
-    template_name_editor = template_editor_hub.nametowidget("template_name_editor")
-    template_name_editor.delete(0, "end")
-    template_name_editor.insert(0, selected_template)
+    # Dont let the user edit the default template's name
+    if selected_template != "default":
+        template_selector_hub.pack_forget()
+
+        template_editor_hub.pack(fill="x", anchor="center")
+        template_name_editor = template_editor_hub.nametowidget("template_name_editor")
+        template_name_editor.delete(0, "end")
+        template_name_editor.insert(0, selected_template)
 
 def commit_template_name(template_selector_hub, template_editor_hub, template_name_editor, template_selector):
         
@@ -331,7 +339,35 @@ def add_new_template(template_selector_hub, template_editor_hub):
     template_selector.set(new_template_name)
 
     # Automatically Enter Edit Template Name Mode
-    edit_template_name(template_selector_hub, template_editor_hub)
+    edit_template(template_selector_hub, template_editor_hub)
+
+def delete_template(template_selector_hub, template_editor_hub):
+
+    email, e = auth.get_email()
+    to_delete = settings.lookup_setting("curr_template")
+    templates.use_template("default")
+    settings.set_setting("curr_template", "default", email)
+    shortcuts_unicode.load()
+    main.update_breakout_key()
+
+    templates.delete_template(email, to_delete)
+    curr_templates = templates.all_templates(email)
+    curr_template_names = list(curr_templates)
+    
+    template_selector = template_selector_hub.nametowidget("template_selector")
+    template_selector.configure(values=curr_template_names)
+    template_selector.set("default")
+
+    root = template_selector.winfo_toplevel()
+    navbar_frame = root.nametowidget("navbar_frame")
+    navbar_template_selector = navbar_frame.nametowidget("template_selector")
+
+    navbar_template_selector.configure(values=curr_template_names)
+    navbar_template_selector.set("default")
+    
+    template_editor_hub.pack_forget()
+
+    template_selector_hub.pack(fill="x", anchor="center")
 
 def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     
@@ -366,10 +402,10 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
         template_selector.bind("<<ComboboxSelected>>", lambda event: on_template_selection(event, template_selector, preferences_frame, COLORS, FONTS))
         template_selector.pack(side="left")
 
-        # Change Template Name Button
-        edit_template_name_button = tk.Label(template_selector_hub, text="Edit", bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["accent_blue"], name="edit_template_name_button")
-        edit_template_name_button.bind("<Button-1>", lambda e: edit_template_name(template_selector_hub, template_editor_hub))
-        edit_template_name_button.pack(side="left")
+        # Edit Template Button
+        edit_template_button = tk.Label(template_selector_hub, text="Edit", bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["accent_blue"], name="edit_template_button")
+        edit_template_button.bind("<Button-1>", lambda e: edit_template(template_selector_hub, template_editor_hub))
+        edit_template_button.pack(side="left")
 
         # Add New Template Button
         new_template_button = tk.Label(template_selector_hub, text="+", bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["action_green"], name="new_template_button")
@@ -391,6 +427,11 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
         commit_edits_button = tk.Label(template_editor_hub, text="Confirm Changes", bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["action_green"], name="commit_edits_button")
         commit_edits_button.bind("<Button-1>", lambda e: commit_template_name(template_selector_hub, template_editor_hub, template_name_editor, template_selector))
         commit_edits_button.pack(side="left")
+
+        # Delete Template Button
+        delete_template_button = tk.Label(template_editor_hub, text="Delete Template", bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["action_green"], name="delete_template_button")
+        delete_template_button.bind("<Button-1>", lambda e: delete_template(template_selector_hub, template_editor_hub))
+        delete_template_button.pack(side="left")
 
     else:
         print(f"error initialising login state: {e}")
