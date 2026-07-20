@@ -45,7 +45,7 @@ _lock = threading.Lock()
 
 bindings = {}
 
-PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key"]
+PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key", "Change Template"]
 
 def _norm(key): 
     if key is None: 

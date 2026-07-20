@@ -10,7 +10,7 @@ import utils.templates as templates
 
 import components.navbar as navbar
 
-PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key"]
+PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key", "Change Template"]
 
 def toggle_binds_expansion(binds_container, label):
     
@@ -56,7 +56,7 @@ def _refresh_keybinds(keybinds_display_container, preferences_frame, COLORS, FON
 
         # This Keybind's Unbinder
         # Display this iff it isnt one of the protected keys
-        if bind not in ["Exit App", "Close Overlay", "Control Panel", "Breakout Key"]:
+        if bind not in PROTECTED_BINDS:
             keybind_unbinder = tk.Button(keybind_container, text="Unbind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0, command=lambda COLORS=COLORS, FONTS=FONTS, key=key: _unbind_key(keybinds_display_container, preferences_frame, COLORS, FONTS, key), name=f"{key}_keybind_unbinder")
             keybind_unbinder.pack(side="right", padx=8)
 
