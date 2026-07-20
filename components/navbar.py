@@ -96,7 +96,7 @@ def build_navbar(root, COLORS, FONTS, WINDOWS, start_window):
         curr_template_names = list(curr_templates)
         
         # Template Selector Dropdown Menu
-        template_selector = ttk.Combobox(navbar_frame, values=curr_template_names, width=10, state="readonly")
+        template_selector = ttk.Combobox(navbar_frame, values=curr_template_names, width=10, state="readonly", name="template_selector")
         curr_selected_template = settings.lookup_setting("curr_template")
         template_selector.set(curr_selected_template)
         template_selector.pack(fill="x")

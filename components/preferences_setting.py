@@ -8,6 +8,8 @@ import views.view_handler as view_handler
 import utils.auth as auth
 import utils.templates as templates
 
+import components.navbar as navbar
+
 PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key"]
 
 def toggle_binds_expansion(binds_container, label):
@@ -272,6 +274,50 @@ def on_template_selection(event, template_selector, preferences_frame, COLORS, F
         main.update_breakout_key()
         _refresh_both(preferences_frame, COLORS, FONTS)
 
+def edit_template_name(template_selector_hub, template_editor_hub):
+        
+    template_selector = template_selector_hub.nametowidget("template_selector")
+    selected_template = template_selector.get()
+    template_selector_hub.pack_forget()
+
+    template_editor_hub.pack(fill="x", anchor="center")
+    template_name_editor = template_editor_hub.nametowidget("template_name_editor")
+    template_name_editor.delete(0, "end")
+    template_name_editor.insert(0, selected_template)
+
+def commit_template_name(template_selector_hub, template_editor_hub, template_name_editor, template_selector):
+        
+    email, e = auth.get_email()
+    curr_selected_template = settings.lookup_setting("curr_template")
+    new_template_name = template_name_editor.get()
+
+    template_editor_hub.pack_forget()
+
+    template_selector_hub.pack(fill="x", anchor="center")
+
+    templates_ok, templates_e = templates.rename_template(email, curr_selected_template, new_template_name)
+
+    settings_ok, settings_e = settings.set_setting("curr_template", new_template_name, email)
+
+    print(templates_e)
+    print(settings_e)
+
+    # Update the template selectors
+    curr_templates = templates.all_templates(email)
+    curr_template_names = list(curr_templates)
+    print(curr_template_names)
+    template_selector.configure(values=curr_template_names)
+    template_selector.set(new_template_name)
+
+    # Update the Navbar's template selector
+    # First get the root window
+    root = template_selector.winfo_toplevel()
+    navbar_frame = root.nametowidget("navbar_frame")
+    navbar_template_selector = navbar_frame.nametowidget("template_selector")
+
+    navbar_template_selector.configure(values=curr_template_names)
+    navbar_template_selector.set(new_template_name)
+
 def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     
     # Preferences Frame
@@ -290,16 +336,51 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
         template_selector_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="template_selector_container")
         template_selector_container.pack(fill="x", anchor="center")
 
+        # # Templates Selector Editor Hub
+        # template_selector_editor_hub = tk.Frame(template_selector_container, bg=COLORS["bg_input"], name="template_selector_editor_hub")
+        # template_selector_editor_hub.pack(fill="x", anchor="center")
+
+        # Templates Selector Hub
+        template_selector_hub = tk.Frame(template_selector_container, bg=COLORS["bg_input"], name="template_selector_hub")
+        template_selector_hub.pack(fill="x", anchor="center")
+
         # Templates Selector Label
-        template_selector_label = tk.Label(template_selector_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Selected Template", name="template_selector_label")
+        template_selector_label = tk.Label(template_selector_hub, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Selected Template", name="template_selector_label")
         template_selector_label.pack()
 
         # Template Selector Dropdown Menu
-        template_selector = ttk.Combobox(template_selector_container, values=curr_template_names, state="readonly")
+        template_selector = ttk.Combobox(template_selector_hub, values=curr_template_names, state="readonly", name="template_selector")
         curr_selected_template = settings.lookup_setting("curr_template")
         template_selector.set(curr_selected_template)
         template_selector.bind("<<ComboboxSelected>>", lambda event: on_template_selection(event, template_selector, preferences_frame, COLORS, FONTS))
-        template_selector.pack()
+        template_selector.pack(side="left")
+
+        # Change Template Name Button
+        edit_template_name_button = tk.Label(template_selector_hub, text="Edit", bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["accent_blue"], name="edit_template_name_button")
+        edit_template_name_button.bind("<Button-1>", lambda e: edit_template_name(template_selector_hub, template_editor_hub))
+        edit_template_name_button.pack(side="left")
+
+        # Add New Template Button
+        new_template_button = tk.Label(template_selector_hub, text="+", bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["action_green"], name="new_template_button")
+        new_template_button.bind("<Button-1>", lambda e: toggle_binds_expansion(keybinds_display_container,keybinds_label))
+        new_template_button.pack(side="left")
+
+        # Templates Editor Hub
+        template_editor_hub = tk.Frame(template_selector_container, bg=COLORS["bg_input"], name="template_editor_hub")
+        
+        # Template Editor Label
+        template_editor_label = tk.Label(template_editor_hub, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Edit Template Name", name="template_editor_label")
+        template_editor_label.pack()
+
+        # Template Name Editor Field
+        template_name_editor = tk.Entry(template_editor_hub, name="template_name_editor")
+        template_name_editor.pack(side="left")
+
+        # Commit Edits Button
+        commit_edits_button = tk.Label(template_editor_hub, text="Confirm Changes", bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["action_green"], name="commit_edits_button")
+        commit_edits_button.bind("<Button-1>", lambda e: commit_template_name(template_selector_hub, template_editor_hub, template_name_editor, template_selector))
+        commit_edits_button.pack(side="left")
+
     else:
         print(f"error initialising login state: {e}")
 

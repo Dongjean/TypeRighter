@@ -115,31 +115,22 @@ def load(curr_user, pull_fb=False):
                 templates = { "default": {} }
 
 #save to file
-def _save(curr_user, template_name, new_template):
+def _save(curr_user):
     try:
-        if template_name and curr_user:
+        if curr_user:
             _TEMPLATE_PATH = os.path.join(_templates_dir(curr_user), "user_templates.json")
             temp = _TEMPLATE_PATH + ".tmp"
 
-            # Read the existing file and change our current new_template
-            with open(_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-                try:
-                    all_templates = json.load(f)
-                    all_templates[template_name] = new_template
-                except Exception as e:
-                    print(e)
-                    return False
-
             # Replace the old file with the new template objects
             with open(temp, "w", encoding="utf-8") as f:
-                json.dump(all_templates, f, ensure_ascii=False, indent=4)
+                json.dump(templates, f, ensure_ascii=False, indent=4)
             os.replace(temp, _TEMPLATE_PATH)
 
         # Add a template_names list so we can dynamically call all the templates later
         user_templates_ref = db.collection("templates").document(curr_user)
-        user_templates_ref.update_document(data=all_templates)
+        user_templates_ref.create_document(data=templates)
 
-        return all_templates
+        return True
     except IOError:
         return False
 
@@ -152,15 +143,30 @@ def _delete_templates_folder(curr_user):
 
 # Updates a template
 def update_template(curr_user, template_name, new_template):
-    
-    new_templates = _save(curr_user, template_name, new_template)
+    global templates
 
-    if new_templates:
-        global templates
-        templates = new_templates
+    with _lock:
+        templates[template_name] = new_template
+        ok = _save(curr_user)
+
+    if ok:
         return True, f"Successfully set '{template_name}' to '{new_template}' for user '{curr_user}'."
     else: 
         return False, f"Failed to set '{template_name}' to '{new_template}' for user '{curr_user}. Please try again."
+
+def rename_template(curr_user, old_template_name, new_template_name):
+    global templates
+
+    with _lock:
+        template = templates.pop(old_template_name)
+        templates[new_template_name] = template
+
+        ok = _save(curr_user)
+
+    if ok:
+        return True, f"Successfully Renamed Template '{old_template_name}' to '{new_template_name}' for user '{curr_user}'."
+    else: 
+        return False, f"Failed to Rename Template '{old_template_name}' to '{new_template_name}' for user '{curr_user}. Please try again."
 
 #shows all templates
 def all_templates(curr_user):
