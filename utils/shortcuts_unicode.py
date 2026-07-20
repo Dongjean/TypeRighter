@@ -14,6 +14,18 @@ def _data_dir():
     folder = os.path.join(base, app)
     os.makedirs(folder, exist_ok=True)
     return folder
+
+def _templates_dir(curr_user): 
+    app = "TypeRighter"
+    user_folder = curr_user
+    templates_folder = "templates"
+    if sys.platform !="win32":
+        raise NotImplementedError("This function is currently only implemented for Windows.")
+    
+    base = os.environ.get("APPDATA", os.path.expanduser("~"))
+    folder = os.path.join(base, app, user_folder, templates_folder)
+    os.makedirs(folder, exist_ok=True)
+    return folder
     
 DEFAULT_BINDINGS = {
     "unicode": {
@@ -21,6 +33,7 @@ DEFAULT_BINDINGS = {
         "a": "Close Overlay",
         "s": "Control Panel",
         "\\": "Breakout Key",
+        "=": "Change Template",
     },
     "latex": {
         "0": {"name": "Fraction", "code": r"\frac{a}{b}"},
@@ -32,13 +45,13 @@ _lock = threading.Lock()
 
 bindings = {}
 
+PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key", "Change Template"]
+
 def _norm(key): 
     if key is None: 
         key = ""
     key = key.strip().lower()
     return key 
-
-RESERVED_KEYS ={"a", "s", "\\", "`"}
 
 #load from file 
 def load(): 
@@ -95,18 +108,17 @@ def check_binding(key, symbol):
     key = key.lower()
 
     if not key: 
-        return "error. Please enter a key or phrase"
-    if "\\" in key: 
-        return "error. Invalid Key. Please try again."
-    if key in RESERVED_KEYS: 
-        return "error", f"'{key}' is reserved and cannot be used as a shortcut key."
+        return "error", "Please enter a key or phrase"
     if not symbol: 
-        return "error. Invalid Symbol for Binding"
+        return "error", "Invalid Symbol for Binding"
         
     with _lock: 
         existing = (bindings.get("unicode") or {}).get(key)
 
         #if different symbol
+        if existing is not None and existing in PROTECTED_BINDS:
+            return "protected", f"'{key}' is bound to the protected command '{existing}'"
+
         if existing is not None and existing != symbol: 
             return "conflict", f"'{key}' is already bound to '{existing}'"
         
@@ -122,11 +134,6 @@ def set_unicode_binding(key, symbol, overwrite = True):
     if not key: 
         return False, "Please enter a key or phrase"
     
-    if "\\" in key:
-        return False, "Invalid key. Please enter a valid key."
-    
-    if key in RESERVED_KEYS: 
-        return False, f"'{key}' is reserved and cannot be used as a shortcut key."
     if not symbol: 
         return False, "Invalid symbol for binding."
     
@@ -155,9 +162,7 @@ def set_latex_shortcut(latex_code, name):
     curr_latex_shortcuts = all_latex_shortcuts()
     if curr_latex_shortcuts:
         # If there are existing shortcuts, just increment the highest key
-        key = max(map(int, curr_latex_shortcuts.keys())) + 1
-    
-    print(key)
+        key = str(max(map(int, curr_latex_shortcuts.keys())) + 1)
     
     with _lock: 
         latex_shortcuts = bindings.get("latex")
@@ -221,16 +226,21 @@ def lookup_unicode(key):
 
 def get_key_from_value(value):
 
-    unicode_shortcuts = bindings.get("unicode")
-    # Assume each value only has one unique key
-    key = next((k for k, v in unicode_shortcuts.items() if v == value), None)
+    with _lock:
+        unicode_shortcuts = bindings.get("unicode")
+        # Assume each value only has one unique key
+        key = next((k for k, v in unicode_shortcuts.items() if v == value), None)
 
-    if not key:
-        return None
-    else:
-        return key
+        if not key:
+            return None
+        else:
+            return key
     
 #shows all bindings 
+def all_bindings():
+    with _lock:
+        return dict(bindings)
+
 def all_unicode_bindings(): 
     with _lock: 
         return dict(bindings.get("unicode"))

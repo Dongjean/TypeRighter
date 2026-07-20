@@ -2,6 +2,9 @@ import tkinter as tk
 
 import utils.unicode_search as unicode_search
 import utils.shortcuts_unicode as shortcuts_unicode
+import utils.settings as settings
+import utils.auth as auth
+import utils.templates as templates
 
 #keybind popup
 def _bind_key(parent, symbol, name, COLORS, FONTS, on_select): 
@@ -35,7 +38,7 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
         status, message = shortcuts_unicode.check_binding(raw_input, symbol)
 
         #invalid keys/reserved binds 
-        if status == "error": 
+        if status == "error" or status == "protected": 
             pending["input"] = None
             prompt.config(text = message, font=FONTS["font_subtitle"], fg = "#FF0000")
             return 
@@ -53,8 +56,15 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
         else: 
             overwrite = False
         
-        ok,result = shortcuts_unicode.set_unicode_binding(raw_input, symbol, overwrite = overwrite)
-        if ok: 
+        template_name = settings.lookup_setting("curr_template")
+        email, e = auth.get_email()
+        ok_shortcut,result = shortcuts_unicode.set_unicode_binding(raw_input, symbol, overwrite = overwrite)
+        if email:
+            bindings = shortcuts_unicode.all_bindings()
+            ok_template,result = templates.update_template(email, template_name, bindings)
+        else:
+            ok_template = True
+        if ok_shortcut and ok_template: 
             popup.destroy()
             on_select(result)
         else: 

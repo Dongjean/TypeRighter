@@ -1,4 +1,5 @@
-import pyrebase
+# import pyrebase
+import empyrebase
 from dotenv import load_dotenv
 import os
 
@@ -24,7 +25,10 @@ firebaseConfig = {
   "databaseURL": "",
 }
 
-app = pyrebase.initialize_app(firebaseConfig)
+app = empyrebase.initialize_app(firebaseConfig)
 
 # Login Authenticator export
 auth = app.auth()
+
+# Firestore DB export
+db = app.firestore()

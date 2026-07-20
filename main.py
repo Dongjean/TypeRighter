@@ -11,22 +11,24 @@ import ctypes
 
 import utils.unicode_search as unicode_search
 import utils.auth as auth
+import utils.settings as settings
+import utils.templates as templates
 
 # For debugging
 log_path = os.path.join(os.getcwd(), "debug_log.txt")
 sys.stdout = open(log_path, "a", encoding="utf-8", errors="replace", buffering=1) 
 sys.stderr = open(log_path, "a", encoding="utf-8", errors="replace", buffering=1)
 
-# Silence terminal for .exe mode
-if getattr(sys, 'frozen', False):
-    sys.stdout = open(os.devnull, 'w')
-    sys.stderr = open(os.devnull, 'w')
-
 # Key listener
 keyboard_controller = keyboard.Controller()
 
 # Use canonical keys to account for certain combinations becoming Control Codes
 current_keys = set()
+
+# Update BREAKOUT_KEY when it gets changed in the user flow
+def update_breakout_key():
+    global BREAKOUT_KEY
+    BREAKOUT_KEY = shortcuts_unicode.get_key_from_value("Breakout Key") or "\\"
 
 def hide_overlay():
     view_handler.gui_queue.put("hide_overlay")
@@ -39,6 +41,12 @@ def flash_red_overlay():
 
 def control_panel_window():
     view_handler.gui_queue.put("control_panel_window")
+
+def trigger_change_template():
+    view_handler.gui_queue.put("trigger_change_template")
+
+def destroy_change_template():
+    view_handler.gui_queue.put("destroy_change_template")
 
 def insert_char(char):
 
@@ -74,6 +82,35 @@ def on_press_shortcut(key):
     except:
         pass
 
+def on_press_template_change(key, listener):
+    try:
+        # Exit template change mode
+        if key == keyboard.Key.esc or key == keyboard.Key.enter:
+            destroy_change_template()
+            shortcuts_unicode.load()
+            update_breakout_key()
+            overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
+            overlay_listener.start()
+            listener.stop()
+
+        # Change keys for selecting templates
+        elif key == keyboard.Key.left or key == keyboard.Key.up:
+            curr_template_name = settings.lookup_setting("curr_template")
+            prev_template_name = templates.get_prev_template_name(curr_template_name)
+            templates.use_template(prev_template_name)
+            curr_user, e = auth.get_email()
+            settings.set_setting("curr_template", prev_template_name, curr_user)
+            view_handler.gui_queue.put(f"change_template_display_{prev_template_name}")
+        elif key == keyboard.Key.right or key == keyboard.Key.down:
+            curr_template_name = settings.lookup_setting("curr_template")
+            next_template_name = templates.get_next_template_name(curr_template_name)
+            templates.use_template(next_template_name)
+            curr_user, e = auth.get_email()
+            settings.set_setting("curr_template", next_template_name, curr_user)
+            view_handler.gui_queue.put(f"change_template_display_{next_template_name}")
+    except:
+        pass
+
 def on_release_shortcut(key, listener):
     global keys
     try:
@@ -85,16 +122,19 @@ def on_release_shortcut(key, listener):
                     hide_overlay()
                 elif shortcuts_unicode.lookup_unicode(keys) == "Control Panel":
                     control_panel_window()
+                    stop_all_pynput_keyboard_listeners()
+                elif shortcuts_unicode.lookup_unicode(keys) == "Change Template":
+                    if auth.get_email()[0]:
+                        trigger_change_template()
+                        template_change_listener = keyboard.Listener(suppress=True, on_press=lambda key: on_press_template_change(key, template_change_listener))
+                        template_change_listener.start()
+                    else:
+                        overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
+                        overlay_listener.start()
                 elif shortcuts_unicode.lookup_unicode(keys) == "Exit App":
                     clean_exit()
                 elif unicode_symbol := shortcuts_unicode.copy_symbol(keys):
                     threading.Thread(target=lambda: insert_char(unicode_symbol), daemon=True).start()
-                    overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
-                    overlay_listener.start()
-                elif keys == "alpha":
-                    # Sample, remove this elif in the future
-                    shortcuts_unicode.copy_to_clipboard("α")
-                    threading.Thread(target=lambda: insert_char("α"), daemon=True).start()
                     overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
                     overlay_listener.start()
                 else:
@@ -205,13 +245,33 @@ def stop_all_pynput_keyboard_listeners():
 def clean_exit():
     print("\nShutting down cleanly...")
     print("___")
-    icon.stop() # Stop the tray icon
-    stop_all_pynput_keyboard_listeners() # Stop the keyboard listener
-    view_handler.gui_queue.put("destroy_root") # Stop the root window
-    os._exit(0) # Hard exit to kill all threads instantly
+    try:
+        view_handler.icon.stop() # Stop the tray icon
+        stop_all_pynput_keyboard_listeners() # Stop the keyboard listener
+        view_handler.gui_queue.put("destroy_root") # Stop the root window
+    except Exception as e:
+        print(e)
+    finally:
+        os._exit(0) # Hard exit to kill all threads instantly
 
-#load saved unicode shortcuts 
+# Login, if its still valid
+email, e = auth.get_email()
+if email:
+    print(f"logged in as: {email}")
+    # Load the settings
+    curr_settings = settings.load(email, pull_fb=True)
+
+    # Load the current template
+    templates.load(email, pull_fb=False)
+    templates.use_template(curr_settings["curr_template"])
+else:
+    print(f"error initialising login state: {e}")
+
+# Load saved unicode shortcuts
+# If logged in properly, the saved one will be loaded
+# If not logged in, the default shortcuts will be loaded
 shortcuts_unicode.load()
+
 BREAKOUT_KEY = shortcuts_unicode.get_key_from_value("Breakout Key") or "\\"
 COMBINATION = [
     keyboard.Key.ctrl_l,
@@ -230,13 +290,6 @@ except Exception:
 
 if __name__ == "__main__":
 
-    # Login, if its still valid
-    email, e = auth.get_email()
-    if email:
-        print(f"logged in as: {email}")
-    else:
-        print(f"error initialising login state: {e}")
-
     # The bg_listener which only listens for the COMBINATION
     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
     # Start Listener
@@ -252,6 +305,9 @@ if __name__ == "__main__":
     )
     # .run_detached() starts a non-blocking non-daemon thread
     icon.run_detached()
+
+    # Save a reference to icon attached to view_handler so it can be accessed from other threads
+    view_handler.icon = icon
 
     # Initialise and run main_view.root
     root = view_handler.root_init()

@@ -141,13 +141,15 @@ Run the Various builds for Milestone submissions by running main.exe in ```./MS_
     * ```a``` - Exit **overlay-mode**, into **bg-mode**
     * ```s``` - Exit **overlay-mode**, into **cp-mode**
     * ``` ` ``` - Exit the app entirely
+    * ```=``` - Open the template selector menu that you are currently using
     * Any other single character inserts its preset shortcut unicode
     * If there is no preset shortcut unicode, insert its preset unicode phrase
     * Otherwise, if the typed character matches a unicode character name, insert it
 
-_All of the above shortcuts, including ```\```, ```a```, ```s``` and ``` ` ```, can be changed via Preferences Settings in **cp-mode**_
+_All of the above shortcuts, including ```\```, ```a```, ```s```, ``` ` ``` and ```=``` can be changed via Preferences Settings in **cp-mode**_
 
 **cp-mode**
+_In **cp-mode**, you may select any template to use through a drop-down menu on the left NavBar_
 1. LaTeX editor:
     * Enter LaTeX code in the text editor
     * Press enter or click the compile button to have the LaTeX output displayed
@@ -166,6 +168,7 @@ _All of the above shortcuts, including ```\```, ```a```, ```s``` and ``` ` ```, 
 4. Settings:
     * Preferences Setting
         * Select the template you wish to edit
+            * Create new, Rename, or Delete your templates here
         * Rebind or Unbind the Shortcuts from that template
         * Rebind or Unbind the Phrase Shortcuts from that template
         * Add new or Unbind LaTeX Shortcuts from that template
