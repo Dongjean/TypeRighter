@@ -6,6 +6,7 @@ from PIL import Image
 import main as main
 from pynput import keyboard
 import utils.shortcuts_unicode as shortcuts_unicode
+import views.view_handler as view_handler
 
 # Import helper functions
 from helper_functions.main_test_helpers import wait
@@ -55,6 +56,8 @@ def test_env():
         pystray.MenuItem("Exit", lambda icon, item: main.clean_exit())
     )
     icon.run_detached()
+
+    view_handler.icon = icon
 
     root = main.view_handler.root_init()
     root.update()
