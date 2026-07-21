@@ -127,6 +127,8 @@ def test_env():
     except Exception as e:
         print(e)
 
+    main.clean_exit()
+
 def test_systematic(test_env, subtests):
 
     bg_listener_tester(test_env, subtests)
