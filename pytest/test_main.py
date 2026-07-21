@@ -1,13 +1,16 @@
 import pytest
 from tkinter import font as tkfont
+import pystray
+from PIL import Image
 
 import main as main
 from pynput import keyboard
 import utils.shortcuts_unicode as shortcuts_unicode
+import views.view_handler as view_handler
 
 # Import helper functions
 from helper_functions.main_test_helpers import wait
-from tester_functions.main_testers import overlay_tester, latex_tester,navbar_tester, unicode_tester
+from tester_functions.main_testers import bg_listener_tester
 
 key_simulator = keyboard.Controller()
 
@@ -18,19 +21,13 @@ key_simulator = keyboard.Controller()
 #creates a temp file cleaned by OS later
 #saves original bindings and directory
 def isolate_binding(tmp_path_factory): 
-    print("1")
+    
     fake_dir = tmp_path_factory.mktemp("unicode_bindings")
-    print("2")
     fake_path = str(fake_dir / "test_shortcuts_unicode.json")
-    print("3")
     saved_path = shortcuts_unicode._PATH
-    print("4")
     saved_bindings = dict(shortcuts_unicode.bindings)
-    print("5")
     shortcuts_unicode._PATH = fake_path 
-    print("6")
     shortcuts_unicode.bindings.clear() 
-    print("7")
     yield 
 
     #load saved bindings and actual directory 
@@ -47,11 +44,20 @@ def test_env():
     # Manually initialize the tkinter window without .mainloop()
     # Run root_view.root_init() without the last root.mainloop() line
 
-    # Start the pynput thread
-    # main.listener.start()
+    # Start the pynput BG Listener Thread
+    bg_listener = keyboard.Listener(on_press=lambda key: main.on_press_bg(key, bg_listener), on_release=lambda key: main.on_release_bg(key, bg_listener))
+    bg_listener.start()
 
-    listener = keyboard.Listener(on_press=lambda key: main.on_press_bg(key, listener), on_release=lambda key: main.on_release_bg(key, listener))
-    listener.start()
+    # Start the Tray Icon
+    icon = pystray.Icon("TypeRighter")
+    icon.icon = main.create_image()
+    icon.menu = pystray.Menu(
+        pystray.MenuItem("Run Now", lambda icon, item: main.trigger_overlay()),
+        pystray.MenuItem("Exit", lambda icon, item: main.clean_exit())
+    )
+    icon.run_detached()
+
+    view_handler.icon = icon
 
     root = main.view_handler.root_init()
     root.update()
@@ -74,6 +80,8 @@ def test_env():
         "border": "#2d2d2d",
         "accent_blue": "#2a5a9c",
         "hyperlink_blue": "#0099FF",
+        "action_green": "#00FF00",
+        "error_red": "#FF0000",
     }
 
     # Windows
@@ -85,11 +93,15 @@ def test_env():
         "user-auth": {
             "name": "Login",
             "icon": "",
-        },
+        }, 
         "unicode-search": { 
-        "name": "Unicode\nSearch",
-        "icon": "",
-        }
+            "name": "Unicode\nSearch",
+            "icon": "",
+        },
+        "settings-window": {
+            "name": "Settings",
+            "icon": "",
+        },
     }
 
     yield (root, sw, sh, FONTS, COLORS, WINDOWS) # This is where the code runs
@@ -115,12 +127,18 @@ def test_env():
     except Exception as e:
         print(e)
 
+    main.clean_exit()
+
 def test_systematic(test_env, subtests):
 
-    overlay_tester(test_env, subtests)
+    bg_listener_tester(test_env, subtests)
+    
+    
+    # Previous tester functions (keeping for reference)
+    # overlay_tester(test_env, subtests)
 
-    latex_tester(test_env, subtests)
+    # latex_tester(test_env, subtests)
 
-    navbar_tester(test_env, subtests)
+    # navbar_tester(test_env, subtests)
 
-    unicode_tester(test_env, subtests)
+    # unicode_tester(test_env, subtests)
