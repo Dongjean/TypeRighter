@@ -67,21 +67,26 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
         template_name = settings.lookup_setting("curr_template")
         email, e = auth.get_email()
 
+        old_keys = shortcuts_unicode.get_keys_from_value(symbol)
         ok_shortcut, shortcut_msg = shortcuts_unicode.set_unicode_binding(raw_input, symbol, overwrite = overwrite)
+        if ok_shortcut: 
+            for old_key in old_keys: 
+                if old_key.lower() != raw_input.lower(): 
+                    shortcuts_unicode.remove_unicode_binding(old_key)
+                    
         ok_template = True 
         template_msg =""
 
         if email:
             bindings = shortcuts_unicode.all_bindings()
-            ok_template,result = templates.update_template(email, template_name, bindings)
-        else:
-            ok_template = True
+            ok_template, template_msg = templates.update_template(email, template_name, bindings)
         if ok_shortcut and ok_template: 
             popup.destroy()
-            on_select(result)
+            on_select()
         else: 
             pending["input"] = None 
-            prompt.config(text = result, font = FONTS["font_subtitle"], fg ="#FF0000")
+            error_msg = shortcut_msg if not ok_shortcut else template_msg
+            prompt.config(text = error_msg, font = FONTS["font_subtitle"], fg ="#FF0000")
         
     entry.bind("<Return>", lambda e: on_key_press(alias))
     popup.bind("<Escape>", lambda e: popup.destroy())
@@ -128,7 +133,7 @@ def _do_search(query, results_frame, COLORS, FONTS):
         symbol_info.pack(side="left", fill='x', expand = True) 
 
         bind_button =tk.Button(row, text="bind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0)           
-        bind_button.config(command = lambda c=ch, n=name, b =bind_button: _bind_key(root, c, n, COLORS, FONTS, lambda msg: b.config(text=msg, fg=COLORS["accent_blue"])))
+        bind_button.config(command = lambda c=ch, n=name, b =bind_button: _bind_key(root, c, n, COLORS, FONTS, _render))
         bind_button.pack(side="right", padx=8)
 
         rows[ch] = bind_button
@@ -169,7 +174,7 @@ def build_unicode_search_panel(root, COLORS, FONTS):
     query.trace_add("write", on_type)
 
     def on_destroy(event): 
-        if event.widgert is results_frame: 
+        if event.widget is results_frame: 
             _unsubscribe_active_render() 
     
     results_frame.bind("<Destroy>", on_destroy)
