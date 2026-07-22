@@ -59,6 +59,10 @@ def control_panel_init(root):
             "name": "Unicode\nSearch",
             "icon": "",
         },
+        "AI Assistant":{
+            "name": "AI Assistant", 
+            "icon":"",
+        },
         "settings-window": {
             "name": "Settings",
             "icon": "",
