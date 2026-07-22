@@ -10,6 +10,7 @@ import components.latex_workspace as latex_workspace
 import components.user_auth as user_auth
 import components.unicode_searchpanel as unicode_search
 import components.settings_window as settings_window
+import components.ai_assistant as ai_assistant 
 
 import main as main
 import utils.settings as settings
@@ -22,6 +23,7 @@ init_functions = {
     "latex-workspace": latex_workspace.build_latex_workspace,
     "user-auth": user_auth.build_user_auth,
     "unicode-search": unicode_search.build_unicode_search_panel,
+    "AI Assistant": ai_assistant.build_ai_assistant, 
     "settings-window": settings_window.build_settings_window,
 }
 
@@ -29,6 +31,7 @@ destroy_functions = {
     "latex-workspace": latex_workspace.destroy_latex_workspace,
     "user-auth": user_auth.destroy_user_auth,
     "unicode-search": unicode_search.destroy_unicode_search_panel,
+    "AI Assistant": ai_assistant.destroy_ai_assistant,
     "settings-window": settings_window.destroy_settings_windows,
 }
 
