@@ -69,13 +69,15 @@ def load(curr_user, pull_fb=False):
     # Get the path for the current user
     _PATH = os.path.join(_templates_dir(curr_user), "user_templates.json")
 
+
     # Pull the templates data from firebase if required
     if pull_fb:
         try:
             user_templates_ref = db.collection("templates")
             all_templates = user_templates_ref.get_document(curr_user)
-        except:
-            pass
+        except Exception as e:
+            print(f"[templates] firebase pull failed for {curr_user}:{e!r}")
+            
 
     with _lock:
 
@@ -139,6 +141,7 @@ def _delete_templates_folder(curr_user):
     try:
         _USER_DIR = _user_dir(curr_user)
         shutil.rmtree(_USER_DIR)
+        return True
     except:
         return False
 

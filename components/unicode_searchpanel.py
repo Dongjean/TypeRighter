@@ -6,6 +6,14 @@ import utils.settings as settings
 import utils.auth as auth
 import utils.templates as templates
 
+_active_render = {"callback": None}
+
+def _unsubscribe_active_render(): 
+    callback = _active_render["callback"]
+    if callback is not None: 
+        shortcuts_unicode.unlist(callback)
+        _active_render["callback"] = None
+
 #keybind popup
 def _bind_key(parent, symbol, name, COLORS, FONTS, on_select): 
     popup = tk.Toplevel(parent, bg = COLORS["bg_main"]) 
@@ -58,7 +66,11 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
         
         template_name = settings.lookup_setting("curr_template")
         email, e = auth.get_email()
-        ok_shortcut,result = shortcuts_unicode.set_unicode_binding(raw_input, symbol, overwrite = overwrite)
+
+        ok_shortcut, shortcut_msg = shortcuts_unicode.set_unicode_binding(raw_input, symbol, overwrite = overwrite)
+        ok_template = True 
+        template_msg =""
+
         if email:
             bindings = shortcuts_unicode.all_bindings()
             ok_template,result = templates.update_template(email, template_name, bindings)
@@ -76,6 +88,8 @@ def _bind_key(parent, symbol, name, COLORS, FONTS, on_select):
     entry.focus_force()
 
 def _do_search(query, results_frame, COLORS, FONTS):
+    _unsubscribe_active_render()
+
     #clear previous results
     for child in results_frame.winfo_children(): 
         child.destroy()
@@ -89,6 +103,18 @@ def _do_search(query, results_frame, COLORS, FONTS):
         return 
     
     root = results_frame.winfo_toplevel()
+
+    rows = {}
+
+    def _render(): 
+        for symbol, button in rows.items():
+            if not button.winfo_exists(): 
+                continue 
+            label = shortcuts_unicode.binding_label(symbol)
+            if label: 
+                button.config(text=label, fg  = COLORS["accent_blue"])
+            else: 
+                button.config(text="bind", fg = COLORS["action_green"])
 
     # display valid inputs as rows 
     for ch, name, cp in results: 
@@ -104,6 +130,14 @@ def _do_search(query, results_frame, COLORS, FONTS):
         bind_button =tk.Button(row, text="bind", fg=COLORS["action_green"], bg=COLORS["bg_input"], font=FONTS["font_subtitle"], bd=0)           
         bind_button.config(command = lambda c=ch, n=name, b =bind_button: _bind_key(root, c, n, COLORS, FONTS, lambda msg: b.config(text=msg, fg=COLORS["accent_blue"])))
         bind_button.pack(side="right", padx=8)
+
+        rows[ch] = bind_button
+
+    shortcuts_unicode.refresh(_render)
+    _active_render["callback"] = _render
+
+    _render()
+
 
 def build_unicode_search_panel(root, COLORS, FONTS):
     #frame that contains results frame 
@@ -133,9 +167,16 @@ def build_unicode_search_panel(root, COLORS, FONTS):
         _do_search(query, results_frame, COLORS, FONTS)
         
     query.trace_add("write", on_type)
-        
+
+    def on_destroy(event): 
+        if event.widgert is results_frame: 
+            _unsubscribe_active_render() 
+    
+    results_frame.bind("<Destroy>", on_destroy)
 # Destroy function to tear down unicode search panel
 def destroy_unicode_search_panel(root):
+
+    _unsubscribe_active_render()
 
     # Remove all child widgets except for the navbar
     for widget in root.winfo_children():

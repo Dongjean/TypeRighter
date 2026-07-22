@@ -3,6 +3,7 @@ import os
 import sys 
 import threading 
 import pyperclip
+import copy
 
 #creates local file (windows)
 def _data_dir(): 
@@ -65,12 +66,16 @@ def load():
                 bindings = {}
         else:
             # Create a new file, and add in the default binds
-            bindings = DEFAULT_BINDINGS
+            bindings = copy.deepcopy(DEFAULT_BINDINGS) #create another binding
             temp = _PATH + ".tmp" 
             with open(temp, "w", encoding="utf-8") as f:
                 json.dump(bindings, f, ensure_ascii=False, indent=4)
             os.replace(temp, _PATH)
-        return dict(bindings) #copy of bindings
+        
+        snapshot = dict(bindings)
+    
+    _notify()
+    return snapshot 
 
 #save to file
 def _save(): 
@@ -99,8 +104,8 @@ def _notify():
     for callback in list(_refresh_list): 
         try: 
             callback()
-        except Exception: 
-            pass
+        except Exception as e: 
+            print(f"[shortcuts] refresh callback failed: {e!r}")
 
 def check_binding(key, symbol): 
     if key is None: 
@@ -150,7 +155,8 @@ def set_unicode_binding(key, symbol, overwrite = True):
         unicode_shortcuts[key] = symbol 
         ok = _save()
 
-    if ok: 
+    if ok:
+        _notify()
         return True, f"Successfully bound '{symbol}' to '{key}'."
     else: 
         return False, f"Failed to bind '{symbol}' to '{key}'. Please try again."
@@ -158,7 +164,7 @@ def set_unicode_binding(key, symbol, overwrite = True):
 def set_latex_shortcut(latex_code, name):
 
     # First generate a new unique key for this LaTeX Shortcut
-    key = 0 # key is 0 if there arent any shortcuts yet
+    key = "0" # key is 0 if there arent any shortcuts yet
     curr_latex_shortcuts = all_latex_shortcuts()
     if curr_latex_shortcuts:
         # If there are existing shortcuts, just increment the highest key
@@ -166,13 +172,16 @@ def set_latex_shortcut(latex_code, name):
     
     with _lock: 
         latex_shortcuts = bindings.get("latex")
+        if latex_shortcuts is None: 
+            latex_shortcuts = bindings["latex"] = {}
         latex_shortcuts[key] = {
             "name": name,
             "code": latex_code,
         }
         ok = _save()
 
-    if ok: 
+    if ok:
+        _notify()
         return True, f"Successfully bound '{latex_code}' with name '{name}'."
     else: 
         return False, f"Failed to bind '{latex_code}' with name '{name}'. Please try again."
@@ -194,6 +203,8 @@ def remove_unicode_binding(key):
 
     if binded:
         _save()
+        _notify()
+
     return binded
 
 def remove_latex_shortcut(key): 
@@ -202,16 +213,18 @@ def remove_latex_shortcut(key):
     key = key.lower()
 
     with _lock:
-        latex_shortcuts = bindings.get("latex")
+        latex_shortcuts = bindings.get("latex") or {}
         if key in latex_shortcuts: 
             binded = True
             del latex_shortcuts[key]
-
+            _save()
         else: 
             binded = False
 
+
     if binded:
         _save()
+        _notify()
     return binded
 
 #read symbol binded to key
@@ -235,6 +248,17 @@ def get_key_from_value(value):
             return None
         else:
             return key
+
+def get_keys_from_value(value): 
+    with _lock: 
+        unicode_shortcuts = bindings.get("unicode") or {}
+        return[k for k, v in unicode_shortcuts.items() if v == value]
+    
+def binding_label(symbol): 
+    keys = get_keys_from_value(symbol)
+    if not keys: 
+        return ""
+    return "binded to "+",".join(keys)
     
 #shows all bindings 
 def all_bindings():
