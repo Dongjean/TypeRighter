@@ -10,7 +10,7 @@ import views.view_handler as view_handler
 
 # Import helper functions
 from helper_functions.main_test_helpers import wait
-from tester_functions.main_testers import bg_listener_tester
+from tester_functions.main_testers import bg_listener_tester, overlay_tester
 
 key_simulator = keyboard.Controller()
 
@@ -133,10 +133,9 @@ def test_systematic(test_env, subtests):
 
     bg_listener_tester(test_env, subtests)
     
+    overlay_tester(test_env, subtests)
     
     # Previous tester functions (keeping for reference)
-    # overlay_tester(test_env, subtests)
-
     # latex_tester(test_env, subtests)
 
     # navbar_tester(test_env, subtests)
