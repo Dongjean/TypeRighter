@@ -277,7 +277,7 @@ def initialise_runtime():
         curr_settings = settings.load(email, pull_fb=True)
 
         # Load the current template
-        templates.load(email, pull_fb=False)
+        templates.load(email, pull_fb=True)
         templates.use_template(curr_settings["curr_template"])
     else:
         print(f"error initialising login state: {e}")
