@@ -1,5 +1,5 @@
 from tester_functions.bg_listener_testers import helper_test_bg_listener_on, helper_test_bg_listener_off
-from tester_functions.overlay_view_testers import helper_test_overlay_breakout_key_on, helper_test_overlay_breakout_key_off
+from tester_functions.overlay_view_testers import helper_test_overlay_breakout_key_on, helper_test_overlay_breakout_key_off, helper_test_overlay_unicode_shortcut
 from tester_functions.cp_view_testers import helper_test_control_panel_key, helper_test_close_control_panel
 from tester_functions.latex_window_testers import helper_test_latex_output_enter
 from tester_functions.navbar_component_testers import helper_test_navbar
@@ -16,11 +16,9 @@ def overlay_tester(test_env, subtests):
     # Turn on the overlay
     helper_test_bg_listener_on(test_env, subtests)
 
-    helper_test_overlay_breakout_key_on(test_env, subtests)
+    helper_test_overlay_unicode_shortcut(test_env, subtests)
 
-    helper_test_overlay_breakout_key_off(test_env, subtests)
-
-#     helper_test_overlay_init(test_env, subtests)
+    helper_test_bg_listener_off(test_env, subtests)
 
 #     helper_test_overlay_key(test_env, subtests)
 

@@ -2,6 +2,9 @@ import pytest
 from tkinter import font as tkfont
 import pystray
 from PIL import Image
+from pathlib import Path
+import shutil
+import os
 
 import main as main
 from pynput import keyboard
@@ -14,35 +17,39 @@ from tester_functions.main_testers import bg_listener_tester, overlay_tester
 
 key_simulator = keyboard.Controller()
 
-#Pytest automatically runs tests w/o argument passed manually
-@pytest.fixture(scope="module", autouse = True)
-
-#temp path for tests, avoid overwriting
-#creates a temp file cleaned by OS later
-#saves original bindings and directory
-def isolate_binding(tmp_path_factory): 
-    
-    fake_dir = tmp_path_factory.mktemp("unicode_bindings")
-    fake_path = str(fake_dir / "test_shortcuts_unicode.json")
-    saved_path = shortcuts_unicode._PATH
-    saved_bindings = dict(shortcuts_unicode.bindings)
-    shortcuts_unicode._PATH = fake_path 
-    shortcuts_unicode.bindings.clear() 
-    yield 
-
-    #load saved bindings and actual directory 
-    shortcuts_unicode._PATH = saved_path 
-    shortcuts_unicode.bindings.clear()
-    shortcuts_unicode.bindings.update(saved_bindings)
-
-@pytest.fixture(scope="module")
-def test_env():
+@pytest.fixture(scope="module", autouse=True)
+def systematic_test_env(tmp_path_factory):
 
     # This part runs before the test_ functions
-    # Initialise the tkinter root window and the pynput listener
+
+    # Move all the files and folders in APPDATA/TypeRighter in a temporary folder
+    source_path = Path(shortcuts_unicode._data_dir()).resolve()
+    destination_path = tmp_path_factory.mktemp("pytest_temp")
+
+    for item in source_path.iterdir():
+        target = destination_path / item.name
+
+        if target.exists():
+            raise FileExistsError(f"Destination already contains: {target}")
+
+        shutil.move(str(item), str(target))
+
+    # Initialise the tkinter root window, pynput listener and runtime variables
 
     # Manually initialize the tkinter window without .mainloop()
     # Run root_view.root_init() without the last root.mainloop() line
+
+    shortcuts_unicode.load()
+
+    main.BREAKOUT_KEY = shortcuts_unicode.get_key_from_value("Breakout Key") or "\\"
+    main.COMBINATION = [
+        keyboard.Key.ctrl_l,
+        keyboard.Key.alt_l,
+        keyboard.Key.space
+    ]
+
+    # We are going to use this one binding at the start of our systematic tests
+    shortcuts_unicode.bindings["unicode"]["q"] = "∃"
 
     # Start the pynput BG Listener Thread
     bg_listener = keyboard.Listener(on_press=lambda key: main.on_press_bg(key, bg_listener), on_release=lambda key: main.on_release_bg(key, bg_listener))
@@ -108,7 +115,23 @@ def test_env():
 
     # This is after all the tests
     # Close everything
+
+    # Bring back the files and folders from the temporary folder
+    for item in source_path.iterdir():
+        target = source_path / item.name
+        if os.path.isdir(target):
+            shutil.rmtree(target)  # Deletes folder
+        else:
+            os.remove(target)
     
+    for item in destination_path.iterdir():
+        target = source_path / item.name
+
+        if target.exists():
+            raise FileExistsError(f"Destination already contains: {target}")
+
+        shutil.move(str(item), str(target))
+
     # Destroy the root window
     main.view_handler.gui_queue.put("destroy_root")
 
@@ -122,18 +145,17 @@ def test_env():
     # Delete all .after() instances
     try:
         for after_id in root.eval('after info').split():
-            print(after_id)
             root.after_cancel(after_id)
     except Exception as e:
         print(e)
 
     main.clean_exit()
 
-def test_systematic(test_env, subtests):
+def test_systematic(systematic_test_env, subtests):
 
-    bg_listener_tester(test_env, subtests)
+    bg_listener_tester(systematic_test_env, subtests)
     
-    overlay_tester(test_env, subtests)
+    overlay_tester(systematic_test_env, subtests)
     
     # Previous tester functions (keeping for reference)
     # latex_tester(test_env, subtests)
