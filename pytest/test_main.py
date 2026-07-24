@@ -67,6 +67,26 @@ def systematic_test_env(tmp_path_factory):
     view_handler.icon = icon
 
     root = main.view_handler.root_init()
+
+    # Re-define the control panel delete handler to use the correct main namespace
+    # This is because in view_handler, it uses the __main__ main module for the listener re-definition which breaks in pytest as we dont use the __main__ namespace
+    def delete_control_panel_handler(root):
+
+        # Close the Control Panel and switch on the Overlay
+        view_handler.overlay_init(root)
+        view_handler.is_control_panel_open = False
+        view_handler.is_overlay_triggered = True
+        view_handler.trigger_overlay(root)
+        # Start a new overlay_listener which listens and catches just "\"
+        overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: main.win32_keyboard_filter(msg, data, overlay_listener))
+        overlay_listener.start()
+
+        # Starts a new bg_listener to listen for COMBINATION too
+        bg_listener = keyboard.Listener(on_press=lambda key: main.on_press_bg(key, bg_listener), on_release=lambda key: main.on_release_bg(key, bg_listener))
+        bg_listener.start()
+
+    root.protocol("WM_DELETE_WINDOW", lambda: delete_control_panel_handler(root))
+
     root.update()
     sw = root.winfo_screenwidth()
     sh = root.winfo_screenheight()
