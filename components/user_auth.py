@@ -11,6 +11,8 @@ import utils.settings as settings
 import utils.templates as templates
 import utils.shortcuts_unicode as shortcuts_unicode
 
+import components.navbar as navbar
+
 user_info = {
     "email": None
 }
@@ -47,6 +49,8 @@ def login(root, username_editor, password_editor, login_error_label, login_hub_c
             shortcuts_unicode.load()
 
             main.update_breakout_key()
+
+            navbar.add_template_selector(root, username, COLORS, FONTS)
 
             # Destroy the login frame
             destroy_login_frame(root, login_hub_container)
@@ -165,6 +169,8 @@ def logout(root, user_info_container, auth_frame, COLORS, FONTS):
 
     # Maintain the current template, but change the current name to 'default'
     settings.set_setting("curr_template", "default", curr_user=None)
+
+    navbar.remove_template_selector(root)
 
     # Destroy the user_info frame
     destroy_user_info_frame(root, user_info_container)
