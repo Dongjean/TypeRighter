@@ -86,9 +86,11 @@ def on_template_selection(event, template_selector, root, COLORS, FONTS):
 def build_navbar(root, COLORS, FONTS, WINDOWS, start_window):
 
     # Frame for navbar
-    navbar_frame = tk.Frame(root, bg=COLORS["bg_main"], width=10, takefocus=True, name="navbar_frame")
+    navbar_frame = tk.Frame(root, bg=COLORS["bg_main"], takefocus=True, name="navbar_frame")
     navbar_frame.pack(side="right", fill="y")
     
+    template_selector_container = tk.Frame(navbar_frame, bg=COLORS["bg_main"], bd=0, name="template_selector_container")
+    template_selector_container.pack()
     email, e = auth.get_email()
     if email:
         # List of templates
@@ -96,7 +98,7 @@ def build_navbar(root, COLORS, FONTS, WINDOWS, start_window):
         curr_template_names = list(curr_templates)
         
         # Template Selector Dropdown Menu
-        template_selector = ttk.Combobox(navbar_frame, values=curr_template_names, width=10, state="readonly", name="template_selector")
+        template_selector = ttk.Combobox(template_selector_container, values=curr_template_names, width=10, state="readonly", name="template_selector")
         curr_selected_template = settings.lookup_setting("curr_template")
         template_selector.set(curr_selected_template)
         template_selector.pack(fill="x")
@@ -105,7 +107,7 @@ def build_navbar(root, COLORS, FONTS, WINDOWS, start_window):
     # Display each window as a custom button
     navbar_frame.selected_window = tk.StringVar(value=start_window)
     for key, value in WINDOWS.items():
-        btn = tk.Radiobutton(navbar_frame, text=value["name"], variable=navbar_frame.selected_window, value=key, bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", height=3, font=FONTS["font_subtitle"], selectcolor=COLORS["accent_blue"], activebackground=COLORS["accent_blue"], indicatoron=False, command=(lambda: change_window(navbar_frame.selected_window.get(), root, COLORS, FONTS)), name=key)
+        btn = tk.Radiobutton(navbar_frame, text=value["name"], variable=navbar_frame.selected_window, value=key, bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", height=3, width=10, font=FONTS["font_subtitle"], selectcolor=COLORS["accent_blue"], activebackground=COLORS["accent_blue"], indicatoron=False, command=(lambda: change_window(navbar_frame.selected_window.get(), root, COLORS, FONTS)), name=key)
         btn.pack(side="top", fill="x")
     
     # Manually initialise the first window
@@ -113,3 +115,33 @@ def build_navbar(root, COLORS, FONTS, WINDOWS, start_window):
     global curr_window
     curr_window = ""
     change_window(start_window, root, COLORS, FONTS)
+
+def add_template_selector(root, email, COLORS, FONTS):
+
+    navbar_frame = root.nametowidget("navbar_frame")
+    template_selector_container = navbar_frame.nametowidget("template_selector_container")
+
+    # List of templates
+    curr_templates = templates.all_templates(email)
+    curr_template_names = list(curr_templates)
+    
+    # Template Selector Dropdown Menu
+    template_selector = ttk.Combobox(template_selector_container, values=curr_template_names, width=10, state="readonly", name="template_selector")
+    curr_selected_template = settings.lookup_setting("curr_template")
+    template_selector.set(curr_selected_template)
+    template_selector.pack(fill="x")
+    template_selector.bind("<<ComboboxSelected>>", lambda event: on_template_selection(event, template_selector, root, COLORS, FONTS))
+
+def remove_template_selector(root):
+
+    navbar_frame = root.nametowidget("navbar_frame")
+    template_selector_container = navbar_frame.nametowidget("template_selector_container")
+
+    # Delete all widgets inside the template selector container
+    for widget in template_selector_container.winfo_children():
+        widget.destroy()
+
+    # Shrink the template selector container to nothing now so that the other window selectors are resized
+    # Note: setting width and height to 0 tells Tkinter to defer to geometry propagation, which does nothing
+    # Thus we need to set it to 1 pixel, which is good enough
+    template_selector_container.configure(width=1, height=1)

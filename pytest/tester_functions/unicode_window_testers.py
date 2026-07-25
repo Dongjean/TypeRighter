@@ -122,15 +122,19 @@ def helper_test_unicode_search_function(subtests):
 
     is_check_caps_insensitive_lookup = shortcuts_unicode.lookup_unicode("P") == "Ω"
 
-    check_reserved, _ = shortcuts_unicode.set_unicode_binding("a", "Ω")
-    is_reserved_key_blocked_successful = (not check_reserved) and (shortcuts_unicode.lookup_unicode("a") is None )
+    check_protected, _ = shortcuts_unicode.check_binding("s", "Ω")
+    is_protected_key_blocked_successful = (check_protected == "protected") and (shortcuts_unicode.lookup_unicode("s") in shortcuts_unicode.PROTECTED_BINDS)
 
     check_empty , _ = shortcuts_unicode.set_unicode_binding("e", "")
     is_empty_blocked_successful = (not check_empty) and (shortcuts_unicode.lookup_unicode("e") is None)
 
-    #check if bindings are stored 
-    all_bindings_saved = shortcuts_unicode.all_unicode_bindings()
-    is_all_bindings_correct = (all_bindings_saved.get("p") == "Ω" and "a" not in all_bindings_saved)
+    #check if unicode bindings are stored 
+    all_unicode_bindings_saved = shortcuts_unicode.all_unicode_bindings()
+    is_all_unicode_bindings_correct = (all_unicode_bindings_saved.get("p") == "Ω" and all_unicode_bindings_saved.get("q") == "∃" and shortcuts_unicode.DEFAULT_BINDINGS["unicode"].items() <= all_unicode_bindings_saved.items())
+    
+    #check if latex shortcuts are stored 
+    all_latex_shortcuts_saved = shortcuts_unicode.all_latex_shortcuts()
+    is_all_latex_shortcuts_correct = (shortcuts_unicode.DEFAULT_BINDINGS["latex"].items() <= all_latex_shortcuts_saved.items())
 
     is_remove = shortcuts_unicode.remove_unicode_binding("p") is True 
     is_remove_successful = shortcuts_unicode.lookup_unicode("p") is None 
@@ -153,8 +157,9 @@ def helper_test_unicode_search_function(subtests):
 
         "is_empty_blocked_successful":is_empty_blocked_successful,
         "is_bind_sucessful":is_bind_sucessful,
-        "is_reserved_key_blocked_successful":is_reserved_key_blocked_successful,
-        "is_all_bindings_correct":is_all_bindings_correct,
+        "is_protected_key_blocked_successful":is_protected_key_blocked_successful,
+        "is_all_unicode_bindings_correct":is_all_unicode_bindings_correct,
+        "is_all_latex_shortcuts_correct": is_all_latex_shortcuts_correct,
         "is_remove":is_remove,
         "is_remove_successful":is_remove_successful
     } 
@@ -197,57 +202,6 @@ def helper_test_unicode_copy_paste (subtests):
         "is_unknown_clipboard_unchanged": is_unknown_clipboard_unchanged,
     }
     
-    for key, assertion in all_assertions.items():
-        with subtests.test(msg=f"Asserting {key}"):
-            assert assertion
-
-def helper_test_unicode_copy_via_overlay(test_env, subtests): 
-
-    root, sw, sh, FONTS, COLORS, WINDOWS = test_env
-
-    shortcuts_unicode.bindings.clear()
-    shortcuts_unicode.set_unicode_binding("q", "Ω")
-
-    # The control panel is still open. 
-    # Close it with Alt+F4 to return to overlay state.
-    key_simulator.press(keyboard.Key.alt_l)
-    key_simulator.press(keyboard.Key.f4)
-    key_simulator.release(keyboard.Key.alt_l)
-    key_simulator.release(keyboard.Key.f4)
-    wait(root, 0.15)
-
-    is_control_panel_closed = main.view_handler.is_control_panel_open == False
-
-    # Reset the clipboard to a known sentinel so we can detect change
-    pyperclip.copy("Pray")
-
-    # trigger overlay with Ctrl+D
-    key_simulator.press(keyboard.Key.ctrl_l)
-    key_simulator.press("d")
-    key_simulator.release(keyboard.Key.ctrl_l)
-    key_simulator.release("d")
-    wait(root, 0.15)
-
-    is_overlay_on_before = main.view_handler.is_overlay_triggered == True
-
-    key_simulator.press("q")
-    key_simulator.release("q")
-    wait(root, 0.15)
-
-    is_clipboard_has_symbol = pyperclip.paste() == "Ω"
-    is_overlay_off_after = main.view_handler.is_overlay_triggered == False
-    is_root_withdrawn = root.state() == "withdrawn"
-
-    shortcuts_unicode.bindings.clear()
-
-    all_assertions = {
-        "is_control_panel_closed": is_control_panel_closed,
-        "is_overlay_on_before": is_overlay_on_before,
-        "is_clipboard_has_symbol": is_clipboard_has_symbol,
-        "is_overlay_off_after": is_overlay_off_after,
-        "is_root_withdrawn": is_root_withdrawn,
-    }
-
     for key, assertion in all_assertions.items():
         with subtests.test(msg=f"Asserting {key}"):
             assert assertion

@@ -15,7 +15,7 @@ def get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, curr_window):
         ("config", "takefocus", '1'),
 
         ("pack", "side", "right"),
-        ("pack", "fill", "both"),
+        ("pack", "fill", "y"),
 
         ("misc", "widget_name", "navbar_frame")
     ]
@@ -31,6 +31,7 @@ def get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, curr_window):
         # If even a single window selector doesnt exist, fail the check
         if not is_curr_window_selector:
             is_window_selections = False
+            break
         
         # Check for the props of the window selector, if it exists
         if is_curr_window_selector:
@@ -43,23 +44,26 @@ def get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, curr_window):
                 ("config", "fg", COLORS["text_main"]),
                 ("config", "bd", 0),
                 ("config", "relief", "flat"),
-                ("config", "width", 10),
                 ("config", "height", 3),
+                ("config", "width", 10),
                 ("config", "selectcolor", COLORS["accent_blue"]),
                 ("config", "activebackground", COLORS["accent_blue"]),
                 ("config", "indicatoron", False),
                 ("config", "command", True),
 
                 ("pack", "side", "top"),
+                ("pack", "fill", "x"),
 
                 ("misc", "widget_name", key),
 
                 ("misc", "font", FONTS["font_subtitle"].actual())
             ]
-            is_curr_window_selector = check_widget_props(curr_window_selector, curr_window_selector_props)
+            is_curr_window_selector_props = check_widget_props(curr_window_selector, curr_window_selector_props)
             # If even a single window selector's props is invalid, fail the check
-            if not is_curr_window_selector:
+            if not is_curr_window_selector_props:
+                print(curr_window_selector)
                 is_window_selections_props = False
+                break
     
     # Check that the current, default, selected window is the LaTeX window
     is_default_window_selected = navbar_frame.selected_window.get() == curr_window

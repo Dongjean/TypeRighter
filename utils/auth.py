@@ -86,6 +86,7 @@ def _get_new_token():
                 account_info = auth.get_account_info(fresh_tokens["idToken"])["users"][0]
                 email = account_info["email"]
             except Exception as e:
+                keyring.delete_password("TypeRighter", "current_user_refresh_token")
                 return False, e
             save_tokens(fresh_tokens["refreshToken"], fresh_tokens["idToken"])
 

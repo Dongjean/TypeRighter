@@ -7,11 +7,13 @@ from helper_functions.navbar_component_test_helpers import get_navbar_build_test
 from helper_functions.latex_window_test_helpers import get_latex_build_tests
 from helper_functions.user_auth_window_test_helpers import get_user_auth_build_tests
 from helper_functions.unicode_window_test_helpers import get_unicode_menu_build_test
+from helper_functions.settings_window_test_helpers import get_settings_window_build_test
 
 TEST_FUNCS = {
     "latex-workspace": get_latex_build_tests,
     "user-auth": get_user_auth_build_tests,
     "unicode-search": get_unicode_menu_build_test,
+    "settings-window": get_settings_window_build_test, # Placeholder empty settings window build tester
 }
 
 # As of here, the control panel view is open

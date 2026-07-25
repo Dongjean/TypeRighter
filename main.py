@@ -270,30 +270,8 @@ def clean_exit():
     finally:
         os._exit(0) # Hard exit to kill all threads instantly
 
-# Login, if its still valid
-email, e = auth.get_email()
-if email:
-    print(f"logged in as: {email}")
-    # Load the settings
-    curr_settings = settings.load(email, pull_fb=True)
-
-    # Load the current template
-    templates.load(email, pull_fb=False)
-    templates.use_template(curr_settings["curr_template"])
-else:
-    print(f"error initialising login state: {e}")
-
-# Load saved unicode shortcuts
-# If logged in properly, the saved one will be loaded
-# If not logged in, the default shortcuts will be loaded
-shortcuts_unicode.load()
-
-BREAKOUT_KEY = shortcuts_unicode.get_key_from_value("Breakout Key") or "\\"
-COMBINATION = [
-    keyboard.Key.ctrl_l,
-    keyboard.Key.alt_l,
-    keyboard.Key.space
-]
+BREAKOUT_KEY = None
+COMBINATION = None
 border_thickness = 5
 
 # Override default Windows behaviour which makes window resolution bad
@@ -304,7 +282,37 @@ except Exception:
     # Fallback for older Windows versions like 7 or XP
     ctypes.windll.user32.SetProcessDPIAware()
 
-if __name__ == "__main__":
+def initialise_runtime():
+    global BREAKOUT_KEY, COMBINATION
+    
+    # Login, if its still valid
+    email, e = auth.get_email()
+    if email:
+        print(f"logged in as: {email}")
+        # Load the settings
+        curr_settings = settings.load(email, pull_fb=True)
+
+        # Load the current template
+        templates.load(email, pull_fb=True)
+        templates.use_template(curr_settings["curr_template"])
+    else:
+        settings.load(None, pull_fb=False)
+        print(f"error initialising login state: {e}")
+
+    # Load saved unicode shortcuts
+    # If logged in properly, the saved one will be loaded
+    # If not logged in, the default shortcuts will be loaded
+    shortcuts_unicode.load()
+
+    BREAKOUT_KEY = shortcuts_unicode.get_key_from_value("Breakout Key") or "\\"
+    COMBINATION = [
+        keyboard.Key.ctrl_l,
+        keyboard.Key.alt_l,
+        keyboard.Key.space
+    ]
+
+def run():
+    initialise_runtime()
 
     # The bg_listener which only listens for the COMBINATION
     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
@@ -330,3 +338,6 @@ if __name__ == "__main__":
     # Initialise and run main_view.root
     root = view_handler.root_init()
     root.mainloop() # Blocking function
+
+if __name__ == "__main__":
+    run()

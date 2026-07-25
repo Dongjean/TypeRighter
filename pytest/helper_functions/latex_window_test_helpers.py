@@ -1,4 +1,5 @@
 from helper_functions.main_test_helpers import check_tk_exists, check_widget_props
+import utils.shortcuts_unicode as shortcuts_unicode
 
 def get_latex_build_tests(root, FONTS, COLORS):
 
@@ -7,6 +8,7 @@ def get_latex_build_tests(root, FONTS, COLORS):
     title_label, is_title_label = check_tk_exists(latex_frame, "title_label")
     subtitle_label, is_subtitle_label = check_tk_exists(latex_frame, "subtitle_label")
     editor_container, is_editor_container = check_tk_exists(latex_frame, "editor_container")
+    latex_shortcuts_container, is_latex_shortcuts_container = check_tk_exists(editor_container, "latex_shortcuts_container")
     text_editor, is_text_editor = check_tk_exists(editor_container, "text_editor")
     latex_output_container, is_latex_output_container = check_tk_exists(latex_frame, "latex_output_container")
     preview_label, is_preview_label = check_tk_exists(latex_output_container, "preview_label")
@@ -64,10 +66,8 @@ def get_latex_build_tests(root, FONTS, COLORS):
 
     # editor_container
     editor_container_props = [
-        ("config", "bg", COLORS["bg_input"]),
-        ("config", "bd", 1),
-        ("config", "highlightbackground", COLORS["border"]),
-        ("config", "highlightthickness", 1),
+        ("config", "bg", COLORS["bg_main"]),
+        ("config", "bd", 0),
 
         ("pack", "fill", "both"),
         ("pack", "expand", True),
@@ -76,12 +76,57 @@ def get_latex_build_tests(root, FONTS, COLORS):
     ]
     is_editor_container_props = check_widget_props(editor_container, editor_container_props)
 
+    # latex_shortcuts_container
+    latex_shortcuts_container_props = [
+        ("config", "bg", COLORS["bg_main"]),
+
+        ("misc", "widget_name", "latex_shortcuts_container"),
+    ]
+    is_latex_shortcuts_container_props = check_widget_props(latex_shortcuts_container, latex_shortcuts_container_props)
+
+    # Each LaTeX shortcut button
+    is_latex_shortcut_buttons = True
+    is_latex_shortcut_buttons_props = True
+    LATEX_SHORTCUTS = shortcuts_unicode.all_latex_shortcuts()
+    for key, shortcut in LATEX_SHORTCUTS.items():
+        curr_latex_shortcut_button, is_curr_latex_shortcut_button = check_tk_exists(latex_shortcuts_container, f"{key}_latex_shortcut")
+
+        # If even a single latex shortcut isnt there, fail the check
+        if not is_curr_latex_shortcut_button:
+            is_latex_shortcut_buttons = False
+            break
+        else:
+            curr_latex_shortcut_button_props = [
+                ("config", "text", shortcut["name"]),
+                ("config", "relief", "flat"),
+                ("config", "activebackground", COLORS["accent_blue"]),
+                ("config", "fg", COLORS["text_main"]),
+                ("config", "bg", COLORS["border"]),
+                ("config", "bd", 1),
+                ("config", "highlightbackground", COLORS["border"]),
+                ("config", "highlightthickness", 1),
+                ("config", "takefocus", 0),
+                ("config", "command", True), # Check that a function is linked to command
+        
+                ("misc", "widget_name", f"{key}_latex_shortcut"),
+        
+                ("misc", "font", FONTS["font_subtitle"].actual()),
+            ]
+            is_curr_latex_shortcut_button_props = check_widget_props(curr_latex_shortcut_button, curr_latex_shortcut_button_props)
+
+            # If even a single latex shortcut isnt there, fail the check
+            if not is_curr_latex_shortcut_button_props:
+                is_latex_shortcut_buttons_props = False
+                break
+
     # text_editor
     text_editor_props = [
         ("config", "bg", COLORS["bg_input"]),
         ("config", "fg", COLORS["text_main"]),
         ("config", "insertbackground", "white"),
-        ("config", "bd", 0),
+        ("config", "bd", 1),
+        ("config", "height", 5),
+        ("config", "highlightthickness", 1),
         ("config", "padx", 15),
         ("config", "pady", 15),
         ("config", "wrap", "none"),
@@ -135,7 +180,10 @@ def get_latex_build_tests(root, FONTS, COLORS):
         ("config", "relief", "flat"),
         ("config", "command", True), # Check that a function is linked to command
 
-        ("pack", "side", "right"),
+        ("place", "in", preview_label),
+        ("place", "relx", "1"),
+        ("place", "rely", "1"),
+        ("place", "anchor", "se"),
 
         ("misc", "widget_name", "download_button"),
 
@@ -183,6 +231,7 @@ def get_latex_build_tests(root, FONTS, COLORS):
         "is_title_label": is_title_label,
         "is_subtitle_label": is_subtitle_label,
         "is_editor_container": is_editor_container,
+        "is_latex_shortcuts_container": is_latex_shortcuts_container,
         "is_text_editor": is_text_editor,
         "is_latex_output_container": is_latex_output_container,
         "is_preview_label": is_preview_label,
@@ -193,6 +242,9 @@ def get_latex_build_tests(root, FONTS, COLORS):
         "is_title_label_props": is_title_label_props,
         "is_subtitle_label_props": is_subtitle_label_props,
         "is_editor_container_props": is_editor_container_props,
+        "is_latex_shortcuts_container_props": is_latex_shortcuts_container_props,
+        "is_latex_shortcut_buttons": is_latex_shortcut_buttons,
+        "is_latex_shortcut_buttons_props": is_latex_shortcut_buttons_props,
         "is_text_editor_props": is_text_editor_props,
         "is_latex_output_container_properties": is_latex_output_container_props,
         "is_preview_label_props": is_preview_label_props,
