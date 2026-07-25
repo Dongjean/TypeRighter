@@ -110,28 +110,6 @@ def get_settings_window_build_test(root, FONTS, COLORS):
     ]
     is_settings_container_props = check_widget_props(settings_container, settings_container_props)
 
-    # settings_subwindow_container
-    settings_subwindow_container_props = [
-        ("config", "bg", COLORS["bg_input"]),
-
-        ("pack", "fill", "both"),
-        ("pack", "expand", True),
-
-        ("misc", "widget_name", "settings_subwindow_container"),
-    ]
-    is_settings_subwindow_container_props = check_widget_props(settings_subwindow_container, settings_subwindow_container_props)
-
-    # settings_selection_container
-    settings_selection_container_props = [
-        ("config", "bg", COLORS["bg_input"]),
-
-        ("pack", "fill", "both"),
-        ("pack", "expand", True),
-
-        ("misc", "widget_name", "settings_selection_container"),
-    ]
-    is_settings_selection_container_props = check_widget_props(settings_selection_container, settings_selection_container_props)
-
     # Each settings selector button
     is_setting_selector_buttons = True
     is_setting_selector_buttons_props = True
@@ -190,8 +168,6 @@ def get_settings_window_build_test(root, FONTS, COLORS):
         "is_subwindow_label_props": is_subwindow_label_props,
         "is_back_button_props": is_back_button_props,
         "is_settings_container_props": is_settings_container_props,
-        "is_settings_subwindow_container_props": is_settings_subwindow_container_props,
-        "is_settings_selection_container_props": is_settings_selection_container_props,
         "is_setting_selector_buttons": is_setting_selector_buttons,
         "is_setting_selector_buttons_props": is_setting_selector_buttons_props,
     }

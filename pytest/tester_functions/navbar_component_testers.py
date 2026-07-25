@@ -13,7 +13,7 @@ TEST_FUNCS = {
     "latex-workspace": get_latex_build_tests,
     "user-auth": get_user_auth_build_tests,
     "unicode-search": get_unicode_menu_build_test,
-    "settings-window": lambda *args, **kwargs: True, # Placeholder empty settings window build tester
+    "settings-window": get_settings_window_build_test, # Placeholder empty settings window build tester
 }
 
 # As of here, the control panel view is open
