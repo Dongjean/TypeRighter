@@ -311,8 +311,8 @@ if __name__ == "__main__":
     icon.icon = create_image()
     icon.menu = pystray.Menu(
         pystray.MenuItem("Open Control Panel", lambda icon, item: control_panel_window()),
-        pystray.MenuItem("Trigger Overlay", lambda icon, item: trigger_overlay()),
-        pystray.MenuItem("Close Overlay", lambda icon, item: hide_overlay()),
+        pystray.MenuItem("Overlay Mode", lambda icon, item: trigger_overlay()),
+        pystray.MenuItem("BG-Listener Mode", lambda icon, item: hide_overlay()),
         pystray.MenuItem("Exit", lambda icon, item: clean_exit())
     )
     # .run_detached() starts a non-blocking non-daemon thread
