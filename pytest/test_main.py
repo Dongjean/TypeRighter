@@ -5,6 +5,7 @@ from PIL import Image
 from pathlib import Path
 import shutil
 import os
+import keyring
 
 import main as main
 from pynput import keyboard
@@ -47,6 +48,8 @@ def systematic_test_env(tmp_path_factory):
         keyboard.Key.alt_l,
         keyboard.Key.space
     ]
+
+    _refresh_token = keyring.delete_password("TypeRighter", "current_user_refresh_token")
 
     # We are going to use this one binding at the start of our systematic tests
     shortcuts_unicode.bindings["unicode"]["q"] = "∃"
@@ -134,7 +137,9 @@ def systematic_test_env(tmp_path_factory):
     yield (root, sw, sh, FONTS, COLORS, WINDOWS) # This is where the code runs
 
     # This is after all the tests
-    # Close everything
+    # Reset and close everything
+
+    keyring.set_password("TypeRighter", "current_user_refresh_token", _refresh_token)
 
     # Bring back the files and folders from the temporary folder
     for item in source_path.iterdir():
