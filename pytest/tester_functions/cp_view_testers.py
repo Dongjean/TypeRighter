@@ -40,7 +40,7 @@ def helper_test_control_panel_key(test_env, subtests):
     cp_init_settings_test = get_cp_init_tests(root, sw, sh)
 
     # Now, check the LaTeX editor build options
-    # latex_build_settings_test = get_latex_build_tests(root, FONTS, COLORS)
+    latex_build_settings_test = get_latex_build_tests(root, FONTS, COLORS)
 
     # Now, check that the NavBar is properly built
     # navbar_build_settings_test = get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, "latex-workspace")
@@ -50,6 +50,7 @@ def helper_test_control_panel_key(test_env, subtests):
         "is_command_color": is_command_color,
         "is_preview": is_preview,
         **cp_init_settings_test,
+        **latex_build_settings_test,
     }
 
     for key, assertion in all_assertions.items():

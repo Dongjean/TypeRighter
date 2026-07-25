@@ -64,10 +64,8 @@ def get_latex_build_tests(root, FONTS, COLORS):
 
     # editor_container
     editor_container_props = [
-        ("config", "bg", COLORS["bg_input"]),
-        ("config", "bd", 1),
-        ("config", "highlightbackground", COLORS["border"]),
-        ("config", "highlightthickness", 1),
+        ("config", "bg", COLORS["bg_main"]),
+        ("config", "bd", 0),
 
         ("pack", "fill", "both"),
         ("pack", "expand", True),
@@ -81,7 +79,9 @@ def get_latex_build_tests(root, FONTS, COLORS):
         ("config", "bg", COLORS["bg_input"]),
         ("config", "fg", COLORS["text_main"]),
         ("config", "insertbackground", "white"),
-        ("config", "bd", 0),
+        ("config", "bd", 1),
+        ("config", "height", 5),
+        ("config", "highlightthickness", 1),
         ("config", "padx", 15),
         ("config", "pady", 15),
         ("config", "wrap", "none"),
@@ -135,7 +135,10 @@ def get_latex_build_tests(root, FONTS, COLORS):
         ("config", "relief", "flat"),
         ("config", "command", True), # Check that a function is linked to command
 
-        ("pack", "side", "right"),
+        ("place", "in", preview_label),
+        ("place", "relx", "1"),
+        ("place", "rely", "1"),
+        ("place", "anchor", "se"),
 
         ("misc", "widget_name", "download_button"),
 
