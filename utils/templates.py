@@ -54,7 +54,7 @@ DEFAULT_BINDINGS = {
     },
     "latex": {
         "0": {"name": "Fraction", "code": r"\frac{a}{b}"},
-        "1": {"name": "3x3 Identity Matrix", "code": r"\begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}"}
+        "1": {"name": "3x3 Identity Matrix", "code": "\\begin{pmatrix}\n1 & 0 & 0 \\\\\n0 & 1 & 0 \\\\\n0 & 0 & 1\n\\end{pmatrix}"}
     }
 }
 
