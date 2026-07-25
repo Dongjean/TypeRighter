@@ -18,6 +18,7 @@ def overlay_init(root):
     root.attributes("-topmost", True) # Always on top
     root.attributes("-alpha", 0.5) # Translucent, non-intrusive
     if sys.platform.startswith("win"):
+        root.state("normal")
         root.attributes("-transparentcolor", "white") # Make anything white in root transparent
     elif sys.platform.startswith("linux"):
         # "#000001" is a funny color which unintentionally renders as near transparent
