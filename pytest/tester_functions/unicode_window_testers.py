@@ -122,15 +122,19 @@ def helper_test_unicode_search_function(subtests):
 
     is_check_caps_insensitive_lookup = shortcuts_unicode.lookup_unicode("P") == "Ω"
 
-    check_reserved, _ = shortcuts_unicode.set_unicode_binding("a", "Ω")
-    is_reserved_key_blocked_successful = (not check_reserved) and (shortcuts_unicode.lookup_unicode("a") is None )
+    check_protected, _ = shortcuts_unicode.check_binding("s", "Ω")
+    is_protected_key_blocked_successful = (check_protected == "protected") and (shortcuts_unicode.lookup_unicode("s") in shortcuts_unicode.PROTECTED_BINDS)
 
     check_empty , _ = shortcuts_unicode.set_unicode_binding("e", "")
     is_empty_blocked_successful = (not check_empty) and (shortcuts_unicode.lookup_unicode("e") is None)
 
-    #check if bindings are stored 
-    all_bindings_saved = shortcuts_unicode.all_unicode_bindings()
-    is_all_bindings_correct = (all_bindings_saved.get("p") == "Ω" and "a" not in all_bindings_saved)
+    #check if unicode bindings are stored 
+    all_unicode_bindings_saved = shortcuts_unicode.all_unicode_bindings()
+    is_all_unicode_bindings_correct = (all_unicode_bindings_saved.get("p") == "Ω" and all_unicode_bindings_saved.get("q") == "∃" and shortcuts_unicode.DEFAULT_BINDINGS["unicode"].items() <= all_unicode_bindings_saved.items())
+    
+    #check if latex shortcuts are stored 
+    all_latex_shortcuts_saved = shortcuts_unicode.all_latex_shortcuts()
+    is_all_latex_shortcuts_correct = (shortcuts_unicode.DEFAULT_BINDINGS["latex"].items() <= all_latex_shortcuts_saved.items())
 
     is_remove = shortcuts_unicode.remove_unicode_binding("p") is True 
     is_remove_successful = shortcuts_unicode.lookup_unicode("p") is None 
@@ -153,8 +157,9 @@ def helper_test_unicode_search_function(subtests):
 
         "is_empty_blocked_successful":is_empty_blocked_successful,
         "is_bind_sucessful":is_bind_sucessful,
-        "is_reserved_key_blocked_successful":is_reserved_key_blocked_successful,
-        "is_all_bindings_correct":is_all_bindings_correct,
+        "is_protected_key_blocked_successful":is_protected_key_blocked_successful,
+        "is_all_unicode_bindings_correct":is_all_unicode_bindings_correct,
+        "is_all_latex_shortcuts_correct": is_all_latex_shortcuts_correct,
         "is_remove":is_remove,
         "is_remove_successful":is_remove_successful
     } 
