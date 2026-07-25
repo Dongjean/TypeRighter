@@ -124,12 +124,12 @@ def _rebind_key(parent, to_bind, old_key, COLORS, FONTS):
         
         template_name = settings.lookup_setting("curr_template")
         email, e = auth.get_email()
-        ok_shortcut,result = shortcuts_unicode.set_unicode_binding(new_key, to_bind, overwrite = overwrite)
+        ok_shortcut, unicode_result = shortcuts_unicode.set_unicode_binding(new_key, to_bind, overwrite = overwrite)
         ok_template = True 
         template_msg = ""
         if email:
             bindings = shortcuts_unicode.all_bindings()
-            ok_template,result = templates.update_template(email, template_name, bindings)
+            ok_template, template_result = templates.update_template(email, template_name, bindings)
         else:
             ok_template = True
         if ok_shortcut and ok_template: 
@@ -147,7 +147,7 @@ def _rebind_key(parent, to_bind, old_key, COLORS, FONTS):
                 main.update_breakout_key()
         else: 
             pending["input"] = None 
-            prompt.config(text = result, font = FONTS["font_subtitle"], fg ="#FF0000")
+            prompt.config(text = unicode_result, font = FONTS["font_subtitle"], fg ="#FF0000")
         
     entry.bind("<Return>", lambda e: on_key_press(alias))
     popup.bind("<Escape>", lambda e: popup.destroy())

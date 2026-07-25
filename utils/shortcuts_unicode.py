@@ -149,6 +149,8 @@ def set_unicode_binding(key, symbol, overwrite = True):
             unicode_shortcuts = bindings["unicode"] = {}
         
         existing = unicode_shortcuts.get(key)
+        if symbol in PROTECTED_BINDS and len(key) != 1:
+            return False, f"'{symbol}' can only be bound to single characters."
         if existing is not None and existing != symbol and not overwrite: 
             return False, f"'{key}' is already bound to '{existing}'."
         
