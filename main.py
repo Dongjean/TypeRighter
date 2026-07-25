@@ -280,6 +280,7 @@ def initialise_runtime():
         templates.load(email, pull_fb=True)
         templates.use_template(curr_settings["curr_template"])
     else:
+        settings.load(None, pull_fb=False)
         print(f"error initialising login state: {e}")
 
     # Load saved unicode shortcuts

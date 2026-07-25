@@ -51,7 +51,7 @@ def load(curr_user, pull_fb=False):
             all_settings = user_settings_ref.get_document(curr_user)
         except:
             pass
-    print(all_settings)
+    
     with _lock:
 
         # If we successfully pulled settings data from firebase, write to file
@@ -80,7 +80,18 @@ def load(curr_user, pull_fb=False):
             except:
                 return False
             
+        # If we are not logged in, just use the default settings
+        elif not curr_user:
+            try: 
+                with open(_PATH, "r", encoding="utf-8") as f:
+                    settings = json.load(f)
+            except (json.JSONDecodeError, IOError):
+                settings = DEFAULT_SETTINGS
             
+            settings = DEFAULT_SETTINGS
+            ok = _save(None)
+            if not ok:
+                return False
         
         # If we didnt pull from firebase, then pull from local db
         elif not pull_fb:
