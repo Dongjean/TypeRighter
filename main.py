@@ -32,6 +32,9 @@ def update_breakout_key():
 
 def hide_overlay():
     view_handler.gui_queue.put("hide_overlay")
+    stop_all_pynput_keyboard_listeners()
+    bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
+    bg_listener.start()
 
 def trigger_overlay():
     if not view_handler.is_control_panel_open:
@@ -216,9 +219,6 @@ def on_press_bg(key, listener):
                     trigger_overlay()
                 elif view_handler.is_overlay_triggered:
                     hide_overlay()
-                    stop_all_pynput_keyboard_listeners()
-                    bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
-                    bg_listener.start()
             
             elif view_handler.is_control_panel_open:
                 listener.stop()
@@ -311,7 +311,8 @@ if __name__ == "__main__":
     icon.icon = create_image()
     icon.menu = pystray.Menu(
         pystray.MenuItem("Open Control Panel", lambda icon, item: control_panel_window()),
-        pystray.MenuItem("Overlay Mode", lambda icon, item: trigger_overlay()),
+        pystray.MenuItem("Trigger Overlay", lambda icon, item: trigger_overlay()),
+        pystray.MenuItem("Close Overlay", lambda icon, item: hide_overlay()),
         pystray.MenuItem("Exit", lambda icon, item: clean_exit())
     )
     # .run_detached() starts a non-blocking non-daemon thread
