@@ -123,6 +123,8 @@ def on_release_shortcut(key, listener):
                 elif shortcuts_unicode.lookup_unicode(keys) == "Control Panel":
                     control_panel_window()
                     stop_all_pynput_keyboard_listeners()
+                    bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
+                    bg_listener.start()
                 elif shortcuts_unicode.lookup_unicode(keys) == "Change Template":
                     if auth.get_email()[0]:
                         trigger_change_template()
@@ -192,17 +194,17 @@ def win32_keyboard_filter(msg, data, listener):
 
 def on_press_bg(key, listener):
     canonical_key = listener.canonical(key)
-    if not view_handler.is_control_panel_open:
-        # If the overlay is on, means we are listening for a 2nd key input
-        if canonical_key in map(listener.canonical, COMBINATION):
-            current_keys.add(canonical_key)
-            if all(k in current_keys for k in map(listener.canonical, COMBINATION)):
-
-                # Release the pressed keys and clear current_keys
-                for pressed_key in COMBINATION:
-                    keyboard.Controller().release(pressed_key)
-                current_keys.clear()
-
+    # If the overlay is on, means we are listening for a 2nd key input
+    if canonical_key in map(listener.canonical, COMBINATION):
+        current_keys.add(canonical_key)
+        if all(k in current_keys for k in map(listener.canonical, COMBINATION)):
+            
+            # Release the pressed keys and clear current_keys
+            for pressed_key in COMBINATION:
+                keyboard.Controller().release(pressed_key)
+            current_keys.clear()
+            
+            if not view_handler.is_control_panel_open:
                 if not view_handler.is_overlay_triggered:
                     trigger_overlay()
                     # Start a new overlay_listener which listens and catches just "\"
@@ -213,6 +215,10 @@ def on_press_bg(key, listener):
                     stop_all_pynput_keyboard_listeners()
                     bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
                     bg_listener.start()
+            
+            elif view_handler.is_control_panel_open:
+                listener.stop()
+                view_handler.gui_queue.put("close_control_panel")
     
     if canonical_key == keyboard.Key.shift:
         global is_uppercase

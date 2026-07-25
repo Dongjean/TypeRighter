@@ -61,6 +61,10 @@ def check_queue(root):
             destroy_textbox(root)
         elif msg.startswith("append_textbox_"):
             append_textbox(root, msg.removeprefix("append_textbox_"))
+
+        # For returning back to Overlay Mode from CP-Mode with COMBINATION
+        elif msg == "close_control_panel":
+            delete_control_panel_handler(root)
         
         # For Exiting the App
         elif msg == "destroy_root":
