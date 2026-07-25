@@ -6,6 +6,7 @@ import shutil
 
 import utils.firebase_app as fb
 import utils.settings as settings
+import utils.auth as auth
 
 db = fb.db
 
@@ -73,7 +74,14 @@ def load(curr_user, pull_fb=False):
     # Pull the templates data from firebase if required
     if pull_fb:
         try:
+            id_token, e = auth.get_id_token()
+            if not id_token:
+                print(e)
+                return
             user_templates_ref = db.collection("templates")
+            user_templates_ref.headers = {
+                "Authorization": f"Bearer {id_token}"
+            }
             all_templates = user_templates_ref.get_document(curr_user)
         except Exception as e:
             print(f"[templates] firebase pull failed for {curr_user}:{e!r}")
@@ -104,7 +112,14 @@ def load(curr_user, pull_fb=False):
                     json.dump(templates, f, ensure_ascii=False, indent=4)
                 os.replace(temp, _PATH)
 
+                id_token, e = auth.get_id_token()
+                if not id_token:
+                    print(e)
+                    return
                 user_templates_ref = db.collection("templates").document(curr_user)
+                user_templates_ref.headers = {
+                    "Authorization": f"Bearer {id_token}"
+                }
                 user_templates_ref.update_document(data=templates)
             except:
                 return False
@@ -130,9 +145,15 @@ def _save(curr_user):
             os.replace(temp, _TEMPLATE_PATH)
 
         # Add a template_names list so we can dynamically call all the templates later
+        id_token, e = auth.get_id_token()
+        if not id_token:
+            print(e)
+            return
         user_templates_ref = db.collection("templates").document(curr_user)
+        user_templates_ref.headers = {
+            "Authorization": f"Bearer {id_token}"
+        }
         user_templates_ref.create_document(data=templates)
-
         return True
     except IOError:
         return False
