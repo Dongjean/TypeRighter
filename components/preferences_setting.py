@@ -286,7 +286,8 @@ def on_template_selection(event, template_selector, preferences_frame, COLORS, F
 
         root = template_selector.winfo_toplevel()
         navbar_frame = root.nametowidget("navbar_frame")
-        navbar_template_selector = navbar_frame.nametowidget("template_selector")
+        navbar_template_selector_container = navbar_frame.nametowidget("template_selector_container")
+        navbar_template_selector = navbar_template_selector_container.nametowidget("template_selector")
         navbar_template_selector.set(selected_template)
 
 def edit_template(template_selector_hub, template_editor_hub):
@@ -331,7 +332,8 @@ def commit_template_name(template_selector_hub, template_editor_hub, template_na
     # First get the root window
     root = template_selector.winfo_toplevel()
     navbar_frame = root.nametowidget("navbar_frame")
-    navbar_template_selector = navbar_frame.nametowidget("template_selector")
+    navbar_template_selector_container = navbar_frame.nametowidget("template_selector_container")
+    navbar_template_selector = navbar_template_selector_container.nametowidget("template_selector")
 
     navbar_template_selector.configure(values=curr_template_names)
     navbar_template_selector.set(new_template_name)
@@ -370,7 +372,8 @@ def delete_template(template_selector_hub, template_editor_hub):
 
     root = template_selector.winfo_toplevel()
     navbar_frame = root.nametowidget("navbar_frame")
-    navbar_template_selector = navbar_frame.nametowidget("template_selector")
+    navbar_template_selector_container = navbar_frame.nametowidget("template_selector_container")
+    navbar_template_selector = navbar_template_selector_container.nametowidget("template_selector")
 
     navbar_template_selector.configure(values=curr_template_names)
     navbar_template_selector.set("default")
