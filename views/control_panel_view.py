@@ -8,6 +8,7 @@ def control_panel_init(root):
     textbox = root.nametowidget("textbox")
     textbox.destroy()
     root.title("TypeRighter - Control Panel")
+    root.deiconify()
 
     # Manually reset all of the settings from root_init()
     root.overrideredirect(False)

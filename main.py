@@ -34,13 +34,23 @@ def hide_overlay():
     view_handler.gui_queue.put("hide_overlay")
 
 def trigger_overlay():
-    view_handler.gui_queue.put("trigger_overlay")
+    if not view_handler.is_control_panel_open:
+        view_handler.gui_queue.put("trigger_overlay")
+        # Start a new overlay_listener which listens and catches just "\"
+        overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
+        overlay_listener.start()
+    elif view_handler.is_control_panel_open:
+        stop_all_pynput_keyboard_listeners()
+        view_handler.gui_queue.put("close_control_panel")
 
 def flash_red_overlay():
     view_handler.gui_queue.put("flash_red_overlay")
 
 def control_panel_window():
     view_handler.gui_queue.put("control_panel_window")
+    stop_all_pynput_keyboard_listeners()
+    bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
+    bg_listener.start()
 
 def trigger_change_template():
     view_handler.gui_queue.put("trigger_change_template")
@@ -122,9 +132,6 @@ def on_release_shortcut(key, listener):
                     hide_overlay()
                 elif shortcuts_unicode.lookup_unicode(keys) == "Control Panel":
                     control_panel_window()
-                    stop_all_pynput_keyboard_listeners()
-                    bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
-                    bg_listener.start()
                 elif shortcuts_unicode.lookup_unicode(keys) == "Change Template":
                     if auth.get_email()[0]:
                         trigger_change_template()
@@ -207,9 +214,6 @@ def on_press_bg(key, listener):
             if not view_handler.is_control_panel_open:
                 if not view_handler.is_overlay_triggered:
                     trigger_overlay()
-                    # Start a new overlay_listener which listens and catches just "\"
-                    overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: win32_keyboard_filter(msg, data, overlay_listener))
-                    overlay_listener.start()
                 elif view_handler.is_overlay_triggered:
                     hide_overlay()
                     stop_all_pynput_keyboard_listeners()
@@ -306,7 +310,8 @@ if __name__ == "__main__":
     icon = pystray.Icon("TypeRighter")
     icon.icon = create_image()
     icon.menu = pystray.Menu(
-        pystray.MenuItem("Run Now", lambda icon, item: trigger_overlay()),
+        pystray.MenuItem("Open Control Panel", lambda icon, item: control_panel_window()),
+        pystray.MenuItem("Overlay Mode", lambda icon, item: trigger_overlay()),
         pystray.MenuItem("Exit", lambda icon, item: clean_exit())
     )
     # .run_detached() starts a non-blocking non-daemon thread
