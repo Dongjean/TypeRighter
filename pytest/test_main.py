@@ -50,7 +50,8 @@ def systematic_test_env(tmp_path_factory):
     ]
 
     try:
-        _refresh_token = keyring.delete_password("TypeRighter", "current_user_refresh_token")
+        _refresh_token = keyring.get_password("TypeRighter", "current_user_refresh_token")
+        keyring.delete_password("TypeRighter", "current_user_refresh_token")
     except:
         _refresh_token = None
 
