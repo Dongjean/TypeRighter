@@ -49,7 +49,10 @@ def systematic_test_env(tmp_path_factory):
         keyboard.Key.space
     ]
 
-    _refresh_token = keyring.delete_password("TypeRighter", "current_user_refresh_token")
+    try:
+        _refresh_token = keyring.delete_password("TypeRighter", "current_user_refresh_token")
+    except:
+        _refresh_token = None
 
     # We are going to use this one binding at the start of our systematic tests
     shortcuts_unicode.bindings["unicode"]["q"] = "∃"
@@ -139,7 +142,8 @@ def systematic_test_env(tmp_path_factory):
     # This is after all the tests
     # Reset and close everything
 
-    keyring.set_password("TypeRighter", "current_user_refresh_token", _refresh_token)
+    if _refresh_token:
+        keyring.set_password("TypeRighter", "current_user_refresh_token", _refresh_token)
 
     # Bring back the files and folders from the temporary folder
     for item in source_path.iterdir():
