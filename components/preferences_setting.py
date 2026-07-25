@@ -12,6 +12,14 @@ import components.navbar as navbar
 
 PROTECTED_BINDS = ["Exit App", "Close Overlay", "Control Panel", "Breakout Key", "Change Template"]
 
+_active_render ={"callback": None}
+
+def _unsubcribe_active_render(): 
+    callback = _active_render["callback"]
+    if callback is not None: 
+        shortcuts_unicode.unlist(callback)
+        _active_render["callback"] = None 
+
 def toggle_binds_expansion(binds_container, label):
     
     # Get the text property of the label, without the trailing ▲▼
@@ -117,6 +125,8 @@ def _rebind_key(parent, to_bind, old_key, COLORS, FONTS):
         template_name = settings.lookup_setting("curr_template")
         email, e = auth.get_email()
         ok_shortcut,result = shortcuts_unicode.set_unicode_binding(new_key, to_bind, overwrite = overwrite)
+        ok_template = True 
+        template_msg = ""
         if email:
             bindings = shortcuts_unicode.all_bindings()
             ok_template,result = templates.update_template(email, template_name, bindings)
