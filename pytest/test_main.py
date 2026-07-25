@@ -13,7 +13,7 @@ import views.view_handler as view_handler
 
 # Import helper functions
 from helper_functions.main_test_helpers import wait
-from tester_functions.main_testers import bg_listener_tester, overlay_tester
+from tester_functions.main_testers import bg_listener_tester, overlay_tester, latex_tester
 
 key_simulator = keyboard.Controller()
 
@@ -155,6 +155,9 @@ def systematic_test_env(tmp_path_factory):
     # Destroy the root window
     main.view_handler.gui_queue.put("destroy_root")
 
+    # Stop the tray icon
+    view_handler.icon.stop()
+
     # Stop the pynput listener
     # main.listener.stop()
     main.stop_all_pynput_keyboard_listeners()
@@ -169,17 +172,15 @@ def systematic_test_env(tmp_path_factory):
     except Exception as e:
         print(e)
 
-    main.clean_exit()
-
 def test_systematic(systematic_test_env, subtests):
 
     bg_listener_tester(systematic_test_env, subtests)
     
     overlay_tester(systematic_test_env, subtests)
     
-    # Previous tester functions (keeping for reference)
-    # latex_tester(test_env, subtests)
+    latex_tester(systematic_test_env, subtests)
 
+    # Previous tester functions (keeping for reference)
     # navbar_tester(test_env, subtests)
 
     # unicode_tester(test_env, subtests)

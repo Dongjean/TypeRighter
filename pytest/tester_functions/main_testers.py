@@ -13,43 +13,21 @@ def bg_listener_tester(test_env, subtests):
 
 def overlay_tester(test_env, subtests):
 
-    # Turn on the overlay
     helper_test_bg_listener_on(test_env, subtests)
 
     helper_test_overlay_unicode_shortcut(test_env, subtests)
 
     helper_test_bg_listener_off(test_env, subtests)
 
-#     helper_test_overlay_key(test_env, subtests)
-
-#     # This will be run right after test_overlay_key()
-#     # Thus, Ctrl + D has already been pressed and overlay is on
-#     helper_test_exit_key(test_env, subtests)
-
-#     helper_test_wrong_key(test_env, subtests)
+def latex_tester(test_env, subtests):
     
-#     helper_test_control_panel_key(test_env, subtests)
+    helper_test_bg_listener_on(test_env, subtests)
 
-#     helper_test_close_control_panel(test_env)
+    helper_test_control_panel_key(test_env, subtests)
 
-#     # Redo all of the overlay tests
-#     helper_test_overlay_init(test_env, subtests)
-
-#     helper_test_overlay_key(test_env, subtests)
-
-#     # This will be run right after test_overlay_key()
-#     # Thus, Ctrl + D has already been pressed and overlay is on
-#     helper_test_exit_key(test_env, subtests)
-
-#     helper_test_wrong_key(test_env, subtests)
-
-# def latex_tester(test_env, subtests):
+    helper_test_latex_output_enter(test_env, subtests)
     
-#     helper_test_overlay_init(test_env, subtests)
-
-#     helper_test_control_panel_key(test_env, subtests)
-
-#     helper_test_latex_output_enter(test_env, subtests)
+    # helper_test_bg_listener_off(test_env, subtests)
 
 # def navbar_tester(test_env, subtests):
     

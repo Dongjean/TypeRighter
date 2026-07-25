@@ -62,15 +62,17 @@ def helper_test_overlay_breakout_key_off(test_env, subtests):
     command_textbox, is_command_textbox = check_tk_exists(root, "textbox")
 
     # Test command popup if its closed
-    is_withdrawn = command_textbox.state() == "withdrawn"
+    # If we are opening Control Panel, the command textbox will no longer exist
+    if is_command_textbox:
+        is_withdrawn = command_textbox.state() == "withdrawn"
 
-    all_assertions = {
-        "is_withdrawn": is_withdrawn
-    }
-    
-    for key, assertion in all_assertions.items():
-        with subtests.test(msg=f"Asserting {key}"):
-            assert assertion
+        all_assertions = {
+            "is_withdrawn": is_withdrawn
+        }
+        
+        for key, assertion in all_assertions.items():
+            with subtests.test(msg=f"Asserting {key}"):
+                assert assertion
 
 def helper_test_overlay_unicode_shortcut(test_env, subtests):
 
