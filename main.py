@@ -31,10 +31,15 @@ def update_breakout_key():
     BREAKOUT_KEY = shortcuts_unicode.get_key_from_value("Breakout Key") or "\\"
 
 def hide_overlay():
-    view_handler.gui_queue.put("hide_overlay")
-    stop_all_pynput_keyboard_listeners()
-    bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
-    bg_listener.start()
+    if not view_handler.is_control_panel_open:
+        view_handler.gui_queue.put("hide_overlay")
+        stop_all_pynput_keyboard_listeners()
+        bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
+        bg_listener.start()
+    elif view_handler.is_control_panel_open:
+        stop_all_pynput_keyboard_listeners()
+        view_handler.gui_queue.put("close_control_panel")
+        view_handler.gui_queue.put("hide_overlay")
 
 def trigger_overlay():
     if not view_handler.is_control_panel_open:
@@ -50,10 +55,11 @@ def flash_red_overlay():
     view_handler.gui_queue.put("flash_red_overlay")
 
 def control_panel_window():
-    view_handler.gui_queue.put("control_panel_window")
-    stop_all_pynput_keyboard_listeners()
-    bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
-    bg_listener.start()
+    if not view_handler.is_control_panel_open:
+        view_handler.gui_queue.put("control_panel_window")
+        stop_all_pynput_keyboard_listeners()
+        bg_listener = keyboard.Listener(on_press=lambda key: on_press_bg(key, bg_listener), on_release=lambda key: on_release_bg(key, bg_listener))
+        bg_listener.start()
 
 def trigger_change_template():
     view_handler.gui_queue.put("trigger_change_template")
