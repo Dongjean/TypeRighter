@@ -52,12 +52,12 @@ LATEX_SCHEMA ={
 def latex_from_description(widget, description, on_done): 
     def handle (ok,result): 
         on_done(*_parse(ok,result,["latex", "explanation", "note"]))   
-
-        gemini.generate_async(
-            widget,
-            prompt =f"Produce LaTeX for:{description}", 
-            on_done = handle, 
-            system_instruction = LATEX_SYSTEM, 
-            schema = LATEX_SCHEMA, 
-            temperature = 0.1, #force AI for conventional answer
-        )
+    print(">>> calling generate_async now")
+    gemini.generate_async(
+        widget,
+        prompt =f"Produce LaTeX for:{description}", 
+        on_done = handle, 
+        system_instruction = LATEX_SYSTEM, 
+        schema = LATEX_SCHEMA, 
+        temperature = 0.1, #force AI for conventional answer
+        )    

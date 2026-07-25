@@ -46,17 +46,17 @@ def _build_latex_tab(parent, COLORS, FONTS):
     tk.Label(latex_AI_tab, text="Describe the equation or structure required to get syntax/Ready-to-use LaTeX structures!",
     fg = COLORS["text_main"], bg = COLORS["bg_main"], font = FONTS["font_subtitle"], anchor ="w").pack(fill ="x", pady=(0,6)) 
 
-    prompt_box = tk.Text(latex_AI_tab, height = 3,  fg = COLORS["text_main"], bg = COLORS["bg_main"], font = FONTS["font_subtitle"], insertbackground = "white", bd =1, highlightbackground = COLORS["border"], highlightthickness =1, padx = 12, pady = 10, wrap = "word", name = "latex_AI_display")
+    prompt_box = tk.Text(latex_AI_tab, height = 3,  fg = COLORS["text_main"], bg = COLORS["bg_main"], font = FONTS["font_subtitle"], insertbackground = "white", bd =1, highlightbackground = COLORS["border"], highlightthickness =1, padx = 12, pady = 10, wrap = "word", name = "latex_ai_display")
     prompt_box.pack(fill ="x")
 
     #frames to hold the status and control button side by side 
     controls = tk.Frame(latex_AI_tab, bg = COLORS["bg_main"])
     controls.pack(fill = "x", pady = (8,10))
 
-    status = tk.Label(controls, text = "", fg = COLORS["text_muted"], bg = COLORS["bg_main"], font = FONTS["font_subtitle"], anchor ="w", name ="latex_ai_status")
+    status = tk.Label(controls, text = "", fg = COLORS["text_muted"], bg = COLORS["bg_main"], font = FONTS["font_subtitle"], anchor ="w", name="latex_ai_status")
     status.pack(side = "left", fill = "x", expand = True)
 
-    generate_button = tk.Button(controls, text ="Generate", bg = COLORS["bg_main"], fg = COLORS["text_muted"], bd = 0, fonts = FONTS["font_subtitle"], name =" latex_ai_generate")
+    generate_button = tk.Button(controls, text ="Generate", bg = COLORS["border"], fg = COLORS["text_main"], bd = 0, font = FONTS["font_subtitle"], name=" latex_ai_generate")
     generate_button.pack(side ="right")
 
     #actual output used

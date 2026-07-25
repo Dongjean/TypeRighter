@@ -6,6 +6,7 @@ import pyperclip
 
 import utils.templates as templates
 import utils.firebase_app as fb
+import utils.auth as auth
 
 db = fb.db
 
@@ -47,11 +48,18 @@ def load(curr_user, pull_fb=False):
 
     if pull_fb:
         try:
+            id_token, e = auth.get_id_token()
+            if not id_token:
+                print(e)
+                return
             user_settings_ref = db.collection("settings")
+            user_settings_ref.headers = {
+                "Authorization": f"Bearer {id_token}"
+            }
             all_settings = user_settings_ref.get_document(curr_user)
         except:
             pass
-    print(all_settings)
+    
     with _lock:
 
         # If we successfully pulled settings data from firebase, write to file
@@ -75,12 +83,30 @@ def load(curr_user, pull_fb=False):
                     json.dump(settings, f, ensure_ascii=False, indent=4)
                 os.replace(temp, _PATH)
 
+                id_token, e = auth.get_id_token()
+                if not id_token:
+                    print(e)
+                    return
                 user_settings_ref = db.collection("settings").document(curr_user)
+                user_settings_ref.headers = {
+                    "Authorization": f"Bearer {id_token}"
+                }
                 user_settings_ref.update_document(data=settings)
             except:
                 return False
             
+        # If we are not logged in, just use the default settings
+        elif not curr_user:
+            try: 
+                with open(_PATH, "r", encoding="utf-8") as f:
+                    settings = json.load(f)
+            except (json.JSONDecodeError, IOError):
+                settings = DEFAULT_SETTINGS
             
+            settings = DEFAULT_SETTINGS
+            ok = _save(None)
+            if not ok:
+                return False
         
         # If we didnt pull from firebase, then pull from local db
         elif not pull_fb:
@@ -101,7 +127,14 @@ def _save(curr_user):
         os.replace(temp, _PATH)
 
         if curr_user:
+            id_token, e = auth.get_id_token()
+            if not id_token:
+                print(e)
+                return
             user_settings_ref = db.collection("settings").document(curr_user)
+            user_settings_ref.headers = {
+                "Authorization": f"Bearer {id_token}"
+            }
             user_settings_ref.update_document(data=settings)
 
         return True #saved successfully

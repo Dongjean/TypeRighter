@@ -12,7 +12,8 @@ except ImportError:
 
 load_dotenv()
 
-DEFAULT_AI = os.getenv("GEMINI_MODEL", "gemini-2.5-flash") 
+DEFAULT_AI = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
+print(f">>> MODEL IN USE: {repr(DEFAULT_AI)}")
 
 KEYRING_SERVICE = "TypeRighter"
 KEYRING_USER ="gemini_api_key"
@@ -122,6 +123,7 @@ def generate_async(widget, prompt, on_done, system_instruction = None, schema = 
             model = model, 
             temperature = temperature, 
         )
+        
         try: 
             widget.after(0, lambda: on_done(ok,result))
         except Exception: 
