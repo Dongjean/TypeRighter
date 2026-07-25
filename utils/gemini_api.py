@@ -14,7 +14,7 @@ load_dotenv()
 
 DEFAULT_AI = os.getenv("GEMINI_MODEL", "gemini-2.5-flash") 
 
-KEYRING_SERVICE = "TypeRigher"
+KEYRING_SERVICE = "TypeRighter"
 KEYRING_USER ="gemini_api_key"
 
 _client = None
@@ -126,5 +126,5 @@ def generate_async(widget, prompt, on_done, system_instruction = None, schema = 
             widget.after(0, lambda: on_done(ok,result))
         except Exception: 
             pass 
-        threading.Thread(target=worker, daemon = True).start()
+    threading.Thread(target=worker, daemon = True).start()
 
