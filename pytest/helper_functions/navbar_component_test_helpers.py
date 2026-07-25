@@ -13,7 +13,6 @@ def get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, curr_window):
     navbar_frame_props = [
         ("config", "bg", COLORS["bg_main"]),
         ("config", "takefocus", '1'),
-        ("config", "width", 10),
 
         ("pack", "side", "right"),
         ("pack", "fill", "y"),
@@ -31,7 +30,6 @@ def get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, curr_window):
         curr_window_selector, is_curr_window_selector = check_tk_exists(navbar_frame, key)
         # If even a single window selector doesnt exist, fail the check
         if not is_curr_window_selector:
-            print('here')
             is_window_selections = False
             break
         
@@ -47,6 +45,7 @@ def get_navbar_build_tests(root, FONTS, COLORS, WINDOWS, curr_window):
                 ("config", "bd", 0),
                 ("config", "relief", "flat"),
                 ("config", "height", 3),
+                ("config", "width", 10),
                 ("config", "selectcolor", COLORS["accent_blue"]),
                 ("config", "activebackground", COLORS["accent_blue"]),
                 ("config", "indicatoron", False),
