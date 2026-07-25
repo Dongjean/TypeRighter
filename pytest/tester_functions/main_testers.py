@@ -26,16 +26,12 @@ def latex_tester(test_env, subtests):
     helper_test_control_panel_key(test_env, subtests)
 
     helper_test_latex_output_enter(test_env, subtests)
+
+def navbar_tester(test_env, subtests):
     
-    # helper_test_bg_listener_off(test_env, subtests)
+    helper_test_control_panel_key(test_env, subtests)
 
-# def navbar_tester(test_env, subtests):
-    
-#     helper_test_overlay_init(test_env, subtests)
-
-#     helper_test_control_panel_key(test_env, subtests)
-
-#     helper_test_navbar(test_env, subtests)
+    helper_test_navbar(test_env, subtests)
 
 # def unicode_tester(test_env, subtests):
 
