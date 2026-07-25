@@ -23,7 +23,7 @@ init_functions = {
     "latex-workspace": latex_workspace.build_latex_workspace,
     "user-auth": user_auth.build_user_auth,
     "unicode-search": unicode_search.build_unicode_search_panel,
-    "AI Assistant": ai_assistant.build_ai_assistant, 
+    "ai-assistant": ai_assistant.build_ai_assistant, 
     "settings-window": settings_window.build_settings_window,
 }
 
@@ -31,7 +31,7 @@ destroy_functions = {
     "latex-workspace": latex_workspace.destroy_latex_workspace,
     "user-auth": user_auth.destroy_user_auth,
     "unicode-search": unicode_search.destroy_unicode_search_panel,
-    "AI Assistant": ai_assistant.destroy_ai_assistant,
+    "ai-assistant": ai_assistant.destroy_ai_assistant,
     "settings-window": settings_window.destroy_settings_windows,
 }
 

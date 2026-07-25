@@ -64,8 +64,8 @@ def _build_latex_tab(parent, COLORS, FONTS):
     output.pack(fill ="x")
 
     #AI explaination 
-    explaination = _display_text(latex_AI_tab, COLORS, FONTS, height = 6, name ="latex_ai_explaination")
-    explaination.pack(fill="both", expand = True, pady=(8,8))
+    explanation = _display_text(latex_AI_tab, COLORS, FONTS, height = 6, name ="latex_ai_explanation")
+    explanation.pack(fill="both", expand = True, pady=(8,8))
 
     #for user's actions 
     actions = tk.Frame(latex_AI_tab, bg = COLORS["bg_main"])
@@ -99,11 +99,11 @@ def _build_latex_tab(parent, COLORS, FONTS):
         state["latex"] = payload["latex"]
         _replace_text(output, payload["latex"])
 
-        text = payload["explaination"]
+        text = payload["explanation"]
 
         if payload.get("note"): 
             text += f"\n\nAssumption: {payload['note']}"
-        _replace_text(explaination, text)
+        _replace_text(explanation, text)
  
     def on_generate(event=None):
         description = prompt_box.get("1.0", "end-1c").strip()
@@ -120,5 +120,23 @@ def _build_latex_tab(parent, COLORS, FONTS):
     prompt_box.bind("<Shift-Return>", lambda e: None)
  
     return latex_AI_tab
+
+def build_ai_assistant(root, COLORS, FONTS): 
+    outer = tk.Frame(root, bg = COLORS["bg_main"], padx = 20, pady =20, takefocus = True, name = "ai_assistant_frame")
+    outer.pack(side ="top", fill ="both", expand = True)
+
+    tk.Label(outer, text ="AI Assistant", fg = COLORS["text_main"], bg = COLORS["bg_main"], font = FONTS["font_subtitle"], name = "title_label").pack(fill ="x")
+
+    tk.Label(outer, text ="Generate LaTeX from a description", fg = COLORS["text_muted"], bg = COLORS["bg_main"], font = FONTS["font_subtitle"], name ="subtitle_label").pack(fill ="x", pady = (0,15))
+
+    notebook = ttk.Notebook(outer, name ="ai_notebook")
+    notebook.pack(fill="both", expand = True)
+    notebook.add(_build_latex_tab(notebook, COLORS, FONTS), text="LaTeX")
+
+def destroy_ai_assistant(root): 
+    for widget in root.winfo_children(): 
+        if widget.winfo_name() != "navbar_frame": 
+            widget.destroy()
+
 
 

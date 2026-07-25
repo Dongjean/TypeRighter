@@ -27,7 +27,7 @@ Constraints:
 1) Only output the math body only. No $ delimiters, no \\begin{document}, no \\documentclass, no markdown code fences. 
 2) If the description is ambiguous, pick the most standard reading and say that you assumed in the "note" field. 
 3) Keep it to a single expression unless user asked for several. 
-4) "Explaination" field should describe what each non-obvious command does so that users can learn the syntax. """
+4) "Explanation" field should describe what each non-obvious command does so that users can learn the syntax. """
     
 
 LATEX_SCHEMA ={ 
@@ -37,7 +37,7 @@ LATEX_SCHEMA ={
             "type":"string",
             "description": "The LaTeX code, math body only, no delimiters.",
         }, 
-        "explaination":{
+        "explanation":{
             "type":"string",
             "description": "Short plain language breakdown of commmands used."
         },
@@ -46,12 +46,12 @@ LATEX_SCHEMA ={
             "description": "Any assumption made about an ambiguous request. Empty string if none."
         }, 
     },
-    "required": ["latex", "explaination", "note"]
+    "required": ["latex", "explanation", "note"]
 }
 
 def latex_from_description(widget, description, on_done): 
     def handle (ok,result): 
-        on_done(*_parse(ok,result,["latex", "explaination", "note"]))   
+        on_done(*_parse(ok,result,["latex", "explanation", "note"]))   
 
         gemini.generate_async(
             widget,
