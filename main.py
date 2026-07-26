@@ -78,18 +78,25 @@ def is_caps_lock_on():
     return ctypes.windll.user32.GetKeyState(0x14) & 1
 
 keys = ""
-is_uppercase = False
+is_shift_held = False
 
 def on_press_shortcut(key):
     global keys
-    global is_uppercase
+    global is_shift_held
     try:
         if hasattr(key, 'char'):
             if key.char != BREAKOUT_KEY:
-                if is_uppercase or is_caps_lock_on():
+
+                # If Shift is pressed while caps lock is on, make the keys lowercase
+                if is_shift_held and is_caps_lock_on():
+                    keys += key.char.lower()
+                elif is_shift_held and not is_caps_lock_on():
+                    keys += key.char.upper()
+                elif not is_shift_held and is_caps_lock_on():
                     keys += key.char.upper()
                 else:
                     keys += key.char.lower()
+
                 view_handler.gui_queue.put(f"append_textbox_{keys}")
         elif key == keyboard.Key.backspace:
             keys = keys[:-1]
@@ -98,7 +105,7 @@ def on_press_shortcut(key):
             keys += " "
             view_handler.gui_queue.put(f"append_textbox_{keys}")
         elif key == keyboard.Key.shift:
-            is_uppercase = True
+            is_shift_held = True
     except:
         pass
 
@@ -169,8 +176,8 @@ def on_release_shortcut(key, listener):
                     overlay_listener.start()
                 keys = ""
         elif key == keyboard.Key.shift:
-            global is_uppercase
-            is_uppercase = False
+            global is_shift_held
+            is_shift_held = False
     except:
         pass
 
@@ -232,8 +239,8 @@ def on_press_bg(key, listener):
                 view_handler.gui_queue.put("close_control_panel")
     
     if canonical_key == keyboard.Key.shift:
-        global is_uppercase
-        is_uppercase = True
+        global is_shift_held
+        is_shift_held = True
 
 def on_release_bg(key, listener):
     canonical_key = listener.canonical(key)
@@ -243,8 +250,8 @@ def on_release_bg(key, listener):
         pass
 
     if canonical_key == keyboard.Key.shift:
-        global is_uppercase
-        is_uppercase = False
+        global is_shift_held
+        is_shift_held = False
 
 # Tray icon
 def create_image():
