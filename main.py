@@ -29,6 +29,7 @@ current_keys = set()
 def update_breakout_key():
     global BREAKOUT_KEY
     BREAKOUT_KEY = shortcuts_unicode.get_key_from_value("Breakout Key") or "\\"
+    print(f"BREAKOUT_KEY is: {repr(BREAKOUT_KEY)}") 
 
 def hide_overlay():
     if not view_handler.is_control_panel_open:

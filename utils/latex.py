@@ -2,6 +2,7 @@
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+from urllib.parse import quote
 
 def init_latex_window_matplotlib(output_frame, background_color):
     
@@ -83,7 +84,7 @@ def init_latex_window_codecogs(output_frame, background_color):
 def display_latex_window_codecogs(canvas, latex_str):
     
     # CodeCogs LaTeX rendering API
-    url = fr"https://latex.codecogs.com/png.image?\dpi{{150}}{latex_str}"
+    url = "https://latex.codecogs.com/png.image?" + quote(r"\dpi{150}" +latex_str, safe="")
 
     try:
         response = requests.get(url, timeout=5)
@@ -117,7 +118,9 @@ def display_latex_window_codecogs(canvas, latex_str):
 def copy_canvas_image(canvas):
 
     # Access the PIL image
-    img = canvas.pil_img
+    img = getattr(canvas, "pil_img", None)
+    if img is None: 
+        return
 
     # Convert the image to RGBA just in case
     rgba_img = img.convert("RGBA")
