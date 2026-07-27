@@ -12,7 +12,12 @@ except ImportError:
 
 load_dotenv()
 
-DEFAULT_AI = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
+DEFAULT_AI = os.getenv("GEMINI_MODEL_main", "gemini-flash-latest")
+BACKUP_MODELS = [
+    os.getenv("GEMINI_MODEL_backup_1"),
+    os.getenv("GEMINI_MODEL_backup_2"),
+    os.getenv("GEMINI_MODEL_backup_3")
+]
 print(f">>> MODEL IN USE: {repr(DEFAULT_AI)}")
 
 KEYRING_SERVICE = "TypeRighter"
@@ -76,6 +81,28 @@ def get_client():
 
     return _client, None
 
+def try_backup_models(client, prompt, config_kwargs):
+    global DEFAULT_AI
+    print("Using backup AI Model...")
+    try:
+        for BACKUP_MODEL in BACKUP_MODELS:
+            response = client.models.generate_content(
+                model = BACKUP_MODEL, 
+                contents = prompt, 
+                config = types.GenerateContentConfig(**config_kwargs), 
+            )
+            msg = None
+            # Use the first response that works
+            print(f"used {BACKUP_MODEL} for prompt {prompt}")
+            DEFAULT_AI = BACKUP_MODEL
+            print(f"using {DEFAULT_AI} as the main AI now.")
+            break
+    except Exception as e: 
+        response = None
+        msg = str(e) 
+
+    return response, msg
+
 #actual network request to API and processing
 def generate(prompt, system_instruction = None, schema = None, model = None, temperature = 0.1): 
     client, e = get_client()
@@ -95,19 +122,34 @@ def generate(prompt, system_instruction = None, schema = None, model = None, tem
             contents = prompt, 
             config = types.GenerateContentConfig(**config_kwargs), 
         )
+        msg = None
     except Exception as e: 
         msg = str(e)
 
         if "429" in msg or "RESOURCE_EXHAUSTED" in msg:
-            if "per day" in msg.lower() or "PerDay" in msg: 
-                return False, "Daily AI quota used up. Resets at midnight"
-            return False, "Too many requests. Wait a minute and try again"
-        if "API_KEY_INVALID" in msg or "401" in msg or "403" in msg: 
+            if "per day" in msg.lower() or "PerDay" in msg:
+
+                # If main AI model requests per day is exhausted, try the backups
+                response_backup, msg_backup = try_backup_models(client, prompt, config_kwargs)
+
+                if not response_backup:
+                    return False, "Daily AI quota used up. Resets at midnight"
+
+            if not response_backup:
+                return False, "Too many requests. Wait a minute and try again"
+        if "API_KEY_INVALID" in msg or "401" in msg or "403" in msg and not response_backup: 
             return False, "Gemini API key was rejected. Check GEMINI_API_KEY in .env."
         
         #if none of the errors mentioned above
-        return False, f"Gemini request failed: {msg}"
-    
+        if not response_backup:
+            return False, f"Gemini request failed: {msg}"
+
+    # Try using the backup response if it exists
+    try:
+        response = response_backup
+    except Exception as e:
+        pass
+
     text = getattr(response, "text", None)
     if not text: 
         return False, "Gemini returned an empty response."
