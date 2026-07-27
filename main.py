@@ -39,8 +39,7 @@ def hide_overlay():
         bg_listener.start()
     elif view_handler.is_control_panel_open:
         stop_all_pynput_keyboard_listeners()
-        view_handler.gui_queue.put("close_control_panel")
-        view_handler.gui_queue.put("hide_overlay")
+        view_handler.gui_queue.put("close_control_panel/entry=bg_listener_mode")
 
 def trigger_overlay():
     if not view_handler.is_control_panel_open:
