@@ -2,6 +2,7 @@ import tkinter as tk
 import queue
 import sys
 from pynput import keyboard
+from urllib.parse import urlparse, parse_qs
 
 from views.control_panel_view import control_panel_init
 from views.overlay_view import trigger_overlay, hide_overlay, flash_red_overlay, overlay_init, trigger_textbox, destroy_textbox, append_textbox, trigger_change_template, destroy_change_template, change_template_display
@@ -62,9 +63,14 @@ def check_queue(root):
         elif msg.startswith("append_textbox_"):
             append_textbox(root, msg.removeprefix("append_textbox_"))
 
-        # For returning back to Overlay Mode from CP-Mode with COMBINATION
-        elif msg == "close_control_panel":
-            delete_control_panel_handler(root)
+        # For returning back to Overlay Mode or BG Listener Mode from CP-Mode with COMBINATION
+        elif msg.startswith("close_control_panel"):
+            entry_point = msg.removeprefix("close_control_panel/entry=")
+            print(entry_point)
+            if entry_point == "bg_listener_mode":
+                delete_control_panel_handler(root, entry=entry_point)
+            else:
+                delete_control_panel_handler(root, entry="overlay_mode")
         
         # For Exiting the App
         elif msg == "destroy_root":
@@ -92,17 +98,22 @@ def root_init():
     root.protocol("WM_DELETE_WINDOW", lambda: delete_control_panel_handler(root))
     return root
 
-def delete_control_panel_handler(root):
+def delete_control_panel_handler(root, entry="overlay_mode"):
     global is_control_panel_open, is_overlay_triggered
 
     # Close the Control Panel and switch on the Overlay
     overlay_init(root)
     is_control_panel_open = False
-    is_overlay_triggered = True
-    trigger_overlay(root)
-    # Start a new overlay_listener which listens and catches just "\"
-    overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: main.win32_keyboard_filter(msg, data, overlay_listener))
-    overlay_listener.start()
+
+    if entry == "overlay_mode":
+        is_overlay_triggered = True
+        trigger_overlay(root)
+        # Start a new overlay_listener which listens and catches just "\"
+        # Start this only if the we are entering Overlay Mode
+        overlay_listener = keyboard.Listener(win32_event_filter=lambda msg, data: main.win32_keyboard_filter(msg, data, overlay_listener))
+        overlay_listener.start()
+    elif entry == "bg_listener_mode":
+        is_overlay_triggered = False
 
     # Starts a new bg_listener to listen for COMBINATION too
     bg_listener = keyboard.Listener(on_press=lambda key: main.on_press_bg(key, bg_listener), on_release=lambda key: main.on_release_bg(key, bg_listener))
