@@ -70,7 +70,7 @@ def overlay_init(root):
     instructions = tk.Label(change_template, text="Press ESC to exit, arrow keys to change templates", bg="black", fg="white", name="instructions")
     instructions.pack()
 
-    textbox.withdraw()
+    change_template.withdraw()
 
     # Make sure all of the above tasks of drawing out the overlay view's root window is updated before withdrawing
     # This is because the OS doesnt update anything while the root window is withdrawn
