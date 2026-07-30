@@ -88,13 +88,13 @@ def build_latex_workspace(root, COLORS, FONTS):
     preview_label = tk.Frame(latex_output_container, bg="white", name="preview_label")
     preview_label.pack(fill="both", expand=True)
 
-    # LaTeX download button
-    download_button = tk.Button(preview_label, text="Download", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: download_latex(canvas)), name="download_button")
-    download_button.place(in_=preview_label, relx=1, rely=1, anchor="se")
-
     # Initialise the latex window the moment the output frame is mounted
     global canvas
     canvas = latex.init_latex_window_codecogs(preview_label, "white")
+
+    # LaTeX download button
+    download_button = tk.Button(preview_label, text="Download", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: download_latex(canvas)), name="download_button")
+    download_button.place(in_=preview_label, relx=1, rely=1, anchor="se")
 
     # LaTeX compiler button
     compile_button = tk.Button(editor_container, text="Compile", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: compile_latex_codecogs(canvas, text_editor)), name="compile_button")
