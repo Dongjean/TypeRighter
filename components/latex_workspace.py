@@ -40,9 +40,6 @@ def insert_latex_shortcut(editor_container, latex_code):
 def build_latex_workspace(root, COLORS, FONTS):
 
     # Frame for LaTeX workspace
-    latex_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="latex_frame")
-    latex_frame.pack(side="top", fill="both", expand=True)
-
     latex_frame = scroll.ScrollableFrame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="latex_frame")
     latex_frame.pack(side="top", fill="both", expand=True)
 
@@ -61,12 +58,6 @@ def build_latex_workspace(root, COLORS, FONTS):
     # LaTeX Shortcuts Container
     latex_shortcuts_container = tk.Frame(editor_container, bg=COLORS["bg_main"], name="latex_shortcuts_container")
     latex_shortcuts_container.pack()
-
-    # # Fake list of LaTeX Shortcuts
-    # LATEX_SHORTCUTS = {
-    #     "frac_shortcut": {"name": "Fraction", "code": r"\frac{a}{b}"},
-    #     "matrix_shortcut_1": {"name": "3x3 Identity Matrix", "code": r"\begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}"},
-    # }
 
     LATEX_SHORTCUTS = shortcuts_unicode.all_latex_shortcuts()
 

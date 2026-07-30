@@ -68,9 +68,6 @@ def back(settings_frame, subwindow_label):
 def build_settings_window(root, COLORS, FONTS):
 
     # Frame for Settings Window
-    settings_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="settings_frame")
-    settings_frame.pack(side="top", fill="both", expand=True)
-    
     settings_frame = scroll.ScrollableFrame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="settings_frame")
     settings_frame.pack(side="top", fill="both", expand=True)
 

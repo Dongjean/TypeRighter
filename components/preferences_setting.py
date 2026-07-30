@@ -386,9 +386,6 @@ def delete_template(template_selector_hub, template_editor_hub):
 def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     
     # Preferences Frame
-    preferences_frame = tk.Frame(settings_subwindow_container, bg=COLORS["bg_input"], takefocus=True, name="preferences_frame")
-    preferences_frame.pack(expand=True)
-    
     preferences_frame = scroll.ScrollableFrame(settings_subwindow_container, bg=COLORS["bg_input"], takefocus=True, name="preferences_frame")
     preferences_frame.pack(expand=True)
 
