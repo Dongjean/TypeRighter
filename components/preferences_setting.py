@@ -137,7 +137,7 @@ def _rebind_key(parent, to_bind, old_key, COLORS, FONTS):
             shortcuts_unicode.remove_unicode_binding(old_key)
             if email:
                 templates.update_template(email, template_name, bindings)
-            _refresh_both(parent, COLORS, FONTS)
+            _refresh_all(parent, COLORS, FONTS)
             if new_key.lower() != old_key.lower(): 
                 shortcuts_unicode.remove_unicode_binding(old_key)
                 if email:
@@ -161,7 +161,7 @@ def _unbind_key(keybinds_display_container, preferences_frame, COLORS, FONTS, ke
     if email:
         bindings = shortcuts_unicode.all_bindings()
         templates.update_template(email, template_name, bindings)
-    _refresh_both(preferences_frame, COLORS, FONTS)
+    _refresh_all(preferences_frame, COLORS, FONTS)
 
 def _refresh_phrasebinds(phrasebind_display_container, preferences_frame,COLORS, FONTS):
 
@@ -200,13 +200,12 @@ def _unbind_phrase(phrasebind_display_container, preference_frame, COLORS, FONTS
     if email:
         bindings = shortcuts_unicode.all_bindings()
         templates.update_template(email, template_name, bindings)
-    _refresh_both(preference_frame, COLORS, FONTS)
+    _refresh_all(preference_frame, COLORS, FONTS)
     
-def _refresh_both(preferences_frame, COLORS, FONTS): 
+def _refresh_all(preferences_frame, COLORS, FONTS): 
     _refresh_keybinds(preferences_frame.keybinds_display_container, preferences_frame, COLORS, FONTS)
     _refresh_phrasebinds(preferences_frame.phrasebinds_display_container, preferences_frame, COLORS, FONTS)
-
-
+    _refresh_latex_shortcuts(preferences_frame.latex_shortcuts_display_container, preferences_frame, COLORS, FONTS)
         
 def _refresh_latex_shortcuts(latex_shortcuts_display_container, preferences_frame, COLORS, FONTS):
     
@@ -282,7 +281,7 @@ def on_template_selection(event, template_selector, preferences_frame, COLORS, F
         settings.set_setting("curr_template", selected_template, curr_user)
         shortcuts_unicode.load()
         main.update_breakout_key()
-        _refresh_both(preferences_frame, COLORS, FONTS)
+        _refresh_all(preferences_frame, COLORS, FONTS)
 
         root = template_selector.winfo_toplevel()
         navbar_frame = root.nametowidget("navbar_frame")
@@ -493,6 +492,8 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     curr_latex_shortcuts = shortcuts_unicode.all_latex_shortcuts()
 
     latex_shortcuts_display_container = tk.Frame(latex_shortcuts_container, bg=COLORS["bg_input"], name="latex_shortcuts_display_container")
+
+    preferences_frame.latex_shortcuts_display_container = latex_shortcuts_display_container
 
     # Show Each LaTeX Shortcut
     for key, latex_shortcut in curr_latex_shortcuts.items():
