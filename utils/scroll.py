@@ -20,8 +20,9 @@ class ScrollableFrame(tk.Frame):
         self.MIN_HEIGHT = 700
 
         bg = kwargs.get("bg")
+        name = kwargs.get("name")
 
-        self.canvas = tk.Canvas(self, highlightthickness=0, bg=bg)
+        self.canvas = tk.Canvas(self, highlightthickness=0, bg=bg, name=f"scrollable_{name}")
 
         self.y_scrollbar_cont = tk.Frame(self, bg=bg, padx=0, pady=0)
         self.y_scrollbar = tk.Scrollbar(self.y_scrollbar_cont, orient="vertical", command=self.canvas.yview)
@@ -39,6 +40,8 @@ class ScrollableFrame(tk.Frame):
             self._on_frame_configure,
         )
 
+        self.scrollable_frame.focus_set()
+
         self.window_id = self.canvas.create_window(
             (0, 0), window=self.scrollable_frame, anchor="nw"
         )
@@ -49,9 +52,25 @@ class ScrollableFrame(tk.Frame):
             lambda e: self._on_canvas_configure(e),
         )
 
+        self.scrollable_frame.bind_all("<Shift-MouseWheel>", lambda e: self._on_mousewheel(e, scroll_type="x"))
+        self.scrollable_frame.bind_all("<MouseWheel>", lambda e: self._on_mousewheel(e, scroll_type="y"))
+        
         self.canvas.pack(side="left", fill="both", expand=True)
 
     def _on_mousewheel(self, event, scroll_type):
+
+        root = self.nametowidget(".")
+        curr_widget_tree = str(event.widget)
+        print(curr_widget_tree)
+        ancestors = curr_widget_tree.split(".")
+        scroll_canvas = self.canvas
+        for i, ancestor in enumerate(reversed(ancestors)):
+            if ancestor.startswith("scrollable_"):
+                try:
+                    scroll_canvas = root.nametowidget(".".join(ancestors[:len(ancestors) - i]))
+                    break
+                except Exception as e:
+                    pass
 
         # Windows and macOS
         if event.delta:
@@ -65,9 +84,9 @@ class ScrollableFrame(tk.Frame):
             return
 
         if scroll_type == "x":
-            self.canvas.xview_scroll(amount, "units")
+            scroll_canvas.xview_scroll(amount, "units")
         else:
-            self.canvas.yview_scroll(amount, "units")
+            scroll_canvas.yview_scroll(amount, "units")
         
     def _on_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
@@ -78,7 +97,6 @@ class ScrollableFrame(tk.Frame):
 
         if canvas_width < self.MIN_WIDTH:
             self.x_scrollbar.pack(fill="x", expand=True)
-            self.canvas.bind_all("<Shift-MouseWheel>", lambda e: self._on_mousewheel(e, scroll_type="x"))
 
             self.canvas.itemconfig(self.window_id, width=self.MIN_WIDTH)
         else:
@@ -86,17 +104,10 @@ class ScrollableFrame(tk.Frame):
                 self.x_scrollbar.pack_forget()
             except Exception as e:
                 pass
-
-            try:
-                self.canvas.unbind("<Shift-MouseWheel>", "")
-            except Exception as e:
-                pass
-
             self.canvas.itemconfig(self.window_id, width=canvas_width)
 
         if canvas_height < self.MIN_HEIGHT:
             self.y_scrollbar.pack(fill="y", expand=True)
-            self.canvas.bind_all("<MouseWheel>", lambda e: self._on_mousewheel(e, scroll_type="y"))
             
             self.canvas.itemconfig(self.window_id, height=self.MIN_HEIGHT)
         else:
@@ -104,10 +115,4 @@ class ScrollableFrame(tk.Frame):
                 self.y_scrollbar.pack_forget()
             except Exception as e:
                 pass
-
-            try:
-                self.canvas.unbind("<MouseWheel>", "")
-            except Exception as e:
-                pass
-            
             self.canvas.itemconfig(self.window_id, height=canvas_height)
