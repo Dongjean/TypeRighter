@@ -2,6 +2,7 @@ import tkinter as tk
 
 import utils.latex as latex
 import utils.shortcuts_unicode as shortcuts_unicode
+import utils.scroll as scroll
 
 canvas = None
 
@@ -42,16 +43,19 @@ def build_latex_workspace(root, COLORS, FONTS):
     latex_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="latex_frame")
     latex_frame.pack(side="top", fill="both", expand=True)
 
+    latex_frame = scroll.ScrollableFrame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="latex_frame")
+    latex_frame.pack(side="top", fill="both", expand=True)
+
     # Header Titles
     # Set to be at the top, centred (expand=False by default)
-    title_label = tk.Label(latex_frame, text="LaTeX Equation Editor", fg=COLORS["text_main"], bg=COLORS["bg_main"], font=FONTS["font_title"], name="title_label")
+    title_label = tk.Label(latex_frame.scrollable_frame, text="LaTeX Equation Editor", fg=COLORS["text_main"], bg=COLORS["bg_main"], font=FONTS["font_title"], name="title_label")
     title_label.pack(fill="x", pady=0)
     
-    subtitle_label = tk.Label(latex_frame, text="Edit and preview complex mathematical formulas", fg=COLORS["text_muted"], bg=COLORS["bg_main"], font=FONTS["font_subtitle"], name="subtitle_label")
+    subtitle_label = tk.Label(latex_frame.scrollable_frame, text="Edit and preview complex mathematical formulas", fg=COLORS["text_muted"], bg=COLORS["bg_main"], font=FONTS["font_subtitle"], name="subtitle_label")
     subtitle_label.pack(fill="x", pady=(0, 15))
 
     # Editor Container (LaTeX input text)
-    editor_container = tk.Frame(latex_frame, bg=COLORS["bg_main"], bd=0, name="editor_container")
+    editor_container = tk.Frame(latex_frame.scrollable_frame, bg=COLORS["bg_main"], bd=0, name="editor_container")
     editor_container.pack(fill="both", expand=True)
 
     # LaTeX Shortcuts Container
@@ -75,7 +79,7 @@ def build_latex_workspace(root, COLORS, FONTS):
     text_editor.pack(fill="both", expand=True)
 
     # LaTeX Output Container
-    latex_output_container = tk.Frame(latex_frame, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, height=150, name="latex_output_container")
+    latex_output_container = tk.Frame(latex_frame.scrollable_frame, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, height=150, name="latex_output_container")
     latex_output_container.pack(fill="x", pady=(5, 20))
     # Fix the height of the LaTeX Output Container
     latex_output_container.pack_propagate(False)
