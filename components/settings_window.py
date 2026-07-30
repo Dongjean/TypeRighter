@@ -2,6 +2,7 @@ import tkinter as tk
 
 from components.preferences_setting import build_preferences_setting, destroy_preferences_setting
 from components.another_setting import build_another_setting, destroy_another_setting
+import utils.scroll as scroll
 
 is_selecting = True
 curr_subwindow = ""
@@ -49,7 +50,7 @@ def select_setting(selected_setting, settings_container, subwindow_label, COLORS
 
 def back(settings_frame, subwindow_label):
     global curr_subwindow
-    settings_container = settings_frame.nametowidget("settings_container")
+    settings_container = settings_frame.scrollable_frame.nametowidget("settings_container")
     settings_subwindow_container = settings_container.nametowidget("settings_subwindow_container")
     settings_selection_container = settings_container.nametowidget("settings_selection_container")
 
@@ -69,14 +70,17 @@ def build_settings_window(root, COLORS, FONTS):
     # Frame for Settings Window
     settings_frame = tk.Frame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="settings_frame")
     settings_frame.pack(side="top", fill="both", expand=True)
+    
+    settings_frame = scroll.ScrollableFrame(root, bg=COLORS["bg_main"], padx=20, pady=20, takefocus=True, name="settings_frame")
+    settings_frame.pack(side="top", fill="both", expand=True)
 
     # Header Titles
     # Set to be at the top, centred (expand=False by default)
-    title_label = tk.Label(settings_frame, text="Settings", fg=COLORS["text_main"], bg=COLORS["bg_main"], font=FONTS["font_title"], name="title_label")
+    title_label = tk.Label(settings_frame.scrollable_frame, text="Settings", fg=COLORS["text_main"], bg=COLORS["bg_main"], font=FONTS["font_title"], name="title_label")
     title_label.pack(fill="x", pady=0)
 
     # Subwindow Header
-    subwindow_header = tk.Frame(settings_frame, bg=COLORS["bg_main"], name="subwindow_header")
+    subwindow_header = tk.Frame(settings_frame.scrollable_frame, bg=COLORS["bg_main"], name="subwindow_header")
     subwindow_header.pack(fill="x", pady=0)
 
     # Subwindow Label
@@ -90,7 +94,7 @@ def build_settings_window(root, COLORS, FONTS):
     # Settings Container to contain the settings selector and settings sub-windows
     # If is_selecting == True, we display the settings selection menu
     # If is_selecting == False, we display the individual settings sub-window
-    settings_container = tk.Frame(settings_frame, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, name="settings_container")
+    settings_container = tk.Frame(settings_frame.scrollable_frame, bg=COLORS["bg_input"], bd=1, highlightbackground=COLORS["border"], highlightthickness=1, name="settings_container")
     settings_container.pack(fill="both", expand=True)
     
     # For is_selecting == False

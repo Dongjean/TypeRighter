@@ -7,6 +7,7 @@ import main as main
 import views.view_handler as view_handler
 import utils.auth as auth
 import utils.templates as templates
+import utils.scroll as scroll
 
 import components.navbar as navbar
 
@@ -388,6 +389,9 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     preferences_frame = tk.Frame(settings_subwindow_container, bg=COLORS["bg_input"], takefocus=True, name="preferences_frame")
     preferences_frame.pack(expand=True)
     
+    preferences_frame = scroll.ScrollableFrame(settings_subwindow_container, bg=COLORS["bg_input"], takefocus=True, name="preferences_frame")
+    preferences_frame.pack(expand=True)
+
     # Check if the user is logged in
     email, e = auth.get_email()
     if email:
@@ -397,7 +401,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
         curr_template_names = list(curr_templates)
 
         # Templates Selector Container
-        template_selector_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="template_selector_container")
+        template_selector_container = tk.Frame(preferences_frame.scrollable_frame, bg=COLORS["bg_input"], name="template_selector_container")
         template_selector_container.pack(fill="x", anchor="center")
 
         # Templates Selector Hub
@@ -452,7 +456,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     # Display the Keybinds Under the Selected Template
     
     # Current Keybinds Container
-    keybinds_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="curr_keybinds_container")
+    keybinds_container = tk.Frame(preferences_frame.scrollable_frame, bg=COLORS["bg_input"], name="curr_keybinds_container")
     keybinds_container.pack()
     
     # Keybinds Label
@@ -467,7 +471,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
 
     keybinds_label.bind("<Button-1>", lambda e: toggle_binds_expansion(keybinds_display_container,keybinds_label))
 
-    phrasebinds_container = tk.Frame(preferences_frame, bg= COLORS["bg_input"], name ="phrasebinds_container")
+    phrasebinds_container = tk.Frame(preferences_frame.scrollable_frame, bg= COLORS["bg_input"], name ="phrasebinds_container")
     phrasebinds_container.pack()
 
     phrasebinds_label = tk.Label(phrasebinds_container, bg= COLORS["bg_input"], font= FONTS ["font_subtitle"], fg= COLORS["text_main"], text = "Current Phrase Bindings  ▼", name ="phrasebinds_label")
@@ -482,7 +486,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
 
     phrasebinds_label.bind("<Button-1>", lambda e: toggle_binds_expansion(phrasebinds_display_container, phrasebinds_label))
 
-    latex_shortcuts_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="latex_shortcuts_container")
+    latex_shortcuts_container = tk.Frame(preferences_frame.scrollable_frame, bg=COLORS["bg_input"], name="latex_shortcuts_container")
     latex_shortcuts_container.pack()
 
     # LaTeX Shortcut Label
@@ -518,7 +522,7 @@ def build_preferences_setting(settings_subwindow_container, COLORS, FONTS):
     # New LaTeX Shortcut Adder
 
     # LaTeX Shortcut Adder Container
-    latex_shortcut_adder_container = tk.Frame(preferences_frame, bg=COLORS["bg_input"], name="latex_shortcut_adder_container")
+    latex_shortcut_adder_container = tk.Frame(preferences_frame.scrollable_frame, bg=COLORS["bg_input"], name="latex_shortcut_adder_container")
     latex_shortcut_adder_container.pack()
 
     latex_shortcuts_adder_label = tk.Label(latex_shortcut_adder_container, bg=COLORS["bg_input"], font=FONTS["font_subtitle"], fg=COLORS["text_main"], text="Add a new LaTeX Shortcut ▼", name="latex_shortcuts_adder_label")
