@@ -3,7 +3,7 @@ from tkinter import ttk
 
 import utils.shortcuts_unicode as shortcuts_unicode
 import utils.settings as settings
-import main as main
+import __main__ as main
 import views.view_handler as view_handler
 import utils.auth as auth
 import utils.templates as templates
