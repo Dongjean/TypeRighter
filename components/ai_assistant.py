@@ -121,17 +121,118 @@ def _build_latex_tab(parent, COLORS, FONTS):
  
     return latex_AI_tab
 
+def _build_notation_tab(parent, COLORS, FONTS):
+    frame = tk.Frame(parent, bg=COLORS["bg_main"], padx=15, pady=15, name="notation_ai_tab")
+ 
+    tk.Label(
+        frame,
+        text="Paste a symbol you don't recognise, or describe one you're looking for:",
+        fg=COLORS["text_main"], bg=COLORS["bg_main"], font=FONTS["font_subtitle"], anchor="w",
+    ).pack(fill="x", pady=(0, 6))
+ 
+    query = tk.StringVar()
+    entry = tk.Entry(frame, textvariable=query, bg=COLORS["bg_input"], fg=COLORS["text_main"],
+                     insertbackground="white", bd=1, highlightbackground=COLORS["border"],
+                     highlightthickness=1, font=FONTS["font_subtitle"], name="notation_entry")
+    entry.pack(fill="x", ipady=6)
+ 
+    controls = tk.Frame(frame, bg=COLORS["bg_main"])
+    controls.pack(fill="x", pady=(8, 10))
+ 
+    status = tk.Label(controls, text="", fg=COLORS["text_muted"], bg=COLORS["bg_main"],
+                      font=FONTS["font_subtitle"], anchor="w", name="notation_status")
+    status.pack(side="left", fill="x", expand=True)
+ 
+    generate_btn = tk.Button(controls, text="Generate", bg=COLORS["border"],
+                             fg=COLORS["text_main"], bd=0, relief="flat",
+                             font=FONTS["font_subtitle"], name="notation_ask_button")
+    generate_btn.pack(side="right")
+ 
+    summary = _display_text(frame, COLORS, FONTS, height=4, name="notation_summary")
+    summary.pack(fill="x")
+ 
+    results_frame = tk.Frame(frame, bg=COLORS["bg_main"], name="notation_results")
+    results_frame.pack(fill="both", expand=True, pady=(10, 0))
+ 
+    def bind_symbol(char, name):
+        """
+        Reuse your existing binding flow. This deliberately calls the same
+        shortcuts_unicode / templates functions the Unicode Search panel uses,
+        so an AI-suggested symbol is bound exactly like a hand-searched one --
+        no second code path to keep in sync.
+        """
+        import components.unicode_searchpanel as unicode_searchpanel
+        root = frame.winfo_toplevel()
+        unicode_searchpanel._bind_key(
+            root, char, name, COLORS, FONTS,
+            lambda msg: status.config(text=msg, fg=COLORS["accent_blue"]),
+        )
+ 
+    def render(symbols):
+        for child in results_frame.winfo_children():
+            child.destroy()
+ 
+        for s in symbols:
+            row = tk.Frame(results_frame, bg=COLORS["bg_input"])
+            row.pack(fill="x", pady=2)
+ 
+            tk.Label(row, text=s["character"], fg=COLORS["text_main"], bg=COLORS["bg_input"],
+                     font=FONTS["font_title"], width=3).pack(side="left", padx=(8, 4))
+ 
+            info = tk.Frame(row, bg=COLORS["bg_input"])
+            info.pack(side="left", fill="x", expand=True)
+ 
+            header = f"{s['unicode_name']} (U+{s['codepoint']:04X})"
+            if s.get("latex"):
+                header += f"   {s['latex']}"
+            tk.Label(info, text=header, fg=COLORS["text_muted"], bg=COLORS["bg_input"],
+                     font=FONTS["font_subtitle"], anchor="w").pack(fill="x")
+            tk.Label(info, text=s.get("meaning", ""), fg=COLORS["text_main"],
+                     bg=COLORS["bg_input"], font=FONTS["font_subtitle"], anchor="w",
+                     wraplength=420, justify="left").pack(fill="x")
+ 
+            btn = tk.Button(row, text="bind", fg=COLORS["action_green"], bg=COLORS["bg_input"],
+                            font=FONTS["font_subtitle"], bd=0)
+            btn.config(command=lambda c=s["character"], n=s["unicode_name"]: bind_symbol(c, n))
+            btn.pack(side="right", padx=8)
+ 
+    def on_result(ok, payload):
+        _set_busy(status, generate_btn, False, COLORS)
+        if not ok:
+            _compile_error(status, payload, COLORS)
+            return
+        _replace_text(summary, payload["summary"])
+        render(payload["symbols"])
+        if not payload["symbols"]:
+            status.config(text="No verifiable symbols found.", fg=COLORS["text_muted"])
+ 
+    def on_ask(event=None):
+        q = query.get().strip()
+        if not q:
+            _compile_error(status, "Enter a symbol or a description first.", COLORS)
+            return "break"
+        _set_busy(status, generate_btn, True, COLORS)
+        ai_assist.explain_notation(frame, q, on_result)
+        return "break"
+ 
+    generate_btn.config(command=on_ask)
+    entry.bind("<Return>", on_ask)
+    entry.focus_set()
+ 
+    return frame
+
 def build_ai_assistant(root, COLORS, FONTS): 
     outer = tk.Frame(root, bg = COLORS["bg_main"], padx = 20, pady =20, takefocus = True, name = "ai_assistant_frame")
     outer.pack(side ="top", fill ="both", expand = True)
 
     tk.Label(outer, text ="AI Assistant", fg = COLORS["text_main"], bg = COLORS["bg_main"], font = FONTS["font_subtitle"], name = "title_label").pack(fill ="x")
 
-    tk.Label(outer, text ="Generate LaTeX from a description", fg = COLORS["text_muted"], bg = COLORS["bg_main"], font = FONTS["font_subtitle"], name ="subtitle_label").pack(fill ="x", pady = (0,15))
+    tk.Label(outer, text ="Generate LaTeX and look up notation", fg = COLORS["text_muted"], bg = COLORS["bg_main"], font = FONTS["font_subtitle"], name ="subtitle_label").pack(fill ="x", pady = (0,15))
 
     notebook = ttk.Notebook(outer, name ="ai_notebook")
     notebook.pack(fill="both", expand = True)
     notebook.add(_build_latex_tab(notebook, COLORS, FONTS), text="LaTeX")
+    notebook.add(_build_notation_tab(notebook, COLORS, FONTS), text="Notation")
 
 def destroy_ai_assistant(root): 
     for widget in root.winfo_children(): 
