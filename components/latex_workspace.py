@@ -5,14 +5,35 @@ import utils.shortcuts_unicode as shortcuts_unicode
 
 canvas = None
 
+_busy = False 
 # Compile the LaTeX code
-def compile_latex_codecogs(canvas, text_editor):
+def compile_latex_codecogs(canvas, text_editor, compile_button = None):
+    global _busy
 
-    # Get all text minus the auto-added trailing newline
-    latex_code = text_editor.get("1.0", "end-1c")
+    if _busy: 
+        return "break"
+    else: 
+        _busy = True 
 
-    latex.display_latex_window_codecogs(canvas, latex_code)
-    latex.copy_canvas_image(canvas)
+    try: 
+
+        if compile_button is not None: 
+            compile_button.config(state="disabled", text = "Compiling...")
+            compile_button.update_idletasks()
+
+
+        # Get all text minus the auto-added trailing newline
+        latex_code = text_editor.get("1.0", "end-1c")
+
+        latex.display_latex_window_codecogs(canvas, latex_code)
+        latex.copy_canvas_image(canvas)
+
+    finally:
+        #to restore the button to compile regardless of state 
+        if compile_button is not None: 
+            compile_button.config(state="normal", text = "Compile")
+        _busy = False 
+
 
     return "break"
 
@@ -93,12 +114,12 @@ def build_latex_workspace(root, COLORS, FONTS):
     canvas = latex.init_latex_window_codecogs(preview_label, "white")
 
     # LaTeX compiler button
-    compile_button = tk.Button(editor_container, text="Compile", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: compile_latex_codecogs(canvas, text_editor)), name="compile_button")
+    compile_button = tk.Button(editor_container, text="Compile", bg=COLORS["border"], fg=COLORS["text_main"], bd=0, relief="flat", font=FONTS["font_subtitle"], command=(lambda: compile_latex_codecogs(canvas, text_editor, compile_button)), name="compile_button")
     compile_button.pack(side="right")
 
     # Listen to Enter key anywhere
-    root.bind("<Return>", lambda event: compile_latex_codecogs(canvas, text_editor))
-    text_editor.bind("<Return>", lambda event: compile_latex_codecogs(canvas, text_editor))
+    root.bind("<Return>", lambda event: compile_latex_codecogs(canvas, text_editor, compile_button))
+    text_editor.bind("<Return>", lambda event: compile_latex_codecogs(canvas, text_editor, compile_button))
 
     # Listen for Shift + Enter for breaklines
     root.bind("<Shift-Return>", lambda event: None)
